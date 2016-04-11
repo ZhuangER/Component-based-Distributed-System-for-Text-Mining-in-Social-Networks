@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+svg.datamap{
+  background: black;
+}
+
+html {
+  background: black;
+}
+
+/*#datamaps-bubble {
+  background: -webkit-gradient(radial, 50% 50%, 50, 50% 50%, 70, from(rgba(255,255,255,0)), to(rgba(255,255,255,1)));
+}*/
+
+</style>
+<body>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="http://d3js.org/topojson.v1.min.js"></script>
+<script src="http://datamaps.github.io/scripts/0.4.4/datamaps.world.min.js"></script>
+
+<div id="container" style="position: relative; width: 1600px; height: 1000px;"></div>
+<script>
+
+      var countryColors = 
+      [ "#0000FF",
+        "#0066FF",
+        "#3399FF",
+        "#66CCFF",
+        "#CCFFFF",
+        "#CCFFCC",
+        "#FFFFCC",
+        "#FFFF99",
+        "#FFFF66",
+        "#FFFF00",
+        "#FFFF00"];
+
+      var source = new EventSource('/stream');
+      var hashSentence = {};
+      var hashPersonalSentiment = {};
+      var hashCountry = {};
+      var hashCountrySentiment = {};
+      var sentimentWords = ["unhappy", "medium unhappy", "neutral", "medium happy", "happy"];
+
+      source.onmessage = function (event) {
+        var geoinfo = event.data.split("DELIMITER")[0];
+        var sentence = event.data.split("DELIMITER")[1];
+        var personalSentiment = event.data.split("DELIMITER")[2];
+        var countryName = event.data.split("DELIMITER")[3];
+        var countrySentiment = event.data.split("DELIMITER")[4];
+        
+        //var point = [latitude, longitude];
+        //console.log("NEW DATA IS HERE " + event.data);
+
+        hashSentence[geoinfo]=sentence;
+        hashPersonalSentiment[geoinfo]=personalSentiment;
+        hashCountry[geoinfo] = countryName;
+        hashCountrySentiment[countryName] = countrySentiment; 
+        //hashURLInfo[county_id]=URLInfo;
+
+      };
+
+var projection, path;
+/*var width = 960,
+    height = 500;*/
+     var map = new Datamap({
+        element: document.getElementById('container'),
+        scope: 'world',
+// earth view
+/*        setProjection: function(element, options) {
+          projection = d3.geo.orthographic()
+          .scale(250)
+          .translate([width / 2, height / 2])
+          .clipAngle(90);
+
+          path = d3.geo.path()
+                .projection(projection);
+          return {path: path, projection: projection};
+        },*/
+
+        // normal view
+        setProjection: function(element, options) {
+            
+            projection = d3.geo.mercator()
+                .scale((element.offsetWidth + 1) / 2 / Math.PI)
+                .translate([element.offsetWidth / 2, element.offsetHeight / 1.45 ]);
+
+            path = d3.geo.path()
+                .projection( projection );
+
+            return {path: path, projection: projection};
+        },
+        fills: {
+            "bubbleSentiment0":"#4B0082",
+            "bubbleSentiment1":"#3399FF",
+            "bubbleSentiment2":"#CCFFFF",
+            "bubbleSentiment3":"#FFFFCC",
+            "bubbleSentiment4":"#FFFF00",
+            defaultFill: '#black'
+        },
+
+        data: {
+        },
+
+        geographyConfig: {
+          highlightOnHover: true,
+          highlightFillColor: '#02AF9C',
+          borderWidth: 1,
+          borderOpacity: 0.3,
+          highlightBorderOpacity: 0.3,
+        },
+
+        bubblesConfig: {
+          borderWidth: 5,
+          borderOpacity: 0.3,
+          fillOpacity: 0.75,
+          hightlightBorderWidth: 0,
+          /*highlightFillOpacity: 0.3,*/
+          highlightBorderOpacity: 0.3,
+          animate: true
+        },
+
+/*         geographyConfig: {
+            dataUrl: '/static/us.json',
+            popupTemplate: function(geo, data) {
+
+              var lineOfTweets = "<p>" + hashSentence[geo.id] + "</p>";
+              
+              console.log(lineOfTweets)
+
+              return ['<div class="hoverinfo"><strong>'].join('');
+            }
+        },*/
+
+    });
+    /*map.graticule();*/
+
+/*    var λ = d3.scale.linear()
+    .domain([0, width])
+    .range([-180, 180]);
+
+var φ = d3.scale.linear()
+    .domain([0, height])
+    .range([90, -90]);*/
+
+    function componentToHex(c) {
+      var hex = c.toString(16);
+      return hex.length == 1 ? "0" + hex : hex;
+    }
+
+    function rgbToHex(r, g, b) {
+      return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+    }
+
+    function gridentColor(startR, startG, startB, mediumR, mediumG, mediumB, endR, endG, endB, sentiment) {
+      if(sentiment == 0.5) {
+        return rgbToHex(mediumR, mediumG, mediumB);
+      }
+      else if (sentiment == 0.0) {
+        return rgbToHex(startR, startG, startB);
+      }
+      else if (sentiment == 1.0) {
+        return rgbToHex(endR, endG, endB);
+      }
+      else if (sentiment < 0.5) {
+        var r = startR + (mediumR - startR) * sentiment * 2;
+        var g = startG + (mediumG - startG) * sentiment * 2;
+        var b = startB + (mediumB - startB) * sentiment * 2;
+        return rgbToHex(Math.round(r), Math.round(g), Math.round(b));
+      }
+      else if (sentiment > 0.5) {
+        var r = mediumR + (endR - mediumR) * (sentiment - 0.5) * 2;
+        var g = mediumG + (endG - mediumG) * (sentiment - 0.5) * 2;
+        var b = mediumB + (endB - mediumB) * (sentiment - 0.5) * 2;
+        return rgbToHex(Math.round(r), Math.round(g), Math.round(b));
+      }
+    }
+
+
+var tweetlist = [];
+
+var updateViz =  function(){
+
+    for(key in hashPersonalSentiment)
+    {
+
+        console.log("REFRESH: " + key + ":" + hashPersonalSentiment[key]);
+        var data = {}; 
+
+        if(hashPersonalSentiment[key])
+        {
+          var latitude = parseFloat(key.split(",")[0]);
+          var longitude = parseFloat(key.split(",")[1]);
+          if (longitude && latitude){
+          tweetlist.push({latitude: latitude, longitude: longitude, radius: 5, sentence: hashSentence[key], country: hashCountry[key], fillKey: 'bubbleSentiment' + hashPersonalSentiment[key].toString(), sentiment: sentimentWords[hashPersonalSentiment[key]]});
+          //data[key] = colors[Math.round(hashSentiment[key]*10)];
+          //draw bubbles
+          map.bubbles(tweetlist, {
+            popupTemplate: function (geo, data){
+              return ['<div class="hoverinfo">' + 'location:' + [data.latitude, data.longitude],
+            '<br/>Sentence: ' +  data.sentence + '',
+            '<br/>Country: ' + data.country + '',
+            '<br/>Sentiment: ' + data.sentiment  +'',
+            '</div>']
+            }
+          });
+          console.log("draw" + {name: hashSentence[key], latitude: latitude, longitude: longitude, radius: 10});
+          }
+        }
+
+/*        for (key in hashCountrySentiment)
+        {
+          var data = {};
+          if (hashCountrySentiment[countryName]) 
+          {
+            data[key] = colors[Math.round(hashCountrySentiment[key]*10)];
+            map.updateChoropleth(data);
+          }
+        }
+
+        hashCountrySentiment = {};*/
+        
+    }
+
+    hashPersonalSentiment = {};
+
+    /*map.updateChoropleth({CA: 'green'})*/
+    // grident color
+
+
+
+    for(key in hashCountrySentiment)
+    {
+
+        console.log("REFRESH: " + key + ":" + hashCountrySentiment[key]);
+        var data = {}; 
+
+        if(hashCountrySentiment[key])
+        {
+          data[key] = gridentColor(75, 0, 130, 204, 255, 255, 255, 255, 0, hashCountrySentiment[key]);
+          map.updateChoropleth(data);
+        
+        }
+    }
+
+    hashCountrySentiment = {};
+
+
+}
+
+/*var svg = d3.select("#container").append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+var λ = d3.scale.linear()
+    .domain([0, width])
+    .range([-180, 180]);
+
+var φ = d3.scale.linear()
+    .domain([0, height])
+    .range([90, -90]);
+
+var scrollSpeed = 50; var current = 0;
+    function bgscroll() {
+      current += 1;
+      projection.rotate([λ(current), 0]);
+      svg.selectAll("path").attr("d", path);
+    }
+window.setInterval(bgscroll, scrollSpeed); */ 
+
+window.setInterval(updateViz, 1000);
+
+</script>
+
+
+</body>

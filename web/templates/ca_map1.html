@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+body {
+  font: 12px sans-serif;
+}
+
+path {
+  stroke-width: 1px;
+  stroke: white;
+  fill: steelblue;
+  cursor: pointer;
+}
+
+path:hover, path.highlighted {
+  fill: tomato;
+}
+
+div.tooltip {
+  position: absolute;
+  background-color: white;
+  border: 1px solid black;
+  color: black;
+  font-weight: bold;
+  padding: 4px 8px;
+  display: none;
+}
+
+
+</style>
+<body>
+
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="http://d3js.org/d3.geo.projection.v0.min.js"></script>
+<script src="http://d3js.org/topojson.v1.min.js"></script>
+<script src="http://datamaps.github.io/scripts/datamaps.usa.js?v=1"></script>
+<script src="/static/js/ca_map.js"></script>
+
+</body>
