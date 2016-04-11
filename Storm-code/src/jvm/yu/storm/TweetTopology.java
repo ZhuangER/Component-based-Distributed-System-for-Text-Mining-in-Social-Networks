@@ -1,11 +1,20 @@
 package yu.storm;
 
+import java.util.Arrays;
+
 import backtype.storm.Config;
 import backtype.storm.LocalCluster;
 import backtype.storm.StormSubmitter;
 import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.tuple.Fields;
 import backtype.storm.utils.Utils;
+import backtype.storm.spout.SchemeAsMultiScheme;
+
+import storm.kafka.BrokerHosts;
+import storm.kafka.KafkaSpout;
+import storm.kafka.SpoutConfig;
+import storm.kafka.StringScheme;
+import storm.kafka.ZkHosts;
 
 
 
@@ -33,12 +42,28 @@ class TweetTopology
             "aHOXUB4nbhZv2vbAeV15ZyTAD0lPPCptCr32N0PX7OaMe"
     );
 
+    String zks = "localhost:2181";
+    String topic = "mytopic";
+    String zkRoot = "/storm"; // default zookeeper root configuration for storm
+    String id = "word";
+         
+    BrokerHosts brokerHosts = new ZkHosts(zks);
+    SpoutConfig spoutConf = new SpoutConfig(brokerHosts, topic, zkRoot, id);
+    spoutConf.scheme = new SchemeAsMultiScheme(new StringScheme());
+    spoutConf.forceFromStart = false;
+    spoutConf.zkServers = Arrays.asList(new String[] {"localhost"});
+    spoutConf.zkPort = 2181;
+
+
+
+    builder.setSpout("kafka-spout", new KafkaSpout(spoutConf), 5); // Kafka我们创建了一个5分区的Topic，这里并行度设置为5
+    builder.setSpout("sentiment-bolt", new SentimentBolt(), 10).shuffleGrouping("kafka-spout");
     // attach the tweet spout to the topology - parallelism of 1
-    builder.setSpout("tweet-spout", tweetSpout, 1);
+    //builder.setSpout("tweet-spout", tweetSpout, 1);
 
     // attach the parse tweet bolt using shuffle grouping
  /*   builder.setBolt("parse-tweet-bolt", new ParseTweetBolt(), 10).shuffleGrouping("tweet-spout");*/
-    builder.setBolt("regex-bolt", new RegexBolt(), 10).shuffleGrouping("tweet-spout");
+    builder.setBolt("regex-bolt", new RegexBolt(), 10).shuffleGrouping("sentiment-bolt");
     builder.setBolt("count-bolt", new CountBolt(), 10).fieldsGrouping("regex-bolt", new Fields("countryName"));
     builder.setBolt("report-bolt", new ReportBolt(), 1).globalGrouping("count-bolt");
 
