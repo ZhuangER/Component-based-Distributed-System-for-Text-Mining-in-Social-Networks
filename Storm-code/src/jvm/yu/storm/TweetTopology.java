@@ -56,7 +56,7 @@ class TweetTopology
 
 
 
-    builder.setSpout("kafka-spout", new KafkaSpout(spoutConf), 5); // Kafka我们创建了一个5分区的Topic，这里并行度设置为5
+    builder.setSpout("kafka-spout", new KafkaSpout(spoutConf), 1); // Kafka我们创建了一个5分区的Topic，这里并行度设置为5
     builder.setSpout("sentiment-bolt", new SentimentBolt(), 10).shuffleGrouping("kafka-spout");
     // attach the tweet spout to the topology - parallelism of 1
     //builder.setSpout("tweet-spout", tweetSpout, 1);
