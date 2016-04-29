@@ -35,12 +35,6 @@ class TweetTopology
      */
     // now create the tweet spout with the credentials
     // credential
-    TweetSpout tweetSpout = new TweetSpout(
-            "WXDgVgeJMwHEn0Z9VHDx5j93h",
-            "DgP9CsaPtG87urpNU14fZySXOjNX4j4v2PqmeTndcjjYBgLldy",
-            "3243813491-ixCQ3HWWeMsthKQvj5MiBvNw3dSNAuAd3IfoDUw",
-            "aHOXUB4nbhZv2vbAeV15ZyTAD0lPPCptCr32N0PX7OaMe"
-    );
 
     String zks = "localhost:2181";
     String topic = "mytopic";
