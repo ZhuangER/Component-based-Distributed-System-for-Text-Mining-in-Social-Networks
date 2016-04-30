@@ -87,6 +87,7 @@ public class RegexBolt extends BaseRichBolt
 
 
 	collector.emit(new Values(originalTweet,geoinfo,matchedEmoticonScore, matchedEmoticon, sentiment, countryName));
+  //collector.ack(tuple);
 
 	/*collector.emit(new Values(originalTweet,word,noun,verb,object, geoinfo,url,0, "", sentiment, countryName));*/
 	

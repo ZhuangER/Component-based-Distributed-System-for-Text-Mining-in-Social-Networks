@@ -109,6 +109,14 @@ public class TwitterProducer {
         String topic = args[1];
         String age = args[2];
         String sync = args[3];
+        /*
+         * In order to create the spout, you need to get twitter credentials
+         * If you need to use Twitter firehose/Tweet stream for your idea,
+         * create a set of credentials by following the instructions at
+         *
+         * https://dev.twitter.com/discussions/631
+         *
+         */
         String custkey = "WXDgVgeJMwHEn0Z9VHDx5j93h";
         String custsecret = "DgP9CsaPtG87urpNU14fZySXOjNX4j4v2PqmeTndcjjYBgLldy";
         String accesstoken = "3243813491-ixCQ3HWWeMsthKQvj5MiBvNw3dSNAuAd3IfoDUw";

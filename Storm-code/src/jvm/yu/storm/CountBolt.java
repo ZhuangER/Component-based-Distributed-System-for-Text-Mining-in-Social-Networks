@@ -95,6 +95,7 @@ public class CountBolt extends BaseRichBolt
 
 		System.out.println("\t\tTopWords\tDEBUG EMIT Tweet " + tweet + ", geoinfo" + geoinfo + ", matcedEmoticon: " + matchedEmoticon + ", sentimentKey: " + sentimentKey + ", countrySentiment: " + countrySentiment + ", personalSentiment: " + personalSentiment + ", countryName: " + countryName);
 		collector.emit(new Values(tweet, geoinfo, countrySentiment, personalSentiment, countryName));
+		//collector.ack(tuple);
 
 	}
 

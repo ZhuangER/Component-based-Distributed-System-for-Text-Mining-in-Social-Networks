@@ -37,6 +37,7 @@ import com.google.common.collect.Lists;
 public class ReportBolt extends BaseRichBolt
 {
   // place holder to keep the connection to redis
+  //private OutputCollector collector;
   transient RedisConnection<String,String> redis;
   @Override
   public void prepare(
@@ -50,6 +51,8 @@ public class ReportBolt extends BaseRichBolt
     redis = client.connect();
 
     CountryCodeConvert.initCountryCodeMapping();
+
+    //collector = outputCollector;
 
   }
 
@@ -67,6 +70,7 @@ public class ReportBolt extends BaseRichBolt
     countryName = CountryCodeConvert.iso2CountryCodeToIso3CountryCode(countryName);
 
     redis.publish("WordCountTopology", geoinfo + "DELIMITER" + tweet + "DELIMITER" + String.valueOf(personalSentiment) + "DELIMITER" + countryName + "DELIMITER" + String.valueOf(countrySentiment));
+    //collector.ack(tuple);
   }
 
   public void declareOutputFields(OutputFieldsDeclarer declarer)
