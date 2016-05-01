@@ -47,7 +47,7 @@ class TweetTopology
     builder.setBolt("regex-bolt", new RegexBolt(), 10).shuffleGrouping("sentiment-bolt");
     builder.setBolt("count-bolt", new CountBolt(), 10).fieldsGrouping("regex-bolt", new Fields("countryName"));
     builder.setBolt("report-bolt", new ReportBolt(), 1).globalGrouping("count-bolt");
-
+    //builder.setBolt("persistence-bolt", new PersistenceBolt(), 1).globalGrouping("count-bolt");
 
     // create the default config object
     Config conf = new Config();
