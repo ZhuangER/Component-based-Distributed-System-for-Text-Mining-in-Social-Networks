@@ -1,4 +1,4 @@
-package yu.storm;
+package yu.storm.bolt;
 
 import backtype.storm.Config;
 import backtype.storm.LocalCluster;
@@ -26,11 +26,6 @@ import yu.storm.tools.CassandraConnection;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
-import com.datastax.driver.core.Cluster;
-import com.datastax.driver.core.Host;
-import com.datastax.driver.core.Metadata;
-import com.datastax.driver.core.Session;
-import com.datastax.driver.core.*;
 
 
 /**
@@ -39,17 +34,6 @@ import com.datastax.driver.core.*;
 public class PersistenceBolt extends BaseRichBolt
 {
   //private OutputCollector collector;
-  Cluster cassandraCluster;
-  Session session;
-
-  public static Cluster connect(String node) {
-    return Cluster.builder()
-        .addContactPoint(node)
-        .build();
-    //session = cluster.connect();
-  }
-  
-
 
   @Override
   public void prepare(
@@ -58,16 +42,12 @@ public class PersistenceBolt extends BaseRichBolt
       OutputCollector         outputCollector)
   {
     // instantiate a cassandra connection
-    //CassandraConnection cassandraClient = new CassandraConnection();
-    cassandraCluster = connect("127.0.0.1");
-    session = cassandraCluster.connect();
+    CassandraConnection cassandraClient = new CassandraConnection();
+    
+    cassandraClient.connect("127.0.0.1");
     System.out.println("Already connected!");
-    //cassandraCluster.close();
+    cassandraClient.close();
     System.out.println("Already close!");
-    /*CassandraConnection.connect("127.0.0.1");
-    System.out.println("Already connected!");
-    CassandraConnection.close();
-    System.out.println("Already close!");*/
     
     //collector = outputCollector;
   }

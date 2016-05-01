@@ -16,6 +16,11 @@ import storm.kafka.SpoutConfig;
 import storm.kafka.StringScheme;
 import storm.kafka.ZkHosts;
 
+import yu.storm.bolt.CountBolt;
+import yu.storm.bolt.PersistenceBolt;
+import yu.storm.bolt.RegexBolt;
+import yu.storm.bolt.ReportBolt;
+import yu.storm.bolt.SentimentBolt;
 
 
 class TweetTopology
