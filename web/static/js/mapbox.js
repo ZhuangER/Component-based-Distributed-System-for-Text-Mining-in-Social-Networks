@@ -16,12 +16,14 @@ geocoderControl.addTo(map);
         // have to be listened after input ENTER, otherwise it will react for every character
         key = 0;
 */      
-var isUniversity;
+//var isUniversity = false;
+// found event
         geocoderControl.on('found', function(res) {
             /*search_result = JSON.stringify(res.results.features[0]);*/
             console.log(res.results.features);
-            isUniversity = false;
-
+            var isUniversity = false;
+            var query_text = $('input').val();
+            console.log(query_text);
             var len = res.results.features.length;
             var temp = res.results.features;
             var text = temp[0]["text"].toLowerCase();
@@ -46,20 +48,26 @@ var isUniversity;
                 }
             }
 
+            if (isUniversity == true) {
+                $.getJSON($SCRIPT_ROOT + '/test', {
+                    query: query_text.toLowerCase()
+                });
+                console.log("Already send to the backend");
+            }
  
         });
-        
+
         // Restrict query with only university
         // once user input enter, the query text will be sent to flask
 /*        
     }
 });*/
 // once user input enter, the query text will be sent to flask
-$('input').keypress(function(e) {
+/*$('input').keypress(function(e) {
     var key = e.which;
     //console.log(key);
     var query_text = $('input').val();
-    //console.log(query_text);
+    console.log(query_text);
     if (key == 13)
     {
         console.log(query_text);        
@@ -68,7 +76,7 @@ $('input').keypress(function(e) {
         });
         isUniversity = false;
     }
-});
+});*/
 
 
 
