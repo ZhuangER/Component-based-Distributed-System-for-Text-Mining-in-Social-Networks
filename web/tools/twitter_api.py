@@ -15,7 +15,7 @@ def search(query):
 	api = tweepy.API(auth)
 
 	# use precise search
-	results = api.search(q='"' + query + '"')
+	results = api.search(q='"' + query + '"', lang="en", count=100)
 
 	for result in results:
 	    print result.text

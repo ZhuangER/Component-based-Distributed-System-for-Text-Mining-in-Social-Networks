@@ -1,6 +1,7 @@
 L.mapbox.accessToken = 'pk.eyJ1Ijoiemh1YW5nZXIiLCJhIjoiY2luOXB6MzFkMGJmcnYwa3FzYmx1eDhodyJ9.sDFTh7q77IGmZAVyQqoKvA';
 
-var map = L.mapbox.map('map', 'mapbox.dark');
+var map = L.mapbox.map('map', 'mapbox.dark')
+    .setView([29, -26], 3);
 var geocoderControl = L.mapbox.geocoderControl('mapbox.places', {
 		/*autocomplete: true*/
 	});
@@ -9,9 +10,10 @@ geocoderControl.addTo(map);
 var search_result;
 
 
+
 geocoderControl.on('found', function(res) {
     search_result = JSON.stringify(res.results.features[0]);
-    //console.log(res.results.features);
+    console.log(res.results.features);
     var len = res.results.features.length;
     var temp = res.results.features;
     var text = temp[0]["text"].toLowerCase();
@@ -20,7 +22,16 @@ geocoderControl.on('found', function(res) {
     	var latitude = temp[i]["center"][0];
     	var longitude = temp[i]["center"][1];
     	console.log(latitude, longitude);
+        temp[i].properties["title"] = text;
+        temp[i].properties["marker-size"] = 'large';
+        temp[i].properties["marker-color"] = '#BE9A6B';
+        temp[i].properties["marker-symbol"] = 'college';
+        temp[i].properties["description"] = temp[i]["place_name"];
+
     }
+    var markers = L.mapbox.featureLayer()
+        .setGeoJSON(temp)
+        .addTo(map);
 });
 
 // once user input enter, the query text will be sent to flask
@@ -37,6 +48,8 @@ $('input').keypress(function(e) {
         });
     }
 });
+
+
 
 // walk through all university name
 // Set Markers for all locations
