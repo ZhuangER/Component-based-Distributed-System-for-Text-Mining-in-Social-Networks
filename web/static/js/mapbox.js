@@ -7,33 +7,53 @@ var geocoderControl = L.mapbox.geocoderControl('mapbox.places', {
 	});
 geocoderControl.addTo(map);
 
-var search_result;
+// To judge whether query is university, the project depends on 
+/*$('input').keypress(function(e) {
+    var key = e.which;
+    var query_text = $('input').val();
+    var isUniversity = false;
+    if (key == 13){
+        // have to be listened after input ENTER, otherwise it will react for every character
+        key = 0;
+*/      
+var isUniversity;
+        geocoderControl.on('found', function(res) {
+            /*search_result = JSON.stringify(res.results.features[0]);*/
+            console.log(res.results.features);
+            isUniversity = false;
 
+            var len = res.results.features.length;
+            var temp = res.results.features;
+            var text = temp[0]["text"].toLowerCase();
+            //console.log(text);
+            for (var i = 0; i < len; i++ ) {
+            	/*var latitude = temp[i]["center"][0];
+            	var longitude = temp[i]["center"][1];
+            	console.log(latitude, longitude);*/
 
+                if (temp[i].properties.category == "college, university"){
+                    
+                    isUniversity = true;
 
-geocoderControl.on('found', function(res) {
-    search_result = JSON.stringify(res.results.features[0]);
-    console.log(res.results.features);
-    var len = res.results.features.length;
-    var temp = res.results.features;
-    var text = temp[0]["text"].toLowerCase();
-    //console.log(text);
-    for (var i = 0; i < len; i++ ) {
-    	var latitude = temp[i]["center"][0];
-    	var longitude = temp[i]["center"][1];
-    	console.log(latitude, longitude);
-        temp[i].properties["title"] = text;
-        temp[i].properties["marker-size"] = 'large';
-        temp[i].properties["marker-color"] = '#BE9A6B';
-        temp[i].properties["marker-symbol"] = 'college';
-        temp[i].properties["description"] = temp[i]["place_name"];
+                    temp[i].properties["title"] = text;
+                    temp[i].properties["marker-size"] = 'large';
+                    temp[i].properties["marker-color"] = '#BE9A6B';
+                    temp[i].properties["marker-symbol"] = 'college';
+                    temp[i].properties["description"] = temp[i]["place_name"];
+                    var markers = L.mapbox.featureLayer()
+                        .setGeoJSON(temp[i])
+                        .addTo(map);
+                }
+            }
 
+ 
+        });
+        
+        // Restrict query with only university
+        // once user input enter, the query text will be sent to flask
+/*        
     }
-    var markers = L.mapbox.featureLayer()
-        .setGeoJSON(temp)
-        .addTo(map);
-});
-
+});*/
 // once user input enter, the query text will be sent to flask
 $('input').keypress(function(e) {
     var key = e.which;
@@ -42,10 +62,11 @@ $('input').keypress(function(e) {
     //console.log(query_text);
     if (key == 13)
     {
-        
+        console.log(query_text);        
         $.getJSON($SCRIPT_ROOT + '/test', {
             query: query_text.toLowerCase()
         });
+        isUniversity = false;
     }
 });
 

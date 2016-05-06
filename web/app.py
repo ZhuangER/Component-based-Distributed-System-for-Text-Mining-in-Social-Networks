@@ -36,7 +36,7 @@ def test():
     # Pass the query to the web crawler or API
     if query != "":
         twitter_api.search(query)
-
+    print query
     # if api reach its rate limits, move to web crawler
     # send json data to the producer
     #print query
