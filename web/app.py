@@ -1,5 +1,10 @@
-from flask import Flask, render_template, Response
+from flask import Flask, render_template, Response, request
 import redis
+import os, sys
+lib_path = os.path.abspath(os.path.join('tools'))
+sys.path.append(lib_path)
+
+import twitter_api
 # import pycountry
 
 app = Flask(__name__)
@@ -26,6 +31,15 @@ def ca_map():
 
 @app.route('/test')
 def test():
+    # Receive query data through AJAX
+    query = request.args.get('query', "", type=str)
+    # Pass the query to the web crawler or API
+    if query != "":
+        twitter_api.search(query)
+
+    # if api reach its rate limits, move to web crawler
+    # send json data to the producer
+    #print query
     return render_template("test.html")
 
 @app.route('/stream')

@@ -1,22 +1,28 @@
 <html>
 <head>
     <meta charset='utf-8' />
-    <title></title>
+    <title>University Influence Analysis with Social Media</title>
     <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
-    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.17.0/mapbox-gl.js'></script>
-    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.17.0/mapbox-gl.css' rel='stylesheet' />
+    <script src='https://api.mapbox.com/mapbox.js/v2.4.0/mapbox.js'></script>
+	<link href='https://api.mapbox.com/mapbox.js/v2.4.0/mapbox.css' rel='stylesheet' />
     <script src="http://d3js.org/d3.v3.min.js"></script>
     <script src="http://d3js.org/queue.v1.min.js"></script>
     <link rel="stylesheet" type="text/css" href="static/css/map.css">
     <link rel="stylesheet" type="text/css" href="static/css/chart.css">
+    <script type=text/javascript>
+	  $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+	</script>
 </head>
 <body>
 
 <div id='map'></div>
+<!-- 
+<input id='search' class='search-ui' placeholder='Enter University Name' /> -->
 <div class='chart'> <div>
 
-
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 <script src="static/js/mapbox.js"></script>
 <script src="static/js/chart.js"></script>
+
 </body>
 </html>

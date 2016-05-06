@@ -31,7 +31,7 @@ class TweetTopology
     TopologyBuilder builder = new TopologyBuilder();
 
 
-
+    // create kafka spout
     String zks = "localhost:2181";
     String topic = "mytopic";
     String zkRoot = "/storm"; // default zookeeper root configuration for storm
