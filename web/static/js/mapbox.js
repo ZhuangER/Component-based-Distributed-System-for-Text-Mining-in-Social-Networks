@@ -1,93 +1,115 @@
 L.mapbox.accessToken = 'pk.eyJ1Ijoiemh1YW5nZXIiLCJhIjoiY2luOXB6MzFkMGJmcnYwa3FzYmx1eDhodyJ9.sDFTh7q77IGmZAVyQqoKvA';
 
-var map = L.mapbox.map('map', 'mapbox.dark')
-    .setView([29, -26], 3);
+var southWest = L.latLng(-80, 180),
+    northEast = L.latLng(85, -180),
+    bounds = L.latLngBounds(southWest, northEast);
+
+
+var map = L.mapbox.map('map', 'mapbox.dark', {
+    maxBounds: bounds,
+    maxZoom: 19,
+    minZoom: 2
+}).setView([29, -26], 2);
 var geocoderControl = L.mapbox.geocoderControl('mapbox.places', {
 		/*autocomplete: true*/
 	});
 geocoderControl.addTo(map);
+// TODO implement autocomplete myself
+var markers = L.mapbox.featureLayer()
+                .addTo(map);
+var university_geoinfo = [];
 
-// To judge whether query is university, the project depends on 
-/*$('input').keypress(function(e) {
-    var key = e.which;
-    var query_text = $('input').val();
+
+// found event listens on A successful search. The event's results property contains the raw results.
+geocoderControl.on('found', function(res) {
+    /*search_result = JSON.stringify(res.results.features[0]);*/
+    console.log(res.results.features);
     var isUniversity = false;
-    if (key == 13){
-        // have to be listened after input ENTER, otherwise it will react for every character
-        key = 0;
-*/      
-//var isUniversity = false;
-// found event
-        geocoderControl.on('found', function(res) {
-            /*search_result = JSON.stringify(res.results.features[0]);*/
-            console.log(res.results.features);
-            var isUniversity = false;
-            var query_text = $('input').val();
-            console.log(query_text);
-            var len = res.results.features.length;
-            var temp = res.results.features;
-            var text = temp[0]["text"].toLowerCase();
-            //console.log(text);
-            for (var i = 0; i < len; i++ ) {
-            	/*var latitude = temp[i]["center"][0];
-            	var longitude = temp[i]["center"][1];
-            	console.log(latitude, longitude);*/
-
-                if (temp[i].properties.category == "college, university"){
-                    
-                    isUniversity = true;
-
-                    temp[i].properties["title"] = text;
-                    temp[i].properties["marker-size"] = 'large';
-                    temp[i].properties["marker-color"] = '#BE9A6B';
-                    temp[i].properties["marker-symbol"] = 'college';
-                    temp[i].properties["description"] = temp[i]["place_name"];
-                    var markers = L.mapbox.featureLayer()
-                        .setGeoJSON(temp[i])
-                        .addTo(map);
-                }
-            }
-
-            if (isUniversity == true) {
-                $.getJSON($SCRIPT_ROOT + '/test', {
-                    query: query_text.toLowerCase()
-                });
-                console.log("Already send to the backend");
-            }
- 
-        });
-
-        // Restrict query with only university
-        // once user input enter, the query text will be sent to flask
-/*        
-    }
-});*/
-// once user input enter, the query text will be sent to flask
-/*$('input').keypress(function(e) {
-    var key = e.which;
-    //console.log(key);
     var query_text = $('input').val();
     console.log(query_text);
-    if (key == 13)
-    {
-        console.log(query_text);        
+    var len = res.results.features.length;
+    var temp = res.results.features;
+    var text = temp[0]["text"].toLowerCase();
+    //console.log(text);
+    for (var i = 0; i < len; i++ ) {
+    	/*var latitude = temp[i]["center"][0];
+    	var longitude = temp[i]["center"][1];
+    	console.log(latitude, longitude);*/
+
+        if (temp[i].properties.category == "college, university"){
+            
+            isUniversity = true;
+
+            temp[i].properties["title"] = text;
+            temp[i].properties["marker-size"] = 'large';
+            temp[i].properties["marker-color"] = '#BE9A6B';
+            temp[i].properties["marker-symbol"] = 'college';
+            temp[i].properties["description"] = temp[i]["place_name"];
+            
+            university_geoinfo.push(temp[i]);
+        }
+    }
+    markers.setGeoJSON(university_geoinfo);
+    // Only send query to the backend when university in category
+    tab_creater();
+
+
+
+    if (isUniversity == true) {
         $.getJSON($SCRIPT_ROOT + '/test', {
             query: query_text.toLowerCase()
         });
-        isUniversity = false;
+        console.log("Already send to the backend");
     }
-});*/
+
+});
+
+//var info = document.getElementById('info');
 
 
 
 // walk through all university name
 // Set Markers for all locations
 
+// Only shows title and description tab
+function tab_creater() {
+    markers.eachLayer(function(m) {
+        // Shorten m.feature.properties to p for convenience.
+        var p = m.feature.properties;
 
-/*map.on('load', function(){
-});*/
+        var tabs = document.createElement('div');
+        tabs.className = 'tabs-ui';
 
-/*var search = document.getElementById('search');*/
+        for (var key in p) {
+            if (key === 'title' || key === 'description') {
+                            var tab = document.createElement('div');
+            tab.className = 'tab';
+
+            var input = document.createElement('input');
+            input.type = 'radio';
+            input.id = idify(key);
+            input.name = 'tab-group'; // For your own needs, you might want this to be unique.
+            if (key === 'title') input.setAttribute('checked', true);
+
+            tab.appendChild(input);
+
+            tab.innerHTML += '<label for=' + idify(key) + '>' + key + '</label>' +
+            '<div class="content">' +
+                p[key] +
+            '</div>';
+
+            tabs.appendChild(tab);
+        }
+        }
+
+        m.bindPopup(tabs);
+    });
+
+}
+
+function idify(str) { return str.replace(/\s+/g, '-').toLowerCase(); }
+
+
 
 var updateViz =  function() {
     console.log('hello');
