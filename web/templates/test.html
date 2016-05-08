@@ -3,14 +3,20 @@
     <meta charset='utf-8' />
     <title>University Influence Analysis with Social Media</title>
     <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+
     <script src='https://api.mapbox.com/mapbox.js/v2.4.0/mapbox.js'></script>
 	<link href='https://api.mapbox.com/mapbox.js/v2.4.0/mapbox.css' rel='stylesheet' />
+
+    <script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js'></script>
+    <link href='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/leaflet.fullscreen.css' rel='stylesheet' />
+
     <script src="http://d3js.org/d3.v3.min.js"></script>
     <script src="http://d3js.org/queue.v1.min.js"></script>
     <link rel="stylesheet" type="text/css" href="static/css/map.css">
     <link rel="stylesheet" type="text/css" href="static/css/chart.css">
     <script type=text/javascript>
 	  $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+      $WIKI_QUERY = {{ request.script_root|tojson|safe }};
 	</script>
 </head>
 <body>
@@ -23,7 +29,12 @@
 
 <div id='map'></div>
 
-<div id='detail'><p>Hello World </p></div>
+<div id='detail'>
+    <input type="text" name="university_name" placeholder="University Name" id="wiki_query"> <br>
+<!--     {% for university in university_list %}
+    <li>{{university}}</li>
+    {% endfor %} -->
+</div>
 <!-- 
 <input id='search' class='search-ui' placeholder='Enter University Name' /> -->
 <div class='chart'> <div>

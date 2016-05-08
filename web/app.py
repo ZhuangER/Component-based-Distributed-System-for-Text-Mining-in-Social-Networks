@@ -1,11 +1,13 @@
-from flask import Flask, render_template, Response, request
+from flask import Flask, render_template, Response, request, jsonify
 import redis
+import csv
 import os, sys
 lib_path = os.path.abspath(os.path.join('tools'))
 sys.path.append(lib_path)
 
 import twitter_api
 # import pycountry
+import wikipedia
 
 app = Flask(__name__)
 r = redis.StrictRedis(host='127.0.0.1', port=6379, db=0)
@@ -31,6 +33,13 @@ def ca_map():
 
 @app.route('/test')
 def test():
+    university_list = []
+    with open(os.path.join(os.path.dirname(__file__),'static', 'data', 'world-universities.csv'), 'rb') as f:
+        reader = csv.reader(f)
+        temp_list = list(reader)
+    for l in temp_list:
+            university_list.append(l[1].decode('utf-8'))
+         
     # Receive query data through AJAX
     query = request.args.get('query', "", type=str)
     # Pass the query to the web crawler or API
@@ -40,7 +49,17 @@ def test():
     # if api reach its rate limits, move to web crawler
     # send json data to the producer
     #print query
-    return render_template("test.html")
+
+    return render_template("test.html", university_list= university_list)
+
+@app.route('/_wiki_query')
+def wiki_query():
+    wiki_query = request.args.get('wiki_query', "", type=str)
+    if wiki_query != "":
+        wiki_query_text = wikipedia.search(wiki_query)[0]
+    
+    return jsonify(result=wiki_query_text)
+
 
 @app.route('/stream')
 def stream():

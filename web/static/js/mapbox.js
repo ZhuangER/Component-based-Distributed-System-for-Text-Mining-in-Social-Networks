@@ -1,5 +1,6 @@
 L.mapbox.accessToken = 'pk.eyJ1Ijoiemh1YW5nZXIiLCJhIjoiY2luOXB6MzFkMGJmcnYwa3FzYmx1eDhodyJ9.sDFTh7q77IGmZAVyQqoKvA';
 
+// resitrct the bound of map
 var southWest = L.latLng(-80, 180),
     northEast = L.latLng(85, -180),
     bounds = L.latLngBounds(southWest, northEast);
@@ -10,11 +11,19 @@ var map = L.mapbox.map('map', 'mapbox.dark', {
     maxZoom: 19,
     minZoom: 2
 }).setView([29, -26], 2);
+
+
+
+
 var geocoderControl = L.mapbox.geocoderControl('mapbox.places', {
 		/*autocomplete: true*/
 	});
 geocoderControl.addTo(map);
 // TODO implement autocomplete myself
+// add full screen button
+
+L.control.fullscreen().addTo(map);
+
 var markers = L.mapbox.featureLayer()
                 .addTo(map);
 var university_geoinfo = [];
@@ -25,7 +34,7 @@ geocoderControl.on('found', function(res) {
     /*search_result = JSON.stringify(res.results.features[0]);*/
     console.log(res.results.features);
     var isUniversity = false;
-    var query_text = $('input').val();
+    var query_text = $('.leaflet-control-mapbox-geocoder-form input').val();
     console.log(query_text);
     var len = res.results.features.length;
     var temp = res.results.features;
@@ -63,6 +72,23 @@ geocoderControl.on('found', function(res) {
     }
 
 });
+
+
+$('#wiki_query').keypress(function (e){
+    var key = e.which;
+    if (key == 13) {
+        var wiki_query = $('#wiki_query').val();
+        $.getJSON($WIKI_QUERY + '/_wiki_query', {
+            wiki_query: wiki_query 
+        }, function (data) {
+            console.log(data.result)
+        });
+        console.log('Send to backend');
+
+    }
+});
+
+
 
 //var info = document.getElementById('info');
 
