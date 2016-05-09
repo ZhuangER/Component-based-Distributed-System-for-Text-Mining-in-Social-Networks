@@ -3,11 +3,7 @@ body {
   margin:0; padding:0; 
 }
 
-div.chart { 
-  background: #fff;
-  position: relative;
-  width: 100%;
-}
+
 
 p {
   font: 12px helvetica;

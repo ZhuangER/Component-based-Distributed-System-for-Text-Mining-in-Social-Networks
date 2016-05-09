@@ -5,7 +5,6 @@ import storm.trident.operation.TridentCollector;
 import storm.trident.tuple.TridentTuple;
 
 import yu.storm.tools.SentimentAnalyzer;
-import yu.storm.tools.TweetExtractor;
 
 public class SentimentAnalyzer extends BaseFunction {
 	

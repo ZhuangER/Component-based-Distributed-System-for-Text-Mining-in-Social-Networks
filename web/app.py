@@ -12,6 +12,15 @@ import wikipedia
 app = Flask(__name__)
 r = redis.StrictRedis(host='127.0.0.1', port=6379, db=0)
 
+global university_list
+university_list = []
+with open(os.path.join(os.path.dirname(__file__),'static', 'data', 'world-universities.csv'), 'rb') as f:
+    reader = csv.reader(f)
+    temp_list = list(reader)
+for l in temp_list:
+    university_list.append(l[1].decode('utf-8'))
+
+
 def event_stream():
     pubsub = r.pubsub()
     pubsub.subscribe('WordCountTopology')
@@ -20,13 +29,6 @@ def event_stream():
         # print message['data'].split('DELIMITER')[3]
         yield 'data: %s\n\n' % message['data']
 
-global university_list
-university_list = []
-with open(os.path.join(os.path.dirname(__file__),'static', 'data', 'world-universities.csv'), 'rb') as f:
-    reader = csv.reader(f)
-    temp_list = list(reader)
-for l in temp_list:
-    university_list.append(l[1].decode('utf-8'))
 
 @app.route('/')
 @app.route('/map')
