@@ -20,6 +20,13 @@ def event_stream():
         # print message['data'].split('DELIMITER')[3]
         yield 'data: %s\n\n' % message['data']
 
+global university_list
+university_list = []
+with open(os.path.join(os.path.dirname(__file__),'static', 'data', 'world-universities.csv'), 'rb') as f:
+    reader = csv.reader(f)
+    temp_list = list(reader)
+for l in temp_list:
+    university_list.append(l[1].decode('utf-8'))
 
 @app.route('/')
 @app.route('/map')
@@ -33,32 +40,40 @@ def ca_map():
 
 @app.route('/test')
 def test():
-    university_list = []
-    with open(os.path.join(os.path.dirname(__file__),'static', 'data', 'world-universities.csv'), 'rb') as f:
-        reader = csv.reader(f)
-        temp_list = list(reader)
-    for l in temp_list:
-            university_list.append(l[1].decode('utf-8'))
-         
-    # Receive query data through AJAX
-    query = request.args.get('query', "", type=str)
-    # Pass the query to the web crawler or API
-    if query != "":
-        twitter_api.search(query)
-    # print query
-    # if api reach its rate limits, move to web crawler
-    # send json data to the producer
-    #print query
-
+    
     return render_template("test.html", university_list= university_list)
+
+@app.route('/_twitter_query')
+def twitter_query():
+    twitter_query = request.args.get('query', "", type=str)
+    # Pass the query to the web crawler or API
+    if twitter_query != "":
+        twitter_api.search(twitter_query)
+
+    # if api reach its rate limits, move to web crawler
+    return jsonify()
+
 
 @app.route('/_wiki_query')
 def wiki_query():
     wiki_query = request.args.get('wiki_query', "", type=str)
     if wiki_query != "":
         wiki_query_text = wikipedia.search(wiki_query)[0]
-    
-    return jsonify(result=wiki_query_text)
+        page = wikipedia.page(wiki_query_text)
+        summary = wikipedia.summary(wiki_query_text)
+        if wiki_query_text not in university_list:
+            pass
+        return jsonify(title = page.title,  summary = summary, image = page.images[0])
+    # return jsonify(title = page.title,  summary = summary, image = page.images[0], url = page.url, content = page.contentl, link = page.links[0])
+
+
+
+@app.route('/_autocomplete', methods=['GET'])
+def autocomplete():
+    search = request.args.get('term')
+    # app.logger.debug(search)
+    return jsonify(university_list=university_list)
+
 
 
 @app.route('/stream')

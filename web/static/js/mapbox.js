@@ -65,7 +65,11 @@ geocoderControl.on('found', function(res) {
 
 
     if (isUniversity == true) {
+<<<<<<< HEAD
+        $.getJSON($SCRIPT_ROOT + '/_twitter_query', {
+=======
         $.getJSON($SCRIPT_ROOT + '/test', {
+>>>>>>> 3091675ce63286e4f884b7dfe5b5237331c7c379
             query: query_text.toLowerCase()
         });
         console.log("Already send to the backend");
@@ -73,7 +77,11 @@ geocoderControl.on('found', function(res) {
 
 });
 
+<<<<<<< HEAD
+$('<div id=university_intro><div>').insertAfter($('#wiki_query'));
+=======
 
+>>>>>>> 3091675ce63286e4f884b7dfe5b5237331c7c379
 $('#wiki_query').keypress(function (e){
     var key = e.which;
     if (key == 13) {
@@ -81,6 +89,95 @@ $('#wiki_query').keypress(function (e){
         $.getJSON($WIKI_QUERY + '/_wiki_query', {
             wiki_query: wiki_query 
         }, function (data) {
+<<<<<<< HEAD
+
+/*            console.log(data.text);
+            console.log(data.title);
+            console.log(data.url);
+            console.log(data.content);
+            console.log(data.summary);
+            console.log(data.link)*/
+
+            $('#university_intro').html('<h1>' + data.title + '</h1> <br>'
+                + '<img src=' + data.image + ' alt="test" style="width:120px;height:100px;">'
+                + '<p>' + data.summary + '<p>');
+
+            /*$('#university_intro').insertAfter($('#wiki_query'));*/
+
+        });
+        console.log('Send to backend');
+    }
+});
+
+/*$('#autocomplete').keypress(function() {
+    var text = $('#autocomplete').val();
+    $.getJSON($WIKI_QUERY + '/_autocomplete', {
+        text: text
+    }, function(data) {
+        $('#autocomplete').autocomplete({
+            source: data.json_list,
+            minLength:2
+        });
+    })
+})
+*/
+/*var university_list = */
+
+$(function() {
+    $.ajax({
+        url: '/_autocomplete'
+        }).done(function (data) {
+            $('#wiki_query').autocomplete({
+                source: data.university_list,
+                minLength: 2,
+            });
+        });
+    });
+
+
+
+
+// sync two textbox .leaflet-control-mapbox-geocoder-form input and #wiki_query
+// keyup can be used to sync text input
+// keypress can be used to trigger event
+/*var isTrigger_A = false;
+var isTrigger_B = false;*/
+
+$('.leaflet-control-mapbox-geocoder-form input').keyup( function() {
+    $('#wiki_query').val($('.leaflet-control-mapbox-geocoder-form input').val());
+});
+
+$('.leaflet-control-mapbox-geocoder-form input').keypress( function(e) {
+    var key = e.which;
+
+    if (key == 13 ) {
+        $('#wiki_query').trigger(e);
+    }
+/*    if (key == 8) {
+        isTrigger_A = false;
+    }*/
+});
+
+// if the place search bar is not active, change it to active
+$('#wiki_query').keyup( function() {
+    $('.leaflet-control-mapbox-geocoder-form input').val($('#wiki_query').val());
+    if ($('.leaflet-control-zoom.leaflet-bar.leaflet-control')[0]) {
+        $('.leaflet-control').addClass('active');
+    }
+});
+
+/*$('#wiki_query').keypress( function(e) {
+    var key = e.which;
+
+    if (key == 13 && !isTrigger_B) {
+        isTrigger_B = true;
+        $('.leaflet-control-mapbox-geocoder-form input').trigger(e);
+        isTrigger_B = false;
+    }
+
+
+});*/
+=======
             console.log(data.result)
         });
         console.log('Send to backend');
@@ -88,6 +185,7 @@ $('#wiki_query').keypress(function (e){
     }
 });
 
+>>>>>>> 3091675ce63286e4f884b7dfe5b5237331c7c379
 
 
 //var info = document.getElementById('info');

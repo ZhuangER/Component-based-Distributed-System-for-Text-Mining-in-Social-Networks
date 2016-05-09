@@ -84,4 +84,23 @@ div.chart {
   }
 #map .tab [type=radio]:checked ~ label ~ .content {
   z-index:1;
+<<<<<<< HEAD
   }
+
+/*jquery-ui autocomplete*/
+.ui-autocomplete {
+    max-height: 100px;
+    overflow-y: auto;
+    /* prevent horizontal scrollbar */
+    overflow-x: hidden;
+  }
+
+
+#university_into {
+    overflow-y: auto;
+    /* prevent horizontal scrollbar */
+    overflow-x: hidden;
+}
+=======
+  }
+>>>>>>> 3091675ce63286e4f884b7dfe5b5237331c7c379
