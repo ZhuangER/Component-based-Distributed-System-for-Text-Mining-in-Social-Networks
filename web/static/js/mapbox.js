@@ -16,8 +16,8 @@ var map = L.mapbox.map('map', 'mapbox.dark', {
 
 
 var geocoderControl = L.mapbox.geocoderControl('mapbox.places', {
-		/*autocomplete: true*/
-	});
+        /*autocomplete: true*/
+    });
 geocoderControl.addTo(map);
 // TODO implement autocomplete myself
 // add full screen button
@@ -41,9 +41,9 @@ geocoderControl.on('found', function(res) {
     var text = temp[0]["text"].toLowerCase();
     //console.log(text);
     for (var i = 0; i < len; i++ ) {
-    	/*var latitude = temp[i]["center"][0];
-    	var longitude = temp[i]["center"][1];
-    	console.log(latitude, longitude);*/
+        /*var latitude = temp[i]["center"][0];
+        var longitude = temp[i]["center"][1];
+        console.log(latitude, longitude);*/
 
         if (temp[i].properties.category == "college, university"){
             
@@ -65,11 +65,7 @@ geocoderControl.on('found', function(res) {
 
 
     if (isUniversity == true) {
-<<<<<<< HEAD
         $.getJSON($SCRIPT_ROOT + '/_twitter_query', {
-=======
-        $.getJSON($SCRIPT_ROOT + '/test', {
->>>>>>> 3091675ce63286e4f884b7dfe5b5237331c7c379
             query: query_text.toLowerCase()
         });
         console.log("Already send to the backend");
@@ -77,19 +73,15 @@ geocoderControl.on('found', function(res) {
 
 });
 
-<<<<<<< HEAD
 $('<div id=university_intro><div>').insertAfter($('#wiki_query'));
-=======
-
->>>>>>> 3091675ce63286e4f884b7dfe5b5237331c7c379
 $('#wiki_query').keypress(function (e){
     var key = e.which;
     if (key == 13) {
         var wiki_query = $('#wiki_query').val();
+        console.log(wiki_query)
         $.getJSON($WIKI_QUERY + '/_wiki_query', {
-            wiki_query: wiki_query 
+            wiki_query: wiki_query
         }, function (data) {
-<<<<<<< HEAD
 
 /*            console.log(data.text);
             console.log(data.title);
@@ -97,10 +89,15 @@ $('#wiki_query').keypress(function (e){
             console.log(data.content);
             console.log(data.summary);
             console.log(data.link)*/
-
-            $('#university_intro').html('<h1>' + data.title + '</h1> <br>'
+            if (data.title == "") {
+                $('#university_intro').html('<h1>ERROR!</h1>')
+            }
+            else {
+                $('#university_intro').html('<h1>' + data.title + '</h1> <br>'
                 + '<img src=' + data.image + ' alt="test" style="width:120px;height:100px;">'
                 + '<p>' + data.summary + '<p>');
+            }
+            
 
             /*$('#university_intro').insertAfter($('#wiki_query'));*/
 
@@ -177,15 +174,7 @@ $('#wiki_query').keyup( function() {
 
 
 });*/
-=======
-            console.log(data.result)
-        });
-        console.log('Send to backend');
 
-    }
-});
-
->>>>>>> 3091675ce63286e4f884b7dfe5b5237331c7c379
 
 
 //var info = document.getElementById('info');
@@ -206,24 +195,24 @@ function tab_creater() {
 
         for (var key in p) {
             if (key === 'title' || key === 'description') {
-                            var tab = document.createElement('div');
-            tab.className = 'tab';
+                var tab = document.createElement('div');
+                tab.className = 'tab';
 
-            var input = document.createElement('input');
-            input.type = 'radio';
-            input.id = idify(key);
-            input.name = 'tab-group'; // For your own needs, you might want this to be unique.
-            if (key === 'title') input.setAttribute('checked', true);
+                var input = document.createElement('input');
+                input.type = 'radio';
+                input.id = idify(key);
+                input.name = 'tab-group'; // For your own needs, you might want this to be unique.
+                if (key === 'title') input.setAttribute('checked', true);
 
-            tab.appendChild(input);
+                tab.appendChild(input);
 
-            tab.innerHTML += '<label for=' + idify(key) + '>' + key + '</label>' +
-            '<div class="content">' +
-                p[key] +
-            '</div>';
+                tab.innerHTML += '<label for=' + idify(key) + '>' + key + '</label>' +
+                '<div class="content">' +
+                    p[key] +
+                '</div>';
 
-            tabs.appendChild(tab);
-        }
+                tabs.appendChild(tab);
+            }
         }
 
         m.bindPopup(tabs);

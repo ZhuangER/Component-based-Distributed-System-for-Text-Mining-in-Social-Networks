@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*- 
+
 from flask import Flask, render_template, Response, request, jsonify
 import redis
 import csv
@@ -58,14 +60,25 @@ def twitter_query():
 
 @app.route('/_wiki_query')
 def wiki_query():
-    wiki_query = request.args.get('wiki_query', "", type=str)
+    # do not indicates type, whether unicode character will lead null result
+    wiki_query = request.args.get('wiki_query', "")
     if wiki_query != "":
-        wiki_query_text = wikipedia.search(wiki_query)[0]
+        print wiki_query
+
+        wiki_query_text = wikipedia.search(wiki_query.encode('utf-8'))[0]
+        
         page = wikipedia.page(wiki_query_text)
         summary = wikipedia.summary(wiki_query_text)
-        if wiki_query_text not in university_list:
-            pass
-        return jsonify(title = page.title,  summary = summary, image = page.images[0])
+        # if wiki_query_text not in university_list:
+        #     pass
+        if len(page.images) != 0:
+            image = page.images[0]
+        else:
+            image = os.path.abspath(os.path.join('static/images/NoImageAvailable.jpg'))
+        return jsonify(title = page.title,  summary = summary, image = image)
+    else:
+        print "wiki query is null"
+        return jsonify(title = "",  summary = "", image = "")
     # return jsonify(title = page.title,  summary = summary, image = page.images[0], url = page.url, content = page.contentl, link = page.links[0])
 
 
@@ -75,7 +88,6 @@ def autocomplete():
     search = request.args.get('term')
     # app.logger.debug(search)
     return jsonify(university_list=university_list)
-
 
 
 @app.route('/stream')
