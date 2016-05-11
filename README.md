@@ -28,4 +28,10 @@ in file **server.properties**
 log.retention.hours and log.retention.bytes
 
 
+
+# Website functions
+- Search university's location
+- search university with its name (unicode support)
+
+
 # Reference

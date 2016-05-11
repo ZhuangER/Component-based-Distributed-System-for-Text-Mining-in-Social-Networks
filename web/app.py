@@ -44,7 +44,6 @@ def ca_map():
 
 @app.route('/test')
 def test():
-    
     return render_template("test.html", university_list= university_list)
 
 @app.route('/_twitter_query')
@@ -57,14 +56,21 @@ def twitter_query():
     # if api reach its rate limits, move to web crawler
     return jsonify()
 
+@app.route('/_twitter_area_query')
+def twitter_area_query():
+    lat = request.args.get('lat', "", type=str)
+    lng = request.args.get('lng', "", type=str)
+    radius = request.args.get('radius', "", type=int)
+    print lat, lng, radius
+    return jsonify()
+
 
 @app.route('/_wiki_query')
 def wiki_query():
     # do not indicates type, whether unicode character will lead null result
     wiki_query = request.args.get('wiki_query', "")
+    
     if wiki_query != "":
-        print wiki_query
-
         wiki_query_text = wikipedia.search(wiki_query.encode('utf-8'))[0]
         
         page = wikipedia.page(wiki_query_text)

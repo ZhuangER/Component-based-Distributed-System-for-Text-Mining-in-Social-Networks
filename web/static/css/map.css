@@ -4,7 +4,8 @@ div#container {
 }
 
 div#header {
-	background-color:#99bbbb;
+  /*border: 1px solid #ffaf0f;*/
+	background-color:#f58400;
 	height: 30px;
 }
 
@@ -84,8 +85,9 @@ div.chart {
   }
 #map .tab [type=radio]:checked ~ label ~ .content {
   z-index:1;
-<<<<<<< HEAD
   }
+
+
 
 /*jquery-ui autocomplete*/
 .ui-autocomplete {
@@ -96,11 +98,33 @@ div.chart {
   }
 
 
-#university_into {
+#university_intro {
+    max-height: 80%;
     overflow-y: auto;
     /* prevent horizontal scrollbar */
     overflow-x: hidden;
+    text-align: center;
 }
-=======
+
+.ui-control {
+  background:#fff;
+  position:absolute;
+  top:30px;
+  right:20%;
+  padding:10px;
+  z-index:100;
+  border-radius:3px;
   }
->>>>>>> 3091675ce63286e4f884b7dfe5b5237331c7c379
+
+#popup_search {
+  display:None;
+  position:absolute;
+  height:30px;
+  width:120px;
+  z-index:100;
+  background:white;
+  align: center;
+}
+#popup_search button {
+  position:relative;
+}

@@ -14,6 +14,7 @@
     <script src="http://d3js.org/queue.v1.min.js"></script>
     <link rel="stylesheet" type="text/css" href="static/css/map.css">
     <link rel="stylesheet" type="text/css" href="static/css/chart.css">
+    <link rel="stylesheet" type="text/css" href="static/css/jquery-ui.css">
     <script type=text/javascript>
 	  $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
       $WIKI_QUERY = {{ request.script_root|tojson|safe }};
@@ -22,15 +23,22 @@
 <body>
 
 <div id='container'>
-
+    <div id="popup_search">
+        <button id="search_area" title="Search Twitter in this Area">Search</button>
+        <button class="cancel">Cancel</button>
+    </div>
 <div id="header">
 <h1>University Influence</h1>
 </div>
 
+<div id='output' class='ui-control'>
+  Click: <code id='click'></code><br/>
+  Mousemove: <code id='mousemove'></code><br/>
+</div>
 <div id='map'></div>
 
 <div id='detail'>
-    <input type="text" name="university_name" placeholder="University Name" id="wiki_query"> <br>
+    <p>University:<input type="text" name="university_name" placeholder="University Name" id="wiki_query"></p> <br>
 <!--     {% for university in university_list %}
     <li>{{university}}</li>
     {% endfor %} -->
@@ -41,7 +49,7 @@
 
 </div>
 
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 
 <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
 

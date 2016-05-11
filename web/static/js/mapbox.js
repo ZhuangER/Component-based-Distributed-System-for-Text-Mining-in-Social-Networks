@@ -184,6 +184,89 @@ $('#wiki_query').keyup( function() {
 // walk through all university name
 // Set Markers for all locations
 
+
+
+var searchCircle = undefined;
+
+var disable_circle = true;
+var isPopup = false;
+
+var latlng;
+var click_latlng;
+
+// encapsule the button class into a single file
+map.on('mousemove click', function (e) {
+    window[e.type].innerHTML = e.latlng.toString();
+    latlng = e.latlng;
+    if (searchCircle!= undefined && !disable_circle && e.type == 'mousemove')
+    {
+        searchCircle.setLatLng(e.latlng);
+    }
+
+    if (searchCircle != undefined && e.type == 'click') {
+        disable_circle = !disable_circle;
+
+        if (disable_circle) {
+            var w = $('#popup_search').width();
+            var h = $('#popup_search').height();
+            $('#popup_search').css('left', e.containerPoint.x - w/2);
+            $('#popup_search').css('top', e.containerPoint.y + h/2);
+            $('#popup_search').css('display', 'inline');
+            /*console.log('popup');*/
+            click_latlng = latlng;
+        }
+        else {
+            $('#popup_search').css('display', 'None');
+        }
+    }
+    // if circle not exist, reset the conditions
+    if (searchCircle == undefined) {
+        $('#popup_search').css('display', 'None');
+        disable_circle = true;
+    }
+});
+
+var RADIUS = 500;
+
+
+
+var customControl = L.Control.extend({
+    options: {
+        position: 'topleft' 
+        //control position - allowed: 'topleft', 'topright', 'bottomleft', 'bottomright'
+    },
+    onAdd: function (map) {
+        var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
+
+        container.style.backgroundColor = 'white';
+        container.style.width = '28px';
+        container.style.height = '28px';
+
+        container.onclick = function(){
+            //console.log('buttonClicked');
+            if (searchCircle != undefined) {
+                map.removeLayer(searchCircle);
+                searchCircle = undefined;
+            }
+            else {
+                searchCircle = L.circle(L.latLng(latlng), RADIUS, {
+                    opacity: 1,
+                    weight: 1,
+                    fillOpacity: 0.4
+                }).addTo(map);
+                
+            }
+        }
+        return container;
+    }
+
+});
+
+    
+map.addControl(new customControl());
+
+
+
 // Only shows title and description tab
 function tab_creater() {
     markers.eachLayer(function(m) {
@@ -222,6 +305,20 @@ function tab_creater() {
 
 function idify(str) { return str.replace(/\s+/g, '-').toLowerCase(); }
 
+
+$('#popup_search #search_area').click(function () {
+    $.getJSON($SCRIPT_ROOT + '/_twitter_area_query', {
+            lat: click_latlng.lat.toString(),
+            lng: click_latlng.lng.toString(),
+            radius: RADIUS
+        });
+    console.log('send area query');
+});
+
+$('#popup_search .cancel').click(function () {
+    $('#popup_search').css('display', 'None');
+    disable_circle = false;
+});
 
 
 var updateViz =  function() {

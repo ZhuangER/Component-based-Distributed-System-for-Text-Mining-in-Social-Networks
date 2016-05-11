@@ -16,9 +16,15 @@ def search(query):
 
 	# use precise search
 	results = api.search(q='"' + query + '"', lang="en", count=100)
-
+	count = 0
+	coordinate_list = []
 	for result in results:
-	    print result.text
+	    if result.coordinates != None:
+	    	coordinate_list.append(result.coordinates)
+	    print result.coordinates
+	print coordinate_list
+	# generate word cloud with word count
+	# generate URL spout
 
 # Test case
 if __name__ == '__main__':
