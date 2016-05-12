@@ -212,6 +212,7 @@ map.on('mousemove click', function (e) {
             $('#popup_search').css('left', e.containerPoint.x - w/2);
             $('#popup_search').css('top', e.containerPoint.y + h/2);
             $('#popup_search').css('display', 'inline');
+            $('#popup_search button').css('right', 0);
             /*console.log('popup');*/
             click_latlng = latlng;
         }
@@ -252,7 +253,7 @@ var customControl = L.Control.extend({
                 searchCircle = L.circle(L.latLng(latlng), RADIUS, {
                     opacity: 1,
                     weight: 1,
-                    fillOpacity: 0.4
+                    fillOpacity: 0.2
                 }).addTo(map);
                 
             }

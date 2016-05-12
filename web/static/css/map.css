@@ -119,12 +119,17 @@ div.chart {
 #popup_search {
   display:None;
   position:absolute;
-  height:30px;
+  height:40px;
   width:120px;
   z-index:100;
-  background:white;
   align: center;
 }
 #popup_search button {
   position:relative;
+}
+#popup_search .cancel {
+  float:right;
+}
+#popup_search #search_area {
+  float:left;
 }
