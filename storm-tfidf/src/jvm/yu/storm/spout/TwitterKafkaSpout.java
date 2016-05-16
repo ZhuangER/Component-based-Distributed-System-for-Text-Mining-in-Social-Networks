@@ -1,4 +1,4 @@
-package yu.storm.spout;
+/*package yu.storm.spout;
 
 
 
@@ -18,4 +18,4 @@ class TwitterKafkaSpout{
 
     new KafkaSpout(spoutConf);
 
-}
+}*/

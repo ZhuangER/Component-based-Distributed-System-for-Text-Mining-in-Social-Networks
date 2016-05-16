@@ -87,11 +87,11 @@
       <artifactId>cassandra-driver-core</artifactId>
       <version>2.0.1</version>
     </dependency>
-    <dependency>
+<!--     <dependency>
       <groupId>io.netty</groupId>
       <artifactId>netty</artifactId>
       <version>3.9.0.Final</version>
-    </dependency>
+    </dependency> -->
     <dependency>
      <groupId>org.apache.storm</groupId>
      <artifactId>storm-kafka</artifactId>
@@ -136,6 +136,26 @@
       <groupId>com.lambdaworks</groupId>
       <artifactId>lettuce</artifactId>
       <version>2.3.3</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.tika</groupId>
+      <artifactId>tika-parsers</artifactId>
+      <version>1.12</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.lucene</groupId>
+      <artifactId>lucene-analyzers</artifactId>
+      <version>3.6.2</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.lucene</groupId>
+      <artifactId>lucene-spellchecker</artifactId>
+      <version>3.6.2</version>
+    </dependency>
+    <dependency>
+      <groupId>edu.washington.cs.knowitall</groupId>
+      <artifactId>morpha-stemmer</artifactId>
+      <version>1.0.4</version>
     </dependency>
   </dependencies>
 

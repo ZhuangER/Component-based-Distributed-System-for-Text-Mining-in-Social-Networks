@@ -32,6 +32,10 @@ log.retention.hours and log.retention.bytes
 # Website functions
 - Search university's location
 - search university with its name (unicode support)
-
+## TODO
+- add slider to modify the size of search circle
+- add leaflet Time-Slider 
+- use geocode to fast search surrounded buildings
+- distributed web crawler with hadoop
 
 # Reference

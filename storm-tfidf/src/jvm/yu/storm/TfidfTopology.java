@@ -9,6 +9,9 @@ import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.tuple.Fields;
 import backtype.storm.utils.Utils;
 import backtype.storm.spout.SchemeAsMultiScheme;
+import backtype.storm.tuple.Values;
+
+import storm.trident.testing.FixedBatchSpout;
 
 import storm.kafka.BrokerHosts;
 import storm.kafka.KafkaSpout;
@@ -16,19 +19,22 @@ import storm.kafka.SpoutConfig;
 import storm.kafka.StringScheme;
 import storm.kafka.ZkHosts;
 
-import yu.storm.bolt.CountBolt;
-import yu.storm.bolt.PersistenceBolt;
-import yu.storm.bolt.RegexBolt;
-import yu.storm.bolt.ReportBolt;
-import yu.storm.bolt.SentimentBolt;
+import yu.storm.bolt.*;
 
 
-class TweetTopology
+
+
+class TfidfTopology
 {
+  private static String[] mimeTypes = new String[] { "application/pdf", "text/html", "text/plain" };
+
   public static void main(String[] args) throws Exception
   {
+
     // create the topology
     TopologyBuilder builder = new TopologyBuilder();
+
+
 
 
     // create kafka spout
@@ -46,12 +52,16 @@ class TweetTopology
     //spoutConf.bufferSizeBytes = 1024;
 
 
+
     // set topology
     builder.setSpout("kafka-spout", new KafkaSpout(spoutConf), 1); 
+    builder.setBolt("document-fetch-bolt", new DocumentFetchBolt(mimeTypes), 10).shuffleGrouping("kafka-spout");
+    
+    /*builder.setSpout("kafka-spout", new KafkaSpout(spoutConf), 1); 
     builder.setBolt("sentiment-bolt", new SentimentBolt(), 10).shuffleGrouping("kafka-spout");
     builder.setBolt("regex-bolt", new RegexBolt(), 10).shuffleGrouping("sentiment-bolt");
     builder.setBolt("count-bolt", new CountBolt(), 10).fieldsGrouping("regex-bolt", new Fields("countryName"));
-    builder.setBolt("report-bolt", new ReportBolt(), 1).globalGrouping("count-bolt");
+    builder.setBolt("report-bolt", new ReportBolt(), 1).globalGrouping("count-bolt");*/
     //builder.setBolt("persistence-bolt", new PersistenceBolt(), 1).globalGrouping("count-bolt");
 
     // create the default config object

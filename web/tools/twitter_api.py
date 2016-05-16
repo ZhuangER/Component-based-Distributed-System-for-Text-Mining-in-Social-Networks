@@ -65,7 +65,9 @@ def potential_user(query):
 def similarity(str1, str2):
 	return difflib.SequenceMatcher(a=str1.lower(), b=str2.lower()).ratio() > 0.9
 
-
+def user_timeline(screen_name):
+	count = 200
+	exclude_replies = True
 
 
 
