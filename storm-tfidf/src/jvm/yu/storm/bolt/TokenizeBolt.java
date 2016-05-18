@@ -51,6 +51,8 @@ public class TokenizeBolt extends BaseRichBolt
 	public void execute(Tuple tuple)
 	{	
 		String documentContents = tuple.getString(0);
+		String documentId = tuple.getStringByField("documentId");
+		String source = tuple.getStringByField("source");
 		TokenStream ts = null;
 		try {
 	    	ts = new StopFilter(
@@ -62,7 +64,7 @@ public class TokenizeBolt extends BaseRichBolt
 	        while(ts.incrementToken()) {
 				String lemma = MorphaStemmer.stemToken(termAtt.toString());
 				lemma = lemma.trim().replaceAll("\n", "").replaceAll("\r", "");
-				collector.emit(new Values(lemma));
+				collector.emit(new Values(lemma, documentId, source));
 	        }
 			ts.close();
 		} catch (IOException e) {
@@ -84,7 +86,7 @@ public class TokenizeBolt extends BaseRichBolt
 	public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer)
 	{
 		outputFieldsDeclarer.declare(
-				new Fields("dirtyTerm"/*, "documentId", "source"*/));
+				new Fields("dirtyTerm", "documentId", "source"));
 	}
 
 

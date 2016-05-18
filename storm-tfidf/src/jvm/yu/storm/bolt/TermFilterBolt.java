@@ -88,6 +88,8 @@ public class TermFilterBolt extends BaseRichBolt {
 	@Override
 	public void execute(Tuple tuple) {
 		String term = tuple.getStringByField("dirtyTerm");
+		String documentId = tuple.getStringByField("documentId");
+		String source = tuple.getStringByField("source");
 		if(shouldKeep(term)){
 			collector.emit(new Values(term));
 		}
@@ -97,7 +99,7 @@ public class TermFilterBolt extends BaseRichBolt {
 	@Override
 	public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer)
 	{
-		outputFieldsDeclarer.declare(new Fields("term"/*, "documentId", "source"*/));
+		outputFieldsDeclarer.declare(new Fields("term", "documentId", "source"));
 	}
 
 

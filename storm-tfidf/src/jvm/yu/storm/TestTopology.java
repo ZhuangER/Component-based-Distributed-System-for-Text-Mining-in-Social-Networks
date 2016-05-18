@@ -17,7 +17,9 @@ import yu.storm.bolt.TermFilterBolt;
 import yu.storm.bolt.DCountBolt;
 import yu.storm.bolt.DfCountBolt;
 import yu.storm.bolt.TfCountBolt;
+import yu.storm.bolt.TfidfBolt;
 import yu.storm.spout.TestTfidfSpout;
+
 
 
 class TestTopology {
@@ -32,11 +34,14 @@ class TestTopology {
     // set topology
     builder.setSpout("test-spout", new TestTfidfSpout(),1);
     builder.setBolt("document-fetch-bolt", new DocumentFetchBolt(mimeTypes), 10).shuffleGrouping("test-spout");
-    builder.setBolt("dcount-bolt",new DCountBolt(), 5).fieldsGrouping("test-spout", new Fields("documentId"));
+    builder.setBolt("dcount-bolt",new DCountBolt(), 1).globalGrouping("test-spout");
     builder.setBolt("tokenize-bolt", new TokenizeBolt(), 10).shuffleGrouping("document-fetch-bolt");
     builder.setBolt("filter-bolt", new TermFilterBolt(), 10).shuffleGrouping("tokenize-bolt");
-    builder.setBolt("dfcount-bolt", new DfCountBolt(), 5).fieldsGrouping("tokenize-bolt", new Fields("term"));
-    builder.setBolt("tfcount-bolt", new TfCountBolt(), 5).fieldsGrouping("tokenize-bolt", new Fields("term", "documentId"));
+    builder.setBolt("dfcount-bolt", new DfCountBolt(), 5).fieldsGrouping("filter-bolt", new Fields("term"));
+    builder.setBolt("tfcount-bolt", new TfCountBolt(), 5).fieldsGrouping("filter-bolt", new Fields("term", "documentId"));
+    builder.setBolt("tfidf-bolt", new TfidfBolt(), 1).globalGrouping("dcount-bolt")
+                                                    .globalGrouping("dfcount-bolt")
+                                                    .globalGrouping("tfcount-bolt");
     // create the default config object
     Config conf = new Config();
 

@@ -35,8 +35,9 @@ public class DCountBolt extends BaseRichBolt
 	
 	public void execute(Tuple tuple)
 	{
-		String documentId = tuple.getStringByField("documentId");
-		
+		String line = tuple.getString(0);
+		String documentId = line.split("DELIMITER")[2];
+
 		// count number of sentiment of countries
 		dCount.add(documentId);
 	
