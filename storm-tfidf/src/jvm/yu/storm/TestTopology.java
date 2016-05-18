@@ -18,6 +18,7 @@ import yu.storm.bolt.DCountBolt;
 import yu.storm.bolt.DfCountBolt;
 import yu.storm.bolt.TfCountBolt;
 import yu.storm.bolt.TfidfBolt;
+import yu.storm.bolt.TopNBolt;
 import yu.storm.spout.TestTfidfSpout;
 
 
@@ -42,6 +43,7 @@ class TestTopology {
     builder.setBolt("tfidf-bolt", new TfidfBolt(), 1).globalGrouping("dcount-bolt")
                                                     .globalGrouping("dfcount-bolt")
                                                     .globalGrouping("tfcount-bolt");
+    builder.setBolt("topn-bolt", new TopNBolt(), 1).globalGrouping("tfidf-bolt");
     // create the default config object
     Config conf = new Config();
 

@@ -16,6 +16,9 @@ import java.util.Comparator;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
+import com.lambdaworks.redis.RedisClient;
+import com.lambdaworks.redis.RedisConnection;
+
 import yu.storm.tools.Term;
 
 // to get the top n term
@@ -28,6 +31,7 @@ public class TopNBolt extends BaseRichBolt
 	private HashMap<String, Double> tfidfMap;
 	private HashMap<String, Double> sumMap;
 	private Queue<Term> termQueue;
+	transient RedisConnection<String,String> redis;
 
 	@Override 
 	public void prepare(
@@ -38,6 +42,11 @@ public class TopNBolt extends BaseRichBolt
 		collector = outputCollector;
 		tfidfMap = new HashMap<String, Double>();
 		sumMap = new HashMap<String, Double>();
+
+		// instantiate a redis connection
+	    RedisClient client = new RedisClient("localhost",6379);
+	    // initiate the actual connection
+	    redis = client.connect();
 
 		Comparator<Term> tfidfComparator = new Comparator<Term>() {
 			@Override
@@ -80,13 +89,22 @@ public class TopNBolt extends BaseRichBolt
 		Term item = new Term(term, sum+diff);
 		termQueue.add(item);
 
+		if (termQueue.size() > 20) {
+			termQueue.poll();
+		}
 
+		String termString = "";
+		for (Term temp : termQueue) {
+			termString += temp.getTerm() + " " + temp.getTfidf() + ",";
+			System.out.println(temp.getTerm());
+			System.out.println(temp.getTfidf());
+			redis.publish(temp.getTerm(), String.valueOf(temp.getTfidf()));
+		}
+		//termString = termString.substring(0, termString.length()-1);
 
 		collector.emit(new Values(term, sum+diff));
 
-
-
-		//collector.ack(tuple);
+		
 
 	}
 
