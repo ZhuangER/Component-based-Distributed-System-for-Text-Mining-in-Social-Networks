@@ -5,6 +5,7 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.net.URL;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.IndexWriterConfig;
@@ -46,14 +47,15 @@ public class TermFilterBolt extends BaseRichBolt {
 		// save the collector for emitting tuples
 		//queue = new LinkedBlockingQueue<String>(1000);
 		collector = outputCollector;
-		File dir = new File(System.getProperty("user.home") + "/dictionaries");
+		String fileLocation = TermFilterBolt.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+		File dir = new File(fileLocation + "../resources/dictionaries");
 		Directory directory;
 		try {
 			directory = FSDirectory.open(dir);
 			spellchecker = new SpellChecker(directory);
 			StandardAnalyzer analyzer = new StandardAnalyzer(Version.LUCENE_36);
 			IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_36, analyzer);
-			URL dictionaryFile = TermFilterBolt.class.getResource("/dictionaries/fulldictionary00.txt");
+			URL dictionaryFile = TermFilterBolt.class.getResource("../resources/dictionaries/fulldictionary00.txt");
 			spellchecker.indexDictionary(new PlainTextDictionary(new File(dictionaryFile.toURI())), config, true);
 		} catch (Exception e) {
 		} 
@@ -77,12 +79,12 @@ public class TermFilterBolt extends BaseRichBolt {
 			Double.parseDouble(stem);
 			return false;
 		}catch(Exception e){}
-		try {
+/*		try {
 			return spellchecker.exist(stem);
 		} catch (Exception e) {
-			/*LOG.error(e.toString());*/
 			return false;
-		}
+		}*/
+		return true;
 	}
 	
 	@Override
@@ -90,8 +92,9 @@ public class TermFilterBolt extends BaseRichBolt {
 		String term = tuple.getStringByField("dirtyTerm");
 		String documentId = tuple.getStringByField("documentId");
 		String source = tuple.getStringByField("source");
+		Integer dCount = tuple.getIntegerByField("dCount");
 		if(shouldKeep(term)){
-			collector.emit(new Values(term));
+			collector.emit(new Values(term, documentId, source, dCount));
 		}
 		
 	}
@@ -99,7 +102,7 @@ public class TermFilterBolt extends BaseRichBolt {
 	@Override
 	public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer)
 	{
-		outputFieldsDeclarer.declare(new Fields("term", "documentId", "source"));
+		outputFieldsDeclarer.declare(new Fields("term", "documentId", "source", "dCount"));
 	}
 
 

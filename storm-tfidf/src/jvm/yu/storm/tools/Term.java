@@ -16,4 +16,14 @@ public class Term {
 	public double getTfidf() {
 		return this.tfidf;
 	}
+	public void setTerm(String term) {
+		this.term = term;
+	}
+
+	public void setTfidf(double tfidf) {
+		this.tfidf = tfidf;
+	}
+	public String toString() {
+		return this.term + " " + String.valueOf(this.tfidf);
+	}
 }

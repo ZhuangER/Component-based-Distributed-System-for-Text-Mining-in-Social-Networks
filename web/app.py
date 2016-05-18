@@ -25,9 +25,12 @@ for l in temp_list:
 
 def event_stream():
     pubsub = r.pubsub()
-    pubsub.subscribe('WordCountTopology')
+    # pubsub2 = r.pubsub()
+    # pubsub.subscribe('WordCountTopology')
+    pubsub.subscribe('word-cloud')
+    # pubsub2.subscribe('wordcount')
     for message in pubsub.listen():
-        print message
+        # print message
         # print message['data'].split('DELIMITER')[3]
         yield 'data: %s\n\n' % message['data']
 
@@ -45,6 +48,14 @@ def ca_map():
 @app.route('/test')
 def test():
     return render_template("test.html", university_list= university_list)
+
+@app.route('/university')
+def university():
+    return render_template("university.html", university_list= university_list)
+
+@app.route('/word-cloud')
+def word_cloud():
+    return render_template("word-cloud.html")
 
 @app.route('/_twitter_query')
 def twitter_query():

@@ -327,3 +327,18 @@ var updateViz =  function() {
 }
 
 //window.setInterval(updateViz, 1000);
+
+/*var wordCloud
+var source = new EventSource('/stream');
+source.onmessage = function (event) {
+        wordCloud = event.data.split(",");
+        console.log(wordCloud[2]);
+
+        for (var i = 0; i < wordCloud.length; ++i ) {
+            var term = wordCloud[i].split(" ")[0];
+            var tfidf = wordCloud[i].split(" ")[1];
+            console.log(term);
+            console.log(tfidf);
+        }
+
+      };*/

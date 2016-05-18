@@ -40,6 +40,7 @@ public class TfCountBolt extends BaseRichBolt
 		String term = tuple.getStringByField("term");
 		// the tfKey is determined by both documentId and term
 		String tfKey = documentId + "DELIMITER" + term;
+		Integer dCount = tuple.getIntegerByField("dCount");
 
 		// count number of sentiment of countries
 		if (tfCountMap.get(tfKey) == null) {
@@ -50,7 +51,7 @@ public class TfCountBolt extends BaseRichBolt
 			tfCountMap.put(tfKey, ++val);
 		}
 		
-		collector.emit(new Values(tfKey, tfCountMap.get(tfKey)));
+		collector.emit(new Values(tfKey, tfCountMap.get(tfKey), dCount));
 		//collector.ack(tuple);
 	}
 
@@ -58,6 +59,6 @@ public class TfCountBolt extends BaseRichBolt
 	public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer)
 	{
 		outputFieldsDeclarer.declare(
-				new Fields("tfKey", "tfValue"));
+				new Fields("tfKey", "tfValue", "dCount"));
 	}
 }

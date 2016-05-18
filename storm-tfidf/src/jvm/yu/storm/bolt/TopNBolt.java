@@ -31,6 +31,7 @@ public class TopNBolt extends BaseRichBolt
 	private HashMap<String, Double> tfidfMap;
 	private HashMap<String, Double> sumMap;
 	private Queue<Term> termQueue;
+	private HashMap<String, Double> topTerm;
 	transient RedisConnection<String,String> redis;
 
 	@Override 
@@ -42,6 +43,7 @@ public class TopNBolt extends BaseRichBolt
 		collector = outputCollector;
 		tfidfMap = new HashMap<String, Double>();
 		sumMap = new HashMap<String, Double>();
+		topTerm = new HashMap<String, Double>();
 
 		// instantiate a redis connection
 	    RedisClient client = new RedisClient("localhost",6379);
@@ -87,32 +89,53 @@ public class TopNBolt extends BaseRichBolt
 		sumMap.put(term, sum+diff);
 
 		Term item = new Term(term, sum+diff);
-		termQueue.add(item);
-
-		if (termQueue.size() > 20) {
-			termQueue.poll();
+		if (topTerm.get(term) == null){
+			if (termQueue.size() <= 20){
+				termQueue.add(item);
+				topTerm.put(term, sum+diff);
+			}
+			else {
+				termQueue.add(item);
+				topTerm.put(term, sum+diff);
+				Term temp = termQueue.poll();
+				topTerm.remove(temp.getTerm());
+			}
 		}
+		else {
+			//Term temp = new Term(term, topTerm.get(term));
+			topTerm.put(term, sum+diff);
+
+			for (Term t : termQueue) {
+				if (t.getTerm() == term) {
+					termQueue.remove(t);
+					break;
+				}
+			}
+			termQueue.add(new Term(term, sum+diff));
+		}
+
 
 		String termString = "";
 		for (Term temp : termQueue) {
-			termString += temp.getTerm() + " " + temp.getTfidf() + ",";
+			termString += temp.toString() + ",";
 			System.out.println(temp.getTerm());
 			System.out.println(temp.getTfidf());
-			redis.publish(temp.getTerm(), String.valueOf(temp.getTfidf()));
+			
 		}
-		//termString = termString.substring(0, termString.length()-1);
+		termString = termString.substring(0, termString.length()-1);
 
-		collector.emit(new Values(term, sum+diff));
+		//pubish the word-cloud, when finish one document
+		redis.publish("word-cloud", termString);
 
-		
+		/*collector.emit(new Values(term, sum+diff));*/
 
 	}
 
 	@Override
 	public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer)
 	{
-		outputFieldsDeclarer.declare(
-				new Fields("term", "tfidf"));
+/*		outputFieldsDeclarer.declare(
+				new Fields("term", "tfidf"));*/
 	}
 
 }

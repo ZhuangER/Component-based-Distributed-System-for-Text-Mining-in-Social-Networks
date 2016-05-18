@@ -8,6 +8,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.HashSet;
 
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.AutoDetectParser;
@@ -32,6 +34,7 @@ public class DocumentFetchBolt extends BaseRichBolt {
 	
 	private OutputCollector collector;
 	private List<String> mimeTypes;
+	private Set<String> dCount;
 
 	@Override
 	public void prepare(
@@ -40,7 +43,8 @@ public class DocumentFetchBolt extends BaseRichBolt {
 	OutputCollector         outputCollector) 
 	{
 		// save the collector for emitting tuples
-		collector = outputCollector;       
+		collector = outputCollector;
+		dCount = new HashSet<String>();
 	}
 
 	
@@ -52,24 +56,33 @@ public class DocumentFetchBolt extends BaseRichBolt {
 	public void execute(Tuple tuple) {
 		String line = tuple.getString(0);
 		String url = line.split("DELIMITER")[2];
-		try {
-			Parser parser = new AutoDetectParser();
-			Metadata metadata = new Metadata();
-			ParseContext parseContext = new ParseContext();
-			URL urlObject = new URL(url);
-			ContentHandler handler = new BodyContentHandler(10 * 1024 * 1024);
-			parser.parse((InputStream) urlObject.getContent(), handler,
-					metadata, parseContext);
-			String[] mimeDetails = metadata.get("Content-Type").split(";");
-			if ((mimeDetails.length > 0)
-					&& (mimeTypes.contains(mimeDetails[0]))) {
-				collector.emit(new Values(handler.toString(), url.trim(), "twitter"));
-				//System.out.println(handler.toString());
-				//System.out.println(url.trim());
+		
+		// if url already exist, do not fetch website to save the resource
+		if (!dCount.contains(url.trim()) )
+		{
+			dCount.add(url.trim());
 
+			try {
+				Parser parser = new AutoDetectParser();
+				Metadata metadata = new Metadata();
+				ParseContext parseContext = new ParseContext();
+				URL urlObject = new URL(url);
+				ContentHandler handler = new BodyContentHandler(10 * 1024 * 1024);
+				parser.parse((InputStream) urlObject.getContent(), handler,
+						metadata, parseContext);
+				String[] mimeDetails = metadata.get("Content-Type").split(";");
+				if ((mimeDetails.length > 0)
+						&& (mimeTypes.contains(mimeDetails[0]))) {
+					collector.emit(new Values(handler.toString(), url.trim(), "twitter", dCount.size()));
+					//System.out.println(handler.toString());
+					//System.out.println(url.trim());
+
+				}
+			} 
+			catch (Exception e) {
 			}
-		} catch (Exception e) {
 		}
+		
 
 	}
 
@@ -77,7 +90,7 @@ public class DocumentFetchBolt extends BaseRichBolt {
 	public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer)
 	{
 		outputFieldsDeclarer.declare(
-				new Fields("document", "documentId", "source"));
+				new Fields("document", "documentId", "source", "dCount"));
 	}
 
 }

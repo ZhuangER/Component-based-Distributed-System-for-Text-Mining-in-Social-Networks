@@ -31,7 +31,7 @@ def area_search(lat, lng, radius):
 	# near:"37.781157,-122.398720" within:15mi
 	# geocode = '"'+ lat + ',' + lng +   +'"'
 	query = 'near:"' + lat + ',' + lng + '" within:' + str(radius) + 'mi'
-	results = api.search(q=query,, count=100)
+	results = api.search(q=query, lang="en", count=100)
 	coordinate_list = []
 	for result in results:
 		if result.coordinates != None:

@@ -35,11 +35,11 @@ public class TfidfBolt extends BaseRichBolt {
 	public void execute(Tuple tuple)
 	{
 		// judge the tuple comes from which bolt
-		if (tuple.getFields().get(0).equals("dCount")) {
+		/*if (tuple.getFields().get(0).equals("dCount")) {
 
 			d = (double)tuple.getIntegerByField("dCount");
 
-		} else if (tuple.getFields().get(0).equals("dfKey")) {
+		} else */if (tuple.getFields().get(0).equals("dfKey")) {
 
 			String dfKey = tuple.getStringByField("dfKey");
 			Integer dfValue = tuple.getIntegerByField("dfValue");
@@ -56,6 +56,7 @@ public class TfidfBolt extends BaseRichBolt {
 
 			String tfKey =tuple.getStringByField("tfKey");
 			Integer tfValue =tuple.getIntegerByField("tfValue");
+			d = tuple.getIntegerByField("dCount");
 
 			String documentId = tfKey.split("DELIMITER")[0];
 			String term = tfKey.split("DELIMITER")[1];

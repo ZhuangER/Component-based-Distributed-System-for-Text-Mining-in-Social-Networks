@@ -12,13 +12,15 @@ import backtype.storm.task.OutputCollector;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 
 //df: how frequently a given term (t) appears across across all documents
 public class DfCountBolt extends BaseRichBolt
 {
 	private OutputCollector collector;
-	private Map<String, Integer> dfCountMap;
+	private Map<String, ArrayList<String> > dfCountMap;
 
 	@Override 
 	public void prepare(
@@ -28,7 +30,7 @@ public class DfCountBolt extends BaseRichBolt
 	)
 	{
 		collector = outputCollector;
-		dfCountMap = new HashMap<String, Integer>();
+		dfCountMap = new HashMap<String, ArrayList<String> >();
 	}
 
 	
@@ -39,14 +41,19 @@ public class DfCountBolt extends BaseRichBolt
 
 		// count number of term across all documents
 		if (dfCountMap.get(term) == null) {
-			dfCountMap.put(term, 1);
+			ArrayList<String> temp = new ArrayList<String>();
+			temp.add(documentId);
+			dfCountMap.put(term, temp);
 		}
 		else {
-			Integer val = dfCountMap.get(term);
-			dfCountMap.put(term, ++val);
+			ArrayList<String> temp = dfCountMap.get(term);
+			if (!temp.contains(documentId)){
+				temp.add(documentId);
+				dfCountMap.put(term, temp);
+			}
 		}
 		
-		collector.emit(new Values(term, dfCountMap.get(term)));
+		collector.emit(new Values(term, dfCountMap.get(term).size()));
 		//collector.ack(tuple);
 	}
 
