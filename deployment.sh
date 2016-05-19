@@ -30,3 +30,9 @@ sudo tar -xvzf apache-storm-0.9.2-incubating.tar.gz
 sudo rm apache-storm-0.9.2-incubating.tar.gz
 sudo chmod +x /opt/storm/apache-storm-0.9.2-incubating/bin/storm
 sudo ln -s /opt/storm/apache-storm-0.9.2-incubating/bin/storm /usr/bin/storm
+
+sudo wget http://apache.mirror.gtcomm.net/storm/apache-storm-0.10.1/apache-storm-0.10.1.tar.gz
+sudo tar -xvzf apache-storm-0.10.1.tar.gz
+sudo rm apache-storm-0.10.1.tar.gz
+sudo chmod +x /opt/storm/apache-storm-0.10.1/bin/storm
+sudo ln -s /opt/storm/apache-storm-0.10.1/bin/storm /usr/bin/storm10

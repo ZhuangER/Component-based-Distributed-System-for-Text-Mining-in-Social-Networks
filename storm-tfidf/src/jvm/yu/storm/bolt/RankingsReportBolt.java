@@ -24,7 +24,8 @@ import java.util.Locale;
 import com.lambdaworks.redis.RedisClient;
 import com.lambdaworks.redis.RedisConnection;
 
-import yu.storm.tools.*;
+import yu.storm.tools.Rankings;
+import yu.storm.tools.Rankable;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -34,7 +35,7 @@ import com.google.common.collect.Lists;
 /**
  * A bolt that prints the word and count to redis
  */
-public class ReportBolt extends BaseRichBolt
+public class RankingsReportBolt extends BaseRichBolt
 {
   // place holder to keep the connection to redis
   //private OutputCollector collector;
@@ -50,7 +51,7 @@ public class ReportBolt extends BaseRichBolt
     // initiate the actual connection
     redis = client.connect();
 
-    CountryCodeConvert.initCountryCodeMapping();
+    //CountryCodeConvert.initCountryCodeMapping();
 
     //collector = outputCollector;
 
@@ -60,16 +61,24 @@ public class ReportBolt extends BaseRichBolt
   @Override
   public void execute(Tuple tuple)
   {
-	  String tweet = tuple.getStringByField("tweet");
+/*	  String tweet = tuple.getStringByField("tweet");
     String geoinfo = tuple.getStringByField("geoinfo");
     int personalSentiment = tuple.getIntegerByField("personalSentiment");
     double countrySentiment = tuple.getDoubleByField("countrySentiment");
     String countryName = tuple.getStringByField("countryName");
     System.out.println("\t\t\tDEBUG ReportBolt: " + "Tweet countrySentiment:" + String.valueOf(countrySentiment));
+*/
+    Rankings rankableList = (Rankings) tuple.getValue(0);
 
-    countryName = CountryCodeConvert.iso2CountryCodeToIso3CountryCode(countryName);
+    for (Rankable r: rankableList.getRankings()){
+      String word = r.getObject().toString();
+      Long count = r.getCount();
+      redis.publish("WordCountTopology", word + "|" + Long.toString(count));
+    }
+    //redis.publish("word-cloud", rankedItems.toString());
+    //countryName = CountryCodeConvert.iso2CountryCodeToIso3CountryCode(countryName);
 
-    redis.publish("WordCountTopology", geoinfo + "DELIMITER" + tweet + "DELIMITER" + String.valueOf(personalSentiment) + "DELIMITER" + countryName + "DELIMITER" + String.valueOf(countrySentiment));
+    //redis.publish("WordCountTopology", geoinfo + "DELIMITER" + tweet + "DELIMITER" + String.valueOf(personalSentiment) + "DELIMITER" + countryName + "DELIMITER" + String.valueOf(countrySentiment));
     //collector.ack(tuple);
   }
 

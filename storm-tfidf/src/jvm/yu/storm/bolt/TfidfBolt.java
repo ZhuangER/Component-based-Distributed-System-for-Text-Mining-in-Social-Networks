@@ -35,22 +35,11 @@ public class TfidfBolt extends BaseRichBolt {
 	public void execute(Tuple tuple)
 	{
 		// judge the tuple comes from which bolt
-		/*if (tuple.getFields().get(0).equals("dCount")) {
-
-			d = (double)tuple.getIntegerByField("dCount");
-
-		} else */if (tuple.getFields().get(0).equals("dfKey")) {
+		if (tuple.getFields().get(0).equals("dfKey")) {
 
 			String dfKey = tuple.getStringByField("dfKey");
 			Integer dfValue = tuple.getIntegerByField("dfValue");
 			dfCountMap.put(dfKey, dfValue);
-/*			if (dfCountMap.get(dfKey) == null) {
-				dfCountMap.put(dfKey, 1);
-			}
-			else {
-				Integer val = dfCountMap.get(dfKey);
-				dfCountMap.put(dfKey, ++val);
-			}*/
 
 		} else if (tuple.getFields().get(0).equals("tfKey")) {
 
@@ -62,20 +51,16 @@ public class TfidfBolt extends BaseRichBolt {
 			String term = tfKey.split("DELIMITER")[1];
 			double tf = (double)tfValue;
 			tfCountMap.put(tfKey, tfValue);
-/*			if (tfCountMap.get(tfKey) == null) {
-				tfCountMap.put(tfKey, tfValue);
-			}
-			else {
-				Integer val = tfCountMap.get(tfKey);				
-				tfCountMap.put(tfKey, ++val);
-				tf = (double)val;
-			}*/
 
 			//calculate tfidf value
 			if (dfCountMap.get(term) != null) {
 				double df = (double)dfCountMap.get(term);
 				double tfidf = tf * Math.log(d / (1.0 + df));
-				collector.emit(new Values(term, documentId, tfidf));
+				long long_tfidf = (long) tfidf;
+				if (long_tfidf <= 0) {
+					long_tfidf = 0;
+				}
+				collector.emit(new Values(term, (Long)long_tfidf/*, documentId*/));
 			}
 
 		}
@@ -86,7 +71,7 @@ public class TfidfBolt extends BaseRichBolt {
 	public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer)
 	{
 		outputFieldsDeclarer.declare(
-				new Fields("term","documentId","tfidf"));
+				new Fields("term","tfidf"/*,"documentId"*/));
 	}
 
 }

@@ -15,7 +15,7 @@ var groupG = d3.select("body").append("svg")
 d3.layout.cloud().size([1000, 350])
                 .words(frequency_list)
                 .rotate(0)
-                .fontSize(function(d) { return d.value * 10; })
+                .fontSize(function(d) { return d.value; })
                 .on("end", draw)
                 .start();
 
