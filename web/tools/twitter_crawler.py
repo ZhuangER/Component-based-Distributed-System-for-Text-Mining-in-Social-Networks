@@ -29,3 +29,8 @@ class UserTimelineSpider(scrapy.Spider):
                     screen_name = self.screen_name, 
                     count = self.count,
                     max_id = tweets[-1]['id'] - 1) 
+
+
+if __name__ == '__main__':
+    test = UserTimelineSpider(screen_name="Holiczhuanger")
+    test.start_requests()

@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*- 
 
 import tweepy
 import urllib2
@@ -44,15 +45,24 @@ def user_search(query):
 	results = api.search_users(query, 6);
 	return results
 
-def potential_user(query):
-	screen_name = "N/A"
+def screen_name_search(query):
+	basic_info = {}
 	results = user_search(query)
 	for result in results:
+		# friends namely following on the twitter website
+		basic_info = {
+			"name": result.name,
+			"screen_name": result.screen_name,
+			"profile_image_url": result.profile_image_url,
+			"statuses_count": result.statuses_count,
+			"friends_count": result.friends_count,
+			"followers_count": result.followers_count,
+			"favourites_count": result.favourites_count
+		}
+		print result.profile_image_url
 		if result.name == query:
-			screen_name = result.screen_name
 			break
 		elif similarity(result.name, query):
-			screen_name = result.screen_name
 			break
 
 		url = result.url
@@ -60,18 +70,41 @@ def potential_user(query):
 		req = urllib2.Request(url)
 		res = urllib2.urlopen(req)
 		finalurl = res.geturl()
-	return screen_name
+
+	return basic_info
 
 def similarity(str1, str2):
 	return difflib.SequenceMatcher(a=str1.lower(), b=str2.lower()).ratio() > 0.9
 
 def user_timeline(screen_name):
-	count = 200
-	exclude_replies = True
+	count = 10
+	page = 5	# exclude_replies = True
+	#api.user_timeline(screen_name = screen_name, count = count, page = page)
+	def process_status(status):
+		text = status.text.encode('utf-8')
+		retweet_count = status.retweet_count
+		created_at = status.created_at
+		entities = status.entities
+		urls = entities["urls"]
+		hashtags = entities["hashtags"]
+		location = status.location
+
+		print location
+
+	for status in tweepy.Cursor(api.user_timeline, screen_name=screen_name).items(count):
+		process_status(status)
+
+	
+
+def url_generator(screen_name):
+	return "https://twitter.com/" + screen_name
+
 
 
 
 # Test case
 if __name__ == '__main__':
-	print "Test Search Function"
-	search("uoit")
+	# print "Test Search Function"
+	# search("uoit")
+	#user_timeline("UOIT")
+	screen_name_search("UOIT")

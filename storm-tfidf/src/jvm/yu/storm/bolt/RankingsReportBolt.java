@@ -73,7 +73,7 @@ public class RankingsReportBolt extends BaseRichBolt
     for (Rankable r: rankableList.getRankings()){
       String word = r.getObject().toString();
       Long count = r.getCount();
-      redis.publish("WordCountTopology", word + "|" + Long.toString(count));
+      redis.publish("word-cloud", word + "|" + Long.toString(count));
     }
     //redis.publish("word-cloud", rankedItems.toString());
     //countryName = CountryCodeConvert.iso2CountryCodeToIso3CountryCode(countryName);

@@ -6,16 +6,10 @@ var hash = {};
 var width = 1200;
 var height = 700;
 
-
 //update hash (associative array) with incoming word and count
 source.onmessage = function (event) {
-
-  data = event.data.split(",");
-  for (var i in data) {
-    word = data[i].split(" ")[0];
-    count = data[i].split(" ")[1];
-  }
-  
+  word = event.data.split("|")[0];
+  count = event.data.split("|")[1];
   if(!skip(word)){
     hash[word]=count;
   }
@@ -30,7 +24,6 @@ var updateViz =  function(){
 
   d3.layout.cloud().size([800, 300])
   .words(frequency_list)
-  .rotate(0)
   .fontSize(function(d) { return d.value; })
   .on("end", draw)
   .start();
