@@ -28,9 +28,17 @@ class TfidfTopology
 {
   private static String[] mimeTypes = new String[] { "application/pdf", "text/html", "text/plain" };
 
+  private static final int DEFAULT_RUNTIME_IN_SECONDS = 60;
+  private static final int TOP_N = 20;
+
   public static void main(String[] args) throws Exception
   {
 
+    String spoutId = "twitter-spout";
+    String tfidfId = "tfidf-bolt";
+    String intermediateRankerId = "intermediateRanker";
+    String totalRankerId = "finalRanker";
+    String reporterId = "report-bolt";
     // create the topology
     TopologyBuilder builder = new TopologyBuilder();
 
@@ -39,7 +47,7 @@ class TfidfTopology
 
     // create kafka spout
     String zks = "localhost:2181";
-    String topic = "mytopic";
+    String topic = "first";
     String zkRoot = "/storm"; // default zookeeper root configuration for storm
     String id = "word";
          
@@ -54,8 +62,24 @@ class TfidfTopology
 
 
     // set topology
-    builder.setSpout("kafka-spout", new KafkaSpout(spoutConf), 1); 
-    builder.setBolt("document-fetch-bolt", new DocumentFetchBolt(mimeTypes), 10).shuffleGrouping("kafka-spout");
+    builder.setSpout(spoutId, new KafkaSpout(spoutConf), 1);
+    builder.setBolt("document-fetch-bolt", new DocumentFetchBolt(mimeTypes), 10).shuffleGrouping(spoutId);
+    /*builder.setBolt("dcount-bolt",new DCountBolt(), 1).globalGrouping("test-spout");*/
+    builder.setBolt("tokenize-bolt", new TokenizeBolt(), 10).shuffleGrouping("document-fetch-bolt");
+    builder.setBolt("filter-bolt", new TermFilterBolt(), 10).shuffleGrouping("tokenize-bolt");
+    builder.setBolt("dfcount-bolt", new DfCountBolt(), 5).fieldsGrouping("filter-bolt", new Fields("term"));
+    builder.setBolt("tfcount-bolt", new TfCountBolt(), 5).fieldsGrouping("filter-bolt", new Fields("term", "documentId"));
+    builder.setBolt(tfidfId, new TfidfBolt(), 1)/*.globalGrouping("dcount-bolt")*/
+                                                    .globalGrouping("dfcount-bolt")
+                                                    .globalGrouping("tfcount-bolt");
+    //builder.setBolt("topn-bolt", new TopNBolt(), 1).globalGrouping("tfidf-bolt");
+    builder.setBolt(intermediateRankerId, new IntermediateRankingsBolt(TOP_N), 4).fieldsGrouping(tfidfId, new Fields("term"));
+    builder.setBolt(totalRankerId, new TotalRankingsBolt(TOP_N)).globalGrouping(intermediateRankerId);
+    builder.setBolt(reporterId, new RankingsReportBolt(), 1).globalGrouping(totalRankerId);
+
+    // set topology
+    /*builder.setSpout("kafka-spout", new KafkaSpout(spoutConf), 1); 
+    builder.setBolt("document-fetch-bolt", new DocumentFetchBolt(mimeTypes), 10).shuffleGrouping("kafka-spout");*/
     
     /*builder.setSpout("kafka-spout", new KafkaSpout(spoutConf), 1); 
     builder.setBolt("sentiment-bolt", new SentimentBolt(), 10).shuffleGrouping("kafka-spout");

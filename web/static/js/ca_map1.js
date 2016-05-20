@@ -17,9 +17,6 @@ source.onmessage = function(event) {
 }
 
 
-
-
-
 //Map dimensions (in pixels)
 
 var width = 462,

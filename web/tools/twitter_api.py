@@ -65,6 +65,7 @@ def screen_name_search(query):
 		elif similarity(result.name, query):
 			break
 
+		basic_info = {}
 		url = result.url
 		# get the final url after redirect
 		req = urllib2.Request(url)
@@ -77,9 +78,10 @@ def similarity(str1, str2):
 	return difflib.SequenceMatcher(a=str1.lower(), b=str2.lower()).ratio() > 0.9
 
 def user_timeline(screen_name):
-	count = 10
+	count = 1000
 	page = 5	# exclude_replies = True
 	#api.user_timeline(screen_name = screen_name, count = count, page = page)
+	text_list = []
 	def process_status(status):
 		text = status.text.encode('utf-8')
 		retweet_count = status.retweet_count
@@ -89,11 +91,22 @@ def user_timeline(screen_name):
 		hashtags = entities["hashtags"]
 		location = status.location
 
-		print location
+		text_list.append(text)
 
 	for status in tweepy.Cursor(api.user_timeline, screen_name=screen_name).items(count):
-		process_status(status)
+		# process_status(status)
+		text = status.text.encode('utf-8')
+		retweet_count = status.retweet_count
+		created_at = status.created_at
+		entities = status.entities
+		urls = entities["urls"]
+		hashtags = entities["hashtags"]
 
+		text_list.append(text)
+		if urls != []:
+			yield text
+
+	#return text_list
 	
 
 def url_generator(screen_name):
@@ -106,5 +119,6 @@ def url_generator(screen_name):
 if __name__ == '__main__':
 	# print "Test Search Function"
 	# search("uoit")
-	#user_timeline("UOIT")
-	screen_name_search("UOIT")
+	a = user_timeline("UOIT")
+	
+	#screen_name_search("UOIT")

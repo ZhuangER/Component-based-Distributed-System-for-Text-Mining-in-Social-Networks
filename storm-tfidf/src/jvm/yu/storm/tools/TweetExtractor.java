@@ -46,4 +46,11 @@ public class TweetExtractor {
 
     return tweet;
   } 
+  public static List<String> urlExtractor(String tweet) {
+    List<String> urls;
+    Extractor extractor = new Extractor();
+    urls = extractor.extractURLs(tweet);
+
+    return urls;
+  }
 }
