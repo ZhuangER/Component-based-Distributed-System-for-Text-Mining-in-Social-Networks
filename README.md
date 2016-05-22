@@ -9,7 +9,9 @@ Social network analysis with Lambda Architecture
 - Redis
 - Flask
 - D3.js
-- Mapbox
+- Mapbox.js
+- Leaflet.js
+
 
 # File Structure
 - kafka-twitter-producer
@@ -37,5 +39,20 @@ log.retention.hours and log.retention.bytes
 - add leaflet Time-Slider 
 - use geocode to fast search surrounded buildings
 - distributed web crawler with hadoop
+
+
+# More general targets:
+Design a draggable distributed system
+
+
+# Package tool
+Apache Maven
+
+# Components
+
+# Connection tools
+- redis
+- kafka
+- pubnub
 
 # Reference
