@@ -49,6 +49,10 @@ Design a draggable distributed system
 Apache Maven
 
 # Components
+- data source component
+- data extract component 
+- NLP component
+- visualization component
 
 # Connection tools
 - redis
