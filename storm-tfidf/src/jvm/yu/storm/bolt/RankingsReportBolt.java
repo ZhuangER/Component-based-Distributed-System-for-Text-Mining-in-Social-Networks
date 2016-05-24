@@ -27,9 +27,6 @@ import com.lambdaworks.redis.RedisConnection;
 import yu.storm.tools.Rankings;
 import yu.storm.tools.Rankable;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-
 
 
 /**

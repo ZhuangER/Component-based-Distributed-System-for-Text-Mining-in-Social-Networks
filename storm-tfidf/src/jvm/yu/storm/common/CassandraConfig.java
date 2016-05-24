@@ -1,6 +1,7 @@
-package yu.storm;
+package yu.storm.common;
 
-public class Conf {
+public class CassandraConfig {
+
 	public static final String DEFAULT_CASSANDRA_HOST = "";
 	public static final String DEFAULT_CASSANDRA_PORT = "";
 }

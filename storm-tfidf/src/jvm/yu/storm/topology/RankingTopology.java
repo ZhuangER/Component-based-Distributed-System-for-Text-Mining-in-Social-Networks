@@ -9,6 +9,9 @@ import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.tuple.Fields;
 import backtype.storm.utils.Utils;
 import backtype.storm.spout.SchemeAsMultiScheme;
+import backtype.storm.tuple.Values;
+
+import storm.trident.testing.FixedBatchSpout;
 
 import storm.kafka.BrokerHosts;
 import storm.kafka.KafkaSpout;
@@ -16,24 +19,35 @@ import storm.kafka.SpoutConfig;
 import storm.kafka.StringScheme;
 import storm.kafka.ZkHosts;
 
-/*import yu.storm.bolt.CountBolt;
-import yu.storm.bolt.PersistenceBolt;
-import yu.storm.bolt.RegexBolt;
-import yu.storm.bolt.ReportBolt;
-import yu.storm.bolt.SentimentBolt;*/
+import yu.storm.bolt.*;
 
 
-class TweetTopology
+
+
+class RankingTopology
 {
+  private static String[] mimeTypes = new String[] { "application/pdf", "text/html", "text/plain" };
+
+  private static final int DEFAULT_RUNTIME_IN_SECONDS = 60;
+  private static final int TOP_N = 20;
+
   public static void main(String[] args) throws Exception
   {
+
+    String spoutId = "twitter-spout";
+    String tfidfId = "tfidf-bolt";
+    String intermediateRankerId = "intermediateRanker";
+    String totalRankerId = "finalRanker";
+    String reporterId = "report-bolt";
     // create the topology
     TopologyBuilder builder = new TopologyBuilder();
 
 
+
+
     // create kafka spout
     String zks = "localhost:2181";
-    String topic = "mytopic";
+    String topic = "first";
     String zkRoot = "/storm"; // default zookeeper root configuration for storm
     String id = "word";
          
@@ -46,13 +60,22 @@ class TweetTopology
     //spoutConf.bufferSizeBytes = 1024;
 
 
+
     // set topology
-   /* builder.setSpout("kafka-spout", new KafkaSpout(spoutConf), 1); 
-    builder.setBolt("sentiment-bolt", new SentimentBolt(), 10).shuffleGrouping("kafka-spout");
-    builder.setBolt("regex-bolt", new RegexBolt(), 10).shuffleGrouping("sentiment-bolt");
-    builder.setBolt("count-bolt", new CountBolt(), 10).fieldsGrouping("regex-bolt", new Fields("countryName"));
-    builder.setBolt("report-bolt", new ReportBolt(), 1).globalGrouping("count-bolt");*/
-    //builder.setBolt("persistence-bolt", new PersistenceBolt(), 1).globalGrouping("count-bolt");
+    builder.setSpout(spoutId, new KafkaSpout(spoutConf), 1);
+    builder.setBolt("document-fetch-bolt", new DocumentFetchBolt(mimeTypes), 10).shuffleGrouping(spoutId);
+    /*builder.setBolt("dcount-bolt",new DCountBolt(), 1).globalGrouping("test-spout");*/
+    builder.setBolt("tokenize-bolt", new TokenizeBolt(), 10).shuffleGrouping("document-fetch-bolt");
+    builder.setBolt("filter-bolt", new TermFilterBolt(), 10).shuffleGrouping("tokenize-bolt");
+    builder.setBolt("dfcount-bolt", new DfCountBolt(), 5).fieldsGrouping("filter-bolt", new Fields("term"));
+    builder.setBolt("tfcount-bolt", new TfCountBolt(), 5).fieldsGrouping("filter-bolt", new Fields("term", "documentId"));
+    builder.setBolt(tfidfId, new TfidfBolt(), 1)/*.globalGrouping("dcount-bolt")*/
+                                                    .globalGrouping("dfcount-bolt")
+                                                    .globalGrouping("tfcount-bolt");
+    //builder.setBolt("topn-bolt", new TopNBolt(), 1).globalGrouping("tfidf-bolt");
+    builder.setBolt(intermediateRankerId, new IntermediateRankingsBolt(TOP_N), 4).fieldsGrouping(tfidfId, new Fields("term"));
+    builder.setBolt(totalRankerId, new TotalRankingsBolt(TOP_N)).globalGrouping(intermediateRankerId);
+    builder.setBolt(reporterId, new RankingsReportBolt(), 1).globalGrouping(totalRankerId);
 
     // create the default config object
     Config conf = new Config();
