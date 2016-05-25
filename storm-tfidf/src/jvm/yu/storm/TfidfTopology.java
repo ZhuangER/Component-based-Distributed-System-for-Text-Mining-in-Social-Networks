@@ -1,4 +1,4 @@
-package yu.storm.topology;
+package yu.storm;
 
 import java.util.Arrays;
 import java.util.Properties;
@@ -12,6 +12,8 @@ import backtype.storm.utils.Utils;
 import backtype.storm.spout.SchemeAsMultiScheme;
 import backtype.storm.tuple.Values;
 
+import storm.trident.testing.FixedBatchSpout;
+
 import storm.kafka.BrokerHosts;
 import storm.kafka.KafkaSpout;
 import storm.kafka.SpoutConfig;
@@ -20,7 +22,6 @@ import storm.kafka.ZkHosts;
 
 import yu.storm.bolt.*;
 import yu.storm.spout.KafkaSpoutBuilder;
-//import yu.storm.tools.StormRunner;
 
 
 

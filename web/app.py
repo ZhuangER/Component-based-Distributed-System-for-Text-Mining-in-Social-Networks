@@ -78,7 +78,7 @@ def twitter_query():
             return jsonify(message = "There is no twitter account available!")
         text_list = twitter_api.user_timeline(basic_info["screen_name"])
         for text in text_list:
-            print text
+            #print text
             kafka_producer.send_messages("first",text)
     # if api reach its rate limits, move to web crawler
     return jsonify(message = "")

@@ -21,38 +21,35 @@ import java.util.Locale;
 import yu.storm.tools.Rankings;
 import yu.storm.tools.Rankable;
 
-public class KafkaProducerBolt extends BaseRichBolt{
+import kafka.javaapi.producer.Producer;
+import kafka.producer.KeyedMessage;
+import kafka.producer.ProducerConfig;
 
-	transient RedisConnection<String,String> redis;
+import yu.storm.tools.KafkaProducer;
+
+public class KafkaProducerBolt extends BaseRichBolt{
+	public static KafkaProducer producer;
+	String brokerList = "";
+    String topic = "";
+    String age = "";
+    String sync = "";
+
 	@Override
 	public void prepare(
 		Map                     map,
 		TopologyContext         topologyContext,
 		OutputCollector         outputCollector) {
 
-		// instantiate a redis connection
-		RedisClient client = new RedisClient("localhost",6379);
-		// initiate the actual connection
-		redis = client.connect();
-
-		//CountryCodeConvert.initCountryCodeMapping();
-
-		//collector = outputCollector;
-
+		producer = new KafkaProducer(topic);
+		producer.configure(brokerList, sync);
+		producer.start();
 	}
 
 
 	@Override
 	public void execute(Tuple tuple)
 	{
-
-		Rankings rankableList = (Rankings) tuple.getValue(0);
-
-		for (Rankable r: rankableList.getRankings()){
-		String word = r.getObject().toString();
-		Long count = r.getCount();
-		redis.publish("word-cloud", word + "|" + Long.toString(count));
-		}
+		producer.produce("");
 
 	}
 
