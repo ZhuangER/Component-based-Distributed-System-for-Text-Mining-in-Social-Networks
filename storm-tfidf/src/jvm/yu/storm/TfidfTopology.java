@@ -12,8 +12,6 @@ import backtype.storm.utils.Utils;
 import backtype.storm.spout.SchemeAsMultiScheme;
 import backtype.storm.tuple.Values;
 
-import storm.trident.testing.FixedBatchSpout;
-
 import storm.kafka.BrokerHosts;
 import storm.kafka.KafkaSpout;
 import storm.kafka.SpoutConfig;
@@ -77,7 +75,7 @@ class TfidfTopology
     //builder.setBolt("topn-bolt", new TopNBolt(), 1).globalGrouping("tfidf-bolt");
     builder.setBolt(intermediateRankerId, new IntermediateRankingsBolt(TOP_N), 4).fieldsGrouping(tfidfId, new Fields("term"));
     builder.setBolt(totalRankerId, new TotalRankingsBolt(TOP_N)).globalGrouping(intermediateRankerId);
-    builder.setBolt(reporterId, new RankingsReportBolt(), 1).globalGrouping(totalRankerId);
+    builder.setBolt(reporterId, new KafkaProducerBolt(), 1).globalGrouping(totalRankerId);
 
 
   }

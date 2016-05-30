@@ -59,4 +59,12 @@ Apache Maven
 - kafka
 - pubnub
 
+
+documentFetche: url -> document
+tokenize: document -> words
+tfidf: words -> score
+sentiment: sentence/document -> sentiment
+
+
+
 # Reference

@@ -64,6 +64,10 @@ def university():
 def word_cloud():
     return render_template("word-cloud.html")
 
+@app.route('/component')
+def component():
+    return render_template("component.html")
+
 @app.route('/_twitter_query')
 def twitter_query():
     kafka = KafkaClient("localhost:9092")

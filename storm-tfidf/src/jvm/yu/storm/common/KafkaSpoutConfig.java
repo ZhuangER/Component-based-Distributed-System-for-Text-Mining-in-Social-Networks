@@ -1,6 +1,6 @@
 package yu.storm.common;
 
-public class KafkaConfig {
+public class KafkaSpoutConfig {
 
 	public static final String ZKS = "localhost:2181";
     public static final String TOPIC = "mytopic";

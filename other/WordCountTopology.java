@@ -1,4 +1,4 @@
-package yu.storm;
+/*package yu.storm.topology;
 
 import java.util.Arrays;
 
@@ -24,7 +24,7 @@ import yu.storm.bolt.*;
 
 
 
-class RankingTopology
+class WordCountTopology
 {
   private static String[] mimeTypes = new String[] { "application/pdf", "text/html", "text/plain" };
 
@@ -34,7 +34,7 @@ class RankingTopology
   public static void main(String[] args) throws Exception
   {
 
-    String spoutId = "twitter-spout";
+    String spoutId = "kafka-spout";
     String tfidfId = "tfidf-bolt";
     String intermediateRankerId = "intermediateRanker";
     String totalRankerId = "finalRanker";
@@ -63,19 +63,6 @@ class RankingTopology
 
     // set topology
     builder.setSpout(spoutId, new KafkaSpout(spoutConf), 1);
-    builder.setBolt("document-fetch-bolt", new DocumentFetchBolt(mimeTypes), 10).shuffleGrouping(spoutId);
-    /*builder.setBolt("dcount-bolt",new DCountBolt(), 1).globalGrouping("test-spout");*/
-    builder.setBolt("tokenize-bolt", new TokenizeBolt(), 10).shuffleGrouping("document-fetch-bolt");
-    builder.setBolt("filter-bolt", new TermFilterBolt(), 10).shuffleGrouping("tokenize-bolt");
-    builder.setBolt("dfcount-bolt", new DfCountBolt(), 5).fieldsGrouping("filter-bolt", new Fields("term"));
-    builder.setBolt("tfcount-bolt", new TfCountBolt(), 5).fieldsGrouping("filter-bolt", new Fields("term", "documentId"));
-    builder.setBolt(tfidfId, new TfidfBolt(), 1)/*.globalGrouping("dcount-bolt")*/
-                                                    .globalGrouping("dfcount-bolt")
-                                                    .globalGrouping("tfcount-bolt");
-    //builder.setBolt("topn-bolt", new TopNBolt(), 1).globalGrouping("tfidf-bolt");
-    builder.setBolt(intermediateRankerId, new IntermediateRankingsBolt(TOP_N), 4).fieldsGrouping(tfidfId, new Fields("term"));
-    builder.setBolt(totalRankerId, new TotalRankingsBolt(TOP_N)).globalGrouping(intermediateRankerId);
-    builder.setBolt(reporterId, new RankingsReportBolt(), 1).globalGrouping(totalRankerId);
 
     // create the default config object
     Config conf = new Config();
@@ -117,3 +104,4 @@ class RankingTopology
     }
   }
 }
+*/

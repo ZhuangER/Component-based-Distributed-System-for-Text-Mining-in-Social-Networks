@@ -10,27 +10,19 @@ import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import backtype.storm.utils.Utils;
 
-import com.lambdaworks.redis.RedisClient;
-import com.lambdaworks.redis.RedisConnection;
-
-import java.util.HashMap;
 import java.util.Map;
-import java.util.TreeMap;
-import java.util.Locale;
-
-import yu.storm.tools.Rankings;
-import yu.storm.tools.Rankable;
 
 import kafka.javaapi.producer.Producer;
 import kafka.producer.KeyedMessage;
 import kafka.producer.ProducerConfig;
 
 import yu.storm.tools.KafkaProducer;
+import yu.storm.tools.CountryCodeConvert;
 
 public class KafkaProducerBolt extends BaseRichBolt{
 	public static KafkaProducer producer;
 	String brokerList = "localhost:9092";
-    String topic = "tfidf";
+    String topic = "sentiment";
     String sync = "sync";
 
 	@Override
@@ -42,20 +34,24 @@ public class KafkaProducerBolt extends BaseRichBolt{
 		producer = new KafkaProducer(topic);
 		producer.configure(brokerList, sync);
 		producer.start();
+
+		CountryCodeConvert.initCountryCodeMapping();
 	}
 
 
 	@Override
 	public void execute(Tuple tuple)
 	{
-		Rankings rankableList = (Rankings) tuple.getValue(0);
+		String tweet = tuple.getStringByField("tweet");
+    	String geoinfo = tuple.getStringByField("geoinfo");
+    	int personalSentiment = tuple.getIntegerByField("personalSentiment");
+    	double countrySentiment = tuple.getDoubleByField("countrySentiment");
+    	String countryName = tuple.getStringByField("countryName");
+    	System.out.println("\t\t\tDEBUG ReportBolt: " + "Tweet countrySentiment:" + String.valueOf(countrySentiment));
 
-	    for (Rankable r: rankableList.getRankings()){
-	      	String word = r.getObject().toString();
-	      	Long count = r.getCount();
-			producer.produce(word + "|" + Long.toString(count));
-	    }
+    	countryName = CountryCodeConvert.iso2CountryCodeToIso3CountryCode(countryName);
 
+    	producer.produce( geoinfo + "DELIMITER" + tweet + "DELIMITER" + String.valueOf(personalSentiment) + "DELIMITER" + countryName + "DELIMITER" + String.valueOf(countrySentiment));
 	}
 
 	public void declareOutputFields(OutputFieldsDeclarer declarer)

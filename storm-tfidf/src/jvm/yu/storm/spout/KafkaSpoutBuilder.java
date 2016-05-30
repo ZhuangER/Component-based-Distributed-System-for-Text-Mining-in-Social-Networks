@@ -11,7 +11,7 @@ import storm.kafka.ZkHosts;
 import java.util.Arrays;
 import java.util.Properties;
 
-import yu.storm.common.KafkaConfig;
+import yu.storm.common.KafkaSpoutConfig;
 
 public class KafkaSpoutBuilder{
 
@@ -22,22 +22,22 @@ public class KafkaSpoutBuilder{
     }
 
     public KafkaSpout buildKafkaSpout() {
-        String topic = configs.getProperty(KafkaConfig.TOPIC);
-        String zkRoot = configs.getProperty(KafkaConfig.ZKROOT); // default zookeeper root configuration for storm
-        String id = configs.getProperty(KafkaConfig.ID);
+        String topic = KafkaSpoutConfig.TOPIC;
+        String zkRoot = KafkaSpoutConfig.ZKROOT; // default zookeeper root configuration for storm
+        String id = KafkaSpoutConfig.ID;
         return this.buildKafkaSpout(topic, zkRoot, id);
     }
 
     public KafkaSpout buildKafkaSpout(String topic) {
-        String zkRoot = configs.getProperty(KafkaConfig.ZKROOT); // default zookeeper root configuration for storm
-        String id = configs.getProperty(KafkaConfig.ID);
+        String zkRoot = KafkaSpoutConfig.ZKROOT; // default zookeeper root configuration for storm
+        String id = KafkaSpoutConfig.ID;
         
         return this.buildKafkaSpout(topic, zkRoot, id);
     }
     
     public KafkaSpout buildKafkaSpout(String topic, String zkRoot, String id) {
-        BrokerHosts brokerHosts = new ZkHosts(configs.getProperty(KafkaConfig.ZKS));
-        String groupId = configs.getProperty(KafkaConfig.CONSUMERGROUP);
+        BrokerHosts brokerHosts = new ZkHosts(KafkaSpoutConfig.ZKS);
+        String groupId = KafkaSpoutConfig.CONSUMERGROUP;
         SpoutConfig spoutConf = new SpoutConfig(brokerHosts, topic, zkRoot, id);
         spoutConf.scheme = new SchemeAsMultiScheme(new StringScheme());
         spoutConf.forceFromStart = false;
