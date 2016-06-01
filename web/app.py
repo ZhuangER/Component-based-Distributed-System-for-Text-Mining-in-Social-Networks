@@ -4,6 +4,7 @@ from flask import Flask, render_template, Response, request, jsonify, flash
 import redis
 import csv
 import os, sys
+import threading
 
 
 lib_path = os.path.abspath(os.path.join('tools'))
@@ -13,7 +14,7 @@ import twitter_api
 # import pycountry
 import wikipedia
 
-from kafka import KafkaClient, SimpleProducer
+from kafka import KafkaClient, SimpleProducer, KafkaConsumer
 
 
 
@@ -33,13 +34,49 @@ for l in temp_list:
 def event_stream():
     pubsub = r.pubsub()
     # pubsub2 = r.pubsub()
-    # pubsub.subscribe('WordCountTopology')
+    # pubsub.subscribe('WordCountpyhology')
     pubsub.subscribe('word-cloud')
     # pubsub2.subscribe('wordcount')
     for message in pubsub.listen():
         # print message
         # print message['data'].split('DELIMITER')[3]
         yield 'data: %s\n\n' % message['data']
+
+@app.route('/stream')
+def stream():
+    return Response(event_stream(), mimetype="text/event-stream")
+
+
+
+
+class Consumer(threading.Thread):
+    daemon = True
+
+    def run(self):
+        consumer = KafkaConsumer(bootstrap_servers='localhost:9092')
+        consumer.subscribe(['tfidf'])
+
+        for message in consumer:
+            yield (message)
+
+
+#consumer = KafkaConsumer("tfidf", bootstrap_servers=['localhost:9092'])
+consumer = Consumer()
+consumer.start()
+
+@app.route('/kafka_stream')
+def kafka_stream():
+    def gen():
+
+        for message in consumer.run():
+            yield 'data: %s\n\n' %message.value
+        # for msg in consumer:
+        #     print msg
+            #yield message.value
+            # yield msg
+    print "DEBUG: Kafka Stream Connected"
+    return Response(gen(), mimetype="text/event-stream")
+
 
 
 @app.route('/')
@@ -126,10 +163,6 @@ def autocomplete():
     # app.logger.debug(search)
     return jsonify(university_list=university_list)
 
-
-@app.route('/stream')
-def stream():
-    return Response(event_stream(), mimetype="text/event-stream")
 
 if __name__ == '__main__':
     app.run(threaded=True, host='0.0.0.0', debug=True)
