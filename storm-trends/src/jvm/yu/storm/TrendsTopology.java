@@ -23,7 +23,7 @@ import yu.storm.spout.KafkaSpoutBuilder;
 
 
 
-class TfidfTopology
+class TrendsTopology
 {
   private static String[] mimeTypes = new String[] { "application/pdf", "text/html", "text/plain" };
 

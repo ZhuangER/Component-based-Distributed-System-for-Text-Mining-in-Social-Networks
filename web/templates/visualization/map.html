@@ -1,36 +1,214 @@
 <!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title>Map</title>
-  <!-- Latest compiled and minified CSS -->
-  <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
-  <!-- Optional theme -->
-  <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
+<meta charset="utf-8">
+<title>Map</title>
+<style>
 
-  <!-- APP js -->
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-  <!-- add d3 from web -->
-  <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
-  <!-- D3 Word Cloud Implementation by Eric Coopey: http://bl.ocks.org/ericcoopey/6382449 -->
-  <script src="/static/js/app-cloud.js"></script>
-  <script src="/static/js/d3.layout.cloud.js"></script>
+svg.datamap{
+  background: black;
+}
 
-	<style type="text/css">
-		svg{
-			display: block;
+html {
+  background: black;
+}
 
-			margin: 0 auto;
-		}
-	</style>
+/*#datamaps-bubble {
+  background: -webkit-gradient(radial, 50% 50%, 50, 50% 50%, 70, from(rgba(255,255,255,0)), to(rgba(255,255,255,1)));
+}*/
 
-  
-</head>
-
+</style>
 <body>
-  <h1 style="color:#55ACEE">Map</h1>
+<h1 style="color:#55ACEE">Map</h1>
+<!-- {{topic}} -->
 
-  <div id="chart"></div>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="http://d3js.org/topojson.v1.min.js"></script>
+<script src="http://datamaps.github.io/scripts/0.4.4/datamaps.world.min.js"></script>
+
+<div id="container" style="position: relative; width: 1600px; height: 1000px;"></div>
+<script>
+
+      var countryColors = 
+      [ "#0000FF",
+        "#0066FF",
+        "#3399FF",
+        "#66CCFF",
+        "#CCFFFF",
+        "#CCFFCC",
+        "#FFFFCC",
+        "#FFFF99",
+        "#FFFF66",
+        "#FFFF00",
+        "#FFFF00"];
+
+      var source = new EventSource('/stream');
+      var hashSentence = {};
+      var hashPersonalSentiment = {};
+      var hashCountry = {};
+      var hashCountrySentiment = {};
+      var sentimentWords = ["unhappy", "medium unhappy", "neutral", "medium happy", "happy"];
+
+      source.onmessage = function (event) {
+        var geoinfo = event.data.split("DELIMITER")[0];
+        var sentence = event.data.split("DELIMITER")[1];
+        var personalSentiment = event.data.split("DELIMITER")[2];
+        var countryName = event.data.split("DELIMITER")[3];
+        var countrySentiment = event.data.split("DELIMITER")[4];
+        
+        //var point = [latitude, longitude];
+        //console.log("NEW DATA IS HERE " + event.data);
+
+        hashSentence[geoinfo]=sentence;
+        hashPersonalSentiment[geoinfo]=personalSentiment;
+        hashCountry[geoinfo] = countryName;
+        hashCountrySentiment[countryName] = countrySentiment; 
+        //hashURLInfo[county_id]=URLInfo;
+
+      };
+
+var projection, path;
+/*var width = 960,
+    height = 500;*/
+     var map = new Datamap({
+        element: document.getElementById('container'),
+        scope: 'world',
+
+        setProjection: function(element, options) {
+            
+            projection = d3.geo.mercator()
+                .scale((element.offsetWidth + 1) / 2 / Math.PI)
+                .translate([element.offsetWidth / 2, element.offsetHeight / 1.45 ]);
+
+            path = d3.geo.path()
+                .projection( projection );
+
+            return {path: path, projection: projection};
+        },
+        fills: {
+            "bubbleSentiment0":"#4B0082",
+            "bubbleSentiment1":"#3399FF",
+            "bubbleSentiment2":"#CCFFFF",
+            "bubbleSentiment3":"#FFFFCC",
+            "bubbleSentiment4":"#FFFF00",
+            defaultFill: '#black'
+        },
+
+        data: {
+        },
+
+        geographyConfig: {
+          highlightOnHover: true,
+          highlightFillColor: '#02AF9C',
+          borderWidth: 1,
+          borderOpacity: 0.3,
+          highlightBorderOpacity: 0.3,
+        },
+
+        bubblesConfig: {
+          borderWidth: 5,
+          borderOpacity: 0.3,
+          fillOpacity: 0.75,
+          hightlightBorderWidth: 0,
+          /*highlightFillOpacity: 0.3,*/
+          highlightBorderOpacity: 0.3,
+          animate: true
+        },
+
+    });
+
+
+    function componentToHex(c) {
+      var hex = c.toString(16);
+      return hex.length == 1 ? "0" + hex : hex;
+    }
+
+    function rgbToHex(r, g, b) {
+      return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+    }
+
+    function gridentColor(startR, startG, startB, mediumR, mediumG, mediumB, endR, endG, endB, sentiment) {
+      if(sentiment == 0.5) {
+        return rgbToHex(mediumR, mediumG, mediumB);
+      }
+      else if (sentiment == 0.0) {
+        return rgbToHex(startR, startG, startB);
+      }
+      else if (sentiment == 1.0) {
+        return rgbToHex(endR, endG, endB);
+      }
+      else if (sentiment < 0.5) {
+        var r = startR + (mediumR - startR) * sentiment * 2;
+        var g = startG + (mediumG - startG) * sentiment * 2;
+        var b = startB + (mediumB - startB) * sentiment * 2;
+        return rgbToHex(Math.round(r), Math.round(g), Math.round(b));
+      }
+      else if (sentiment > 0.5) {
+        var r = mediumR + (endR - mediumR) * (sentiment - 0.5) * 2;
+        var g = mediumG + (endG - mediumG) * (sentiment - 0.5) * 2;
+        var b = mediumB + (endB - mediumB) * (sentiment - 0.5) * 2;
+        return rgbToHex(Math.round(r), Math.round(g), Math.round(b));
+      }
+    }
+
+
+var tweetlist = [];
+
+var updateViz =  function(){
+
+    for(key in hashPersonalSentiment)
+    {
+
+        console.log("REFRESH: " + key + ":" + hashPersonalSentiment[key]);
+        var data = {}; 
+
+        if(hashPersonalSentiment[key])
+        {
+          var latitude = parseFloat(key.split(",")[0]);
+          var longitude = parseFloat(key.split(",")[1]);
+          if (longitude && latitude){
+          tweetlist.push({latitude: latitude, longitude: longitude, radius: 5, sentence: hashSentence[key], country: hashCountry[key], fillKey: 'bubbleSentiment' + hashPersonalSentiment[key].toString(), sentiment: sentimentWords[hashPersonalSentiment[key]]});
+          //data[key] = colors[Math.round(hashSentiment[key]*10)];
+          //draw bubbles
+          map.bubbles(tweetlist, {
+            popupTemplate: function (geo, data){
+              return ['<div class="hoverinfo">' + 'location:' + [data.latitude, data.longitude],
+            '<br/>Sentence: ' +  data.sentence + '',
+            '<br/>Country: ' + data.country + '',
+            '<br/>Sentiment: ' + data.sentiment  +'',
+            '</div>']
+            }
+          });
+          console.log("draw" + {name: hashSentence[key], latitude: latitude, longitude: longitude, radius: 10});
+          }
+        }
+
+    }
+
+    hashPersonalSentiment = {};
+
+
+    for(key in hashCountrySentiment)
+    {
+
+        console.log("REFRESH: " + key + ":" + hashCountrySentiment[key]);
+        var data = {}; 
+
+        if(hashCountrySentiment[key])
+        {
+          data[key] = gridentColor(75, 0, 130, 204, 255, 255, 255, 255, 0, hashCountrySentiment[key]);
+          map.updateChoropleth(data);
+        
+        }
+    }
+
+    hashCountrySentiment = {};
+
+
+}
+
+
+window.setInterval(updateViz, 1000);
+
+</script>
+
+
 </body>
-<script src="/static/js/word-cloud.js"></script>
-</html>

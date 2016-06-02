@@ -18,7 +18,6 @@ import storm.kafka.ZkHosts;
 
 import yu.storm.bolt.CountBolt;
 import yu.storm.bolt.RegexBolt;
-import yu.storm.bolt.RedisReportBolt;
 import yu.storm.bolt.SentimentBolt;
 import yu.storm.bolt.KafkaProducerBolt;
 
@@ -33,7 +32,7 @@ class SentimentTopology
 
     // create kafka spout
     String zks = "localhost:2181";
-    String topic = "mytopic";
+    String topic = "twitter";
     String zkRoot = "/storm"; // default zookeeper root configuration for storm
     String id = "word";
          

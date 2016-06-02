@@ -1,9 +1,17 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
-<title>Line Graph</title>
+<title>Bar Chart</title>
 <style>
 
-body {
+.bar {
+  fill: steelblue;
+}
+
+.bar:hover {
+  fill: brown;
+}
+
+.axis {
   font: 10px sans-serif;
 }
 
@@ -18,27 +26,19 @@ body {
   display: none;
 }
 
-.line {
-  fill: none;
-  stroke: steelblue;
-  stroke-width: 1.5px;
-}
-
 </style>
 <body>
-<h1 style="color:#55ACEE">Line Graph</h1>
+<h1 style="color:#55ACEE">Bar Chart</h1>
 
 <script src="//d3js.org/d3.v3.min.js"></script>
 <script>
 
-var margin = {top: 20, right: 20, bottom: 30, left: 50},
+var margin = {top: 20, right: 20, bottom: 30, left: 40},
     width = 960 - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom;
 
-var formatDate = d3.time.format("%d-%b-%y");
-
-var x = d3.time.scale()
-    .range([0, width]);
+var x = d3.scale.ordinal()
+    .rangeRoundBands([0, width], .1);
 
 var y = d3.scale.linear()
     .range([height, 0]);
@@ -49,11 +49,8 @@ var xAxis = d3.svg.axis()
 
 var yAxis = d3.svg.axis()
     .scale(y)
-    .orient("left");
-
-var line = d3.svg.line()
-    .x(function(d) { return x(d.date); })
-    .y(function(d) { return y(d.close); });
+    .orient("left")
+    .ticks(10, "%");
 
 var svg = d3.select("body").append("svg")
     .attr("width", width + margin.left + margin.right)
@@ -61,11 +58,11 @@ var svg = d3.select("body").append("svg")
   .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-d3.tsv("/static/data/line_test.tsv", type, function(error, data) {
+d3.tsv("/static/data/bar_test.tsv", type, function(error, data) {
   if (error) throw error;
 
-  x.domain(d3.extent(data, function(d) { return d.date; }));
-  y.domain(d3.extent(data, function(d) { return d.close; }));
+  x.domain(data.map(function(d) { return d.letter; }));
+  y.domain([0, d3.max(data, function(d) { return d.frequency; })]);
 
   svg.append("g")
       .attr("class", "x axis")
@@ -80,17 +77,20 @@ d3.tsv("/static/data/line_test.tsv", type, function(error, data) {
       .attr("y", 6)
       .attr("dy", ".71em")
       .style("text-anchor", "end")
-      .text("Price ($)");
+      .text("Frequency");
 
-  svg.append("path")
-      .datum(data)
-      .attr("class", "line")
-      .attr("d", line);
+  svg.selectAll(".bar")
+      .data(data)
+    .enter().append("rect")
+      .attr("class", "bar")
+      .attr("x", function(d) { return x(d.letter); })
+      .attr("width", x.rangeBand())
+      .attr("y", function(d) { return y(d.frequency); })
+      .attr("height", function(d) { return height - y(d.frequency); });
 });
 
 function type(d) {
-  d.date = formatDate.parse(d.date);
-  d.close = +d.close;
+  d.frequency = +d.frequency;
   return d;
 }
 

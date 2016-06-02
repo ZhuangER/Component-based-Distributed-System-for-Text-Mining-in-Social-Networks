@@ -6,7 +6,7 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <!--viewport用于适配移动端，1表示不缩放-->
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Bootstrap的HTML标准模板</title>       
+        <title>Components</title>       
         <!-- 以下两个插件用于在IE8以及以下版本浏览器支持HTML5元素和媒体查询，如果不需要用可以移除 -->
         <!--[if lt IE 9]>
         <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
@@ -14,18 +14,19 @@
         <![endif]-->
     </head>
     <body>
-        <h1>Hello, world!</h1>
+        <h1>Components</h1>
         <form method="POST" action="{{ url_for('component') }}">
             <div class="data-collection">
                 Data Collection <br/>
                 <select class="data-collection" name="data-collection">
+                  <option value="realtime">Real-time Tweets</option>
                   <option value="user-timeline">Timeline of User</option>
                   <option value="query-by-text">Query by Text</option>
                   <option value="query-by-location">Query by Location</option>
                   <option value="favorite-list">Favorite List</option>
                 </select>
-                <input type="text" name="twitter-account" placeholder="twitter account">
-                <input type="text" name="query-text" placeholder="query-by-text">
+                <input type="text" name="twitter-account" placeholder="Twitter Account">
+                <input type="text" name="query-text" placeholder="Query by Text">
                 <input type="text" name="query-location" placeholder="Query by Location">
                 <input type="text" name="favorite-list" placeholder="Favorite List">
                 <br/>
@@ -44,6 +45,7 @@
             <select class="data-visualization" name="data-visualization">
               <option value="map">Map</option>
               <option value="line-graph">Line Graph</option>
+              <option value="bar-chart">Bar Chart</option>
               <option value="radar-chart">Radar Chart</option>
               <option value="pie-chart">Pie Chart</option>
               <option value="word-cloud">Word Cloud</option>
