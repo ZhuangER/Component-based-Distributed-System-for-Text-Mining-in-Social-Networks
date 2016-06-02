@@ -14,6 +14,12 @@ auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_token_secret)
 api = tweepy.API(auth)
 
+
+# Timeline of User: user_timeline
+# Query by text: search
+# Query by location: area_search
+# Favorite list
+
 def search(query):
 	# use precise search
 	results = api.search(q='"' + query + '"', lang="en", count=100)

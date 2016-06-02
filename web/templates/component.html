@@ -17,58 +17,140 @@
         <h1>Hello, world!</h1>
         <ul>
             <li>
-                Data Collection
-                <ul>
+                Data Collection <br/>
+                <!-- <ul>
                     <li>Timeline of User</li>
                     <li>Query by Text</li>
                     <li>Query by Location</li>
                     <li>Favorite List</li>
-                </ul>
+                </ul> -->
+                <select class="data-collection" name="data-collection" form="data-collection">
+                  <option value="user-timeline">Timeline of User</option>
+                  <option value="query-by-text">Query by Text</option>
+                  <option value="query-by-location">Query by Location</option>
+                  <option value="favorite-list">Favorite List</option>
+                </select>
+                <br/>
+                <button type="button" class="data-collection">Click Me!</button> <br/>
                 
             </li>
 
             <li>
-                Data Processing
-                <ul>
+                Data Processing <br/>
+                <!-- <ul>
                     <li>Sentiment Analyze</li>
                     <li>Tfidf</li>
                     <li>Word Count</li>
                     <li>Top N</li>
-                </ul>
+                </ul> -->
+                <select class="data-processing" name="data-processing" form="data-processing">
+                  <option value="sentiment">Sentiment Analyze</option>
+                  <option value="tfidf">Tfidf</option>
+                  <option value="word-count">Word Count</option>
+                  <option value="top-n">Top N</option>
+                </select>
+                <br/>
+                <button type="button" class="data-processing">Click Me!</button> <br/>
             </li>
 
             <li>
-                Data Visualization
-                <ul>
+                Data Visualization <br/>
+                <!-- <ul>
                     <li>Map</li>
                     <li>Line Graph</li>
                     <li>Radar Chart</li>
                     <li>Pie Chart</li>
                     <li>Word Cloud</li>
-                </ul>
+                </ul> -->
+                <select class="data-visualization" name="data-visualization" form="data-visualization">
+                  <option value="map">Map</option>
+                  <option value="line-graph">Line Graph</option>
+                  <option value="radar-chart">Radar Chart</option>
+                  <option value="pie-chart">Pie Chart</option>
+                  <option value="word-cloud">Word Cloud</option>
+                </select>
+                <br/>
+                <button type="button" class="data-visualization">Click Me!</button> <br/>
+
             </li>
 
             <li>
-                Data Persistence
-                <ul>
+                Data Persistence <br/>
+                <!-- <ul>
                     <li>Apache Cassandra</li>
                     <li>Neo4j</li>
-                </ul>
+                </ul> -->
+                <select class="data-persistence" name="data-persistence" form="data-persistence">
+                  <option value="cassandra">Apache Cassandra</option>
+                  <option value="neo4j">Neo4j</option>
+                </select>
+                <br/>
+                <button type="button" class="data-persistence">Click Me!</button> <br/>
             </li>
         </ul>
-        <script type="text/javascript">
-        var source = new EventSource('/kafka_stream');
 
-        source.onmessage = function (event) {
-            console.log(event.data);
-        }
+        <div id="selected-item">
+        </div>
+        <!-- <form action="submit">
+            <input type="submit" value="Submit"> <br/>
+        </form> -->
+        
 
-        </script>
+
+        Topic:<br>
+        <select class="kafka-topic" name="kafka-topic" form="kafka-topic">
+          <option value="tfidf">tfidf</option>
+          <option value="sentiment">sentiment</option>
+        </select>
+        <br/>
+        <button type="button" class="topic">Click Me!</button>
+
+
         
         <!-- 如果要使用Bootstrap的js插件，必须先调入jQuery -->
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
         <!-- 包括所有bootstrap的js插件或者可以根据需要使用的js插件调用　-->
         <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script> 
+
+        <script type="text/javascript">
+        /*var source = new EventSource('/stream?topic=' + topic);*/
+        /*var source = new EventSource('/stream');*/
+        /*source.onmessage = function (event) {
+            console.log(event.data);
+        }
+*/
+        var collection;
+        var processing;
+        var visualization;
+        var persistence;
+        $('button').click(function(e) {
+            var className = $(this).attr('class');
+            var text = $('select.'+className+' option:selected').text()
+            var value = $('select.'+className+' option:selected').attr('value')
+            if (className == 'data-collection') {
+                collection = value;
+            } else if (className == 'data-processing') {
+                processing = value;
+            } else if (className == 'data-visualization') {
+                visualization = value;
+            } else if (className == 'data-persistence') {
+                persistence = value;
+            }
+            $('#selected-item').append(text+'<br/>');
+        })
+
+        $('button.topic').click(function(e){
+            /*var topic = $('input').val();*/
+            var topic = $('.kafka-topic option:selected').text();
+            console.log(topic);
+            var source = null;
+            source = new EventSource('/stream?topic=' + topic);
+
+            source.onmessage = function (event) {
+                console.log(event);
+            }
+        });
+        </script>
     </body>
 
 </html>
