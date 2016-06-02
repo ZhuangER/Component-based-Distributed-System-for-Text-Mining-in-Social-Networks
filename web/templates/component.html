@@ -15,85 +15,61 @@
     </head>
     <body>
         <h1>Hello, world!</h1>
-        <ul>
-            <li>
+        <form method="POST" action="{{ url_for('component') }}">
+            <div class="data-collection">
                 Data Collection <br/>
-                <!-- <ul>
-                    <li>Timeline of User</li>
-                    <li>Query by Text</li>
-                    <li>Query by Location</li>
-                    <li>Favorite List</li>
-                </ul> -->
-                <select class="data-collection" name="data-collection" form="data-collection">
+                <select class="data-collection" name="data-collection">
                   <option value="user-timeline">Timeline of User</option>
                   <option value="query-by-text">Query by Text</option>
                   <option value="query-by-location">Query by Location</option>
                   <option value="favorite-list">Favorite List</option>
                 </select>
+                <input type="text" name="twitter-account" placeholder="twitter account">
+                <input type="text" name="query-text" placeholder="query-by-text">
+                <input type="text" name="query-location" placeholder="Query by Location">
+                <input type="text" name="favorite-list" placeholder="Favorite List">
                 <br/>
-                <button type="button" class="data-collection">Click Me!</button> <br/>
-                
-            </li>
+            </div>
+            
+            Data Processing <br/>
+            <select class="data-processing" name="data-processing">
+              <option value="sentiment">Sentiment Analyze</option>
+              <option value="tfidf">Tfidf</option>
+              <option value="word-count">Word Count</option>
+              <option value="top-n">Top N</option>
+            </select>
+            <br/>
 
-            <li>
-                Data Processing <br/>
-                <!-- <ul>
-                    <li>Sentiment Analyze</li>
-                    <li>Tfidf</li>
-                    <li>Word Count</li>
-                    <li>Top N</li>
-                </ul> -->
-                <select class="data-processing" name="data-processing" form="data-processing">
-                  <option value="sentiment">Sentiment Analyze</option>
-                  <option value="tfidf">Tfidf</option>
-                  <option value="word-count">Word Count</option>
-                  <option value="top-n">Top N</option>
-                </select>
-                <br/>
-                <button type="button" class="data-processing">Click Me!</button> <br/>
-            </li>
+            Data Visualization <br/>
+            <select class="data-visualization" name="data-visualization">
+              <option value="map">Map</option>
+              <option value="line-graph">Line Graph</option>
+              <option value="radar-chart">Radar Chart</option>
+              <option value="pie-chart">Pie Chart</option>
+              <option value="word-cloud">Word Cloud</option>
+            </select>
+            <br/>
 
-            <li>
-                Data Visualization <br/>
-                <!-- <ul>
-                    <li>Map</li>
-                    <li>Line Graph</li>
-                    <li>Radar Chart</li>
-                    <li>Pie Chart</li>
-                    <li>Word Cloud</li>
-                </ul> -->
-                <select class="data-visualization" name="data-visualization" form="data-visualization">
-                  <option value="map">Map</option>
-                  <option value="line-graph">Line Graph</option>
-                  <option value="radar-chart">Radar Chart</option>
-                  <option value="pie-chart">Pie Chart</option>
-                  <option value="word-cloud">Word Cloud</option>
-                </select>
-                <br/>
-                <button type="button" class="data-visualization">Click Me!</button> <br/>
+            Data Persistence <br/>
+            <select class="data-persistence" name="data-persistence">
+              <option value="cassandra">Apache Cassandra</option>
+              <option value="neo4j">Neo4j</option>
+            </select>
+            <br/>
 
-            </li>
+            <button type="submit" class="submit">Submit Topology</button><br/>
+        </form>
 
-            <li>
-                Data Persistence <br/>
-                <!-- <ul>
-                    <li>Apache Cassandra</li>
-                    <li>Neo4j</li>
-                </ul> -->
-                <select class="data-persistence" name="data-persistence" form="data-persistence">
-                  <option value="cassandra">Apache Cassandra</option>
-                  <option value="neo4j">Neo4j</option>
-                </select>
-                <br/>
-                <button type="button" class="data-persistence">Click Me!</button> <br/>
-            </li>
-        </ul>
-
-        <div id="selected-item">
-        </div>
-        <!-- <form action="submit">
-            <input type="submit" value="Submit"> <br/>
-        </form> -->
+        <!-- <div id="selected-item">
+            <form action="{{url_for('topology')}}">
+                <input type="text" name="collection" value=""><br>
+                <input type="text" name="processing" value=""><br>
+                <input type="text" name="visualization" value=""><br>
+                <input type="text" name="persistence" value=""><br>
+                <button type="submit" class="submit">Submit Topology</button><br/>
+            </form>
+        </div> -->
+        
         
 
 
@@ -138,6 +114,12 @@
             }
             $('#selected-item').append(text+'<br/>');
         })
+
+        $('button.submit').click(function(e) {
+            if (collection && processing && visualization && persistence) {
+
+            }
+        });
 
         $('button.topic').click(function(e){
             /*var topic = $('input').val();*/

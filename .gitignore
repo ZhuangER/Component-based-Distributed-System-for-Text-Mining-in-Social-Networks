@@ -60,9 +60,9 @@ packer_virtualbox-ovf_virtualbox.box
 
 # maven builds
 **/target/*
-<<<<<<< HEAD
+
 **/storm-local/
-=======
->>>>>>> 3091675ce63286e4f884b7dfe5b5237331c7c379
 
 .credentials
+
+*.jar
