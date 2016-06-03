@@ -20,16 +20,12 @@ api = tweepy.API(auth)
 # Query by location: area_search
 # Favorite list
 
-def search(query):
+def search(query, count):
 	# use precise search
-	results = api.search(q='"' + query + '"', lang="en", count=100)
-	count = 0
-	coordinate_list = []
+	results = api.search(q='"' + query + '"', lang="en", count=count)
+
 	for result in results:
-		if result.coordinates != None:
-			coordinate_list.append(result.coordinates)
-		print result.coordinates
-	print coordinate_list
+		print result.name
 	# generate word cloud with word count
 	# generate URL spout
 

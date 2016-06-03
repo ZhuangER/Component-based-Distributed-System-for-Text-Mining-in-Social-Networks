@@ -5,12 +5,15 @@ import redis
 import csv
 import os, sys
 import subprocess
+import time
+
 
 
 lib_path = os.path.abspath(os.path.join('tools'))
 sys.path.append(lib_path)
 
 import twitter_api
+from funcThread import FuncThread
 # import pycountry
 
 
@@ -39,10 +42,12 @@ def component():
         persistence = request.form.get('data-persistence')
         
         # data collection
-        kafka = KafkaClient("localhost:9092")
-        kafka_producer = SimpleProducer(kafka)
         if collection == "realtime":
             # run real-time stream collection
+            # kafka_args = ['java', '-cp', 'jar/realtimeTwitterProducer.jar', 'com.producer.TwitterProducer', 'localhost:9092', 'twitter', 'old', 'async']
+            # producer_proc = subprocess.Popen(kafka_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            # time.sleep(20)
+            # producer_proc.kill() 
             pass
         elif collection == "user-timeline":
             twitter_account = request.form.get('twitter-account')
@@ -56,15 +61,25 @@ def component():
         elif collection == "favorite-list":
             favorite_list = request.form.get('favorite-list')
             # print favorite_list
+        # run kafka producer thread
+        def producer(text_list):
+            kafka = KafkaClient("localhost:9092")
+            kafka_producer = SimpleProducer(kafka)
+            for text in text_list:
+                kafka_producer.send_messages("twitter",text)
 
         if processing == "sentiment":
-            # subprocess.call(['storm', 'jar', 'jar/sentiment.jar', 'yu.storm.SentimentTopology'])
+            # storm_args = ['storm', 'jar', 'jar/sentiment.jar', 'yu.storm.SentimentTopology']
+            # storm_proc = subprocess.Popen(storm_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            # storm_proc.kill()
             
             visualization_topic  = "sentiment"
             pass
-        elif processing == "tfidf":
-            # subprocess.call(['storm', 'jar', 'jar/trends.jar', 'yu.storm.TrendsTopology'])
-            visualization_topic  = "tfidf"
+        elif processing == "trends":
+            # storm_args = ['storm', 'jar', 'jar/trends.jar', 'yu.storm.TrendsTopology']
+            # storm_proc = subprocess.Popen(storm_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            # storm_proc.kill()
+            visualization_topic  = "trends"
             pass
         elif processing == "word-count":
 
@@ -95,7 +110,6 @@ def component():
             pass
         elif persistence == "query-by-text":
             pass
-
 
     return render_template("component.html")
 
