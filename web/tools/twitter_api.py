@@ -20,27 +20,37 @@ api = tweepy.API(auth)
 # Query by location: area_search
 # Favorite list
 
-def search(query, count):
+def search(query, count=20, content_list=['text'], geocode=None):
 	# use precise search
-	results = api.search(q='"' + query + '"', lang="en", count=count)
+	#results = api.search(q='"' + query + '"', lang="en", count=count)
+	if geocode != None:
+		results = tweepy.Cursor(api.search, q = str(query), lang="en", geocode=geocode).items(count)
+	else:
+		results = tweepy.Cursor(api.search, q = str(query), lang="en").items(count)
 
-	for result in results:
-		print result.name
+	for status in results:
+		temp = {}
+		temp['text'] = status.text.encode('utf-8')
+		temp['retweet_count'] = status.retweet_count
+		temp['created_at'] = status.created_at
+		entities = status.entities
+		temp['urls'] = entities["urls"]
+		temp['hashtags'] = entities["hashtags"]
+		result = []
+		for content in content_list:
+			result.append(temp[content])
+		#location = status.location
+		yield 'DELIMITER'.join(map(str, result))
+
+	# for result in results:
+	# 	print result.name
 	# generate word cloud with word count
 	# generate URL spout
 
 
-def area_search(lat, lng, radius):
-	# near:"37.781157,-122.398720" within:15mi
-	# geocode = '"'+ lat + ',' + lng +   +'"'
-	query = 'near:"' + lat + ',' + lng + '" within:' + str(radius) + 'mi'
-	results = api.search(q=query, lang="en", count=100)
-	coordinate_list = []
-	for result in results:
-		if result.coordinates != None:
-			coordinate_list.append(result.coordinates)
-	 	print result.coordinates
-	print coordinate_list
+def area_search(lat=37.781157, lng=-122.398720, radius=15, count=20, content_list=['text']):
+	geocode = ','.join([str(lat), str(lng), str(radius)+'mi'])
+	return search("", count=count, content_list=content_list, geocode=geocode)
 
 
 def user_search(query):
@@ -79,8 +89,7 @@ def screen_name_search(query):
 def similarity(str1, str2):
 	return difflib.SequenceMatcher(a=str1.lower(), b=str2.lower()).ratio() > 0.9
 
-def user_timeline(screen_name):
-	count = 1000
+def user_timeline(screen_name, count=1000, content_list=['text']):
 	page = 5	# exclude_replies = True
 	#api.user_timeline(screen_name = screen_name, count = count, page = page)
 	text_list = []
@@ -97,16 +106,26 @@ def user_timeline(screen_name):
 
 	for status in tweepy.Cursor(api.user_timeline, screen_name=screen_name).items(count):
 		# process_status(status)
-		text = status.text.encode('utf-8')
-		retweet_count = status.retweet_count
-		created_at = status.created_at
-		entities = status.entities
-		urls = entities["urls"]
-		hashtags = entities["hashtags"]
+		#location = status.location
+		#
+		# text_list.append(text)
+		# if urls != []:
+		# 	yield text
 
-		text_list.append(text)
-		if urls != []:
-			yield text
+		temp = {}
+		temp['text'] = status.text.encode('utf-8')
+		temp['retweet_count'] = status.retweet_count
+		temp['created_at'] = status.created_at
+		entities = status.entities
+		temp['urls'] = entities["urls"]
+		temp['hashtags'] = entities["hashtags"]
+		result = []
+		for content in content_list:
+			result.append(temp[content])
+		#location = status.location
+		yield 'DELIMITER'.join(map(str, result))
+
+		
 
 	#return text_list
 	

@@ -41,6 +41,35 @@ def component():
         visualization = request.form.get('data-visualization')
         persistence = request.form.get('data-persistence')
         
+        def timeline_producer(twitter_account, count):
+            kafka = KafkaClient("localhost:9092")
+            kafka_producer = SimpleProducer(kafka)
+            text_list = twitter_api.user_timeline(twitter_account, count)
+            for text in text_list:
+                kafka_producer.send_messages("twitter",text)
+            return
+
+        def query_text_producer(text, count):
+            kafka = KafkaClient("localhost:9092")
+            kafka_producer = SimpleProducer(kafka)
+            text_list = twitter_api.search(text, count)
+            for text in text_list:
+                kafka_producer.send_messages("twitter",text)
+            return
+            pass
+
+        def query_location_producer(lat, lng, radius, count):
+            kafka = KafkaClient("localhost:9092")
+            kafka_producer = SimpleProducer(kafka)
+            text_list = twitter_api.area_search(lat, lng, radius, count)
+            for text in text_list:
+                kafka_producer.send_messages("twitter",text)
+            return
+            pass
+
+        def favorite_list_producer():
+            pass
+
         # data collection
         if collection == "realtime":
             # run real-time stream collection
@@ -49,24 +78,41 @@ def component():
             # time.sleep(20)
             # producer_proc.kill() 
             pass
+
         elif collection == "user-timeline":
             twitter_account = request.form.get('twitter-account')
+            print twitter_account
+            t = FuncThread(target=timeline_producer, args=(twitter_account, 10))
+            t.start()
+            # join() will lead thread block
+            # t.join()
+            t.stop()
+
+
             # print twitter_account
         elif collection == "query-by-text":
             query_text = request.form.get('query-text')
+            t = FuncThread(target=query_text_producer, args=(query_text, 10))
+            t.start()
+            # t.stop()
             # print query_text
         elif collection == "query-by-location":
-            query_location = request.form.get('query-location')
+            # query_location = request.form.get('query-location')
+            # t = FuncThread(target=query_location_producer, args=())
+            # t.start()
+            # t.stop()
             # print query_location
+            pass
         elif collection == "favorite-list":
             favorite_list = request.form.get('favorite-list')
+            t = FuncThread(target=favorite_list_producer, args=())
+            t.start()
+            t.stop()
             # print favorite_list
         # run kafka producer thread
-        def producer(text_list):
-            kafka = KafkaClient("localhost:9092")
-            kafka_producer = SimpleProducer(kafka)
-            for text in text_list:
-                kafka_producer.send_messages("twitter",text)
+        
+
+
 
         if processing == "sentiment":
             # storm_args = ['storm', 'jar', 'jar/sentiment.jar', 'yu.storm.SentimentTopology']
@@ -145,27 +191,6 @@ def pie(topic):
 @app.route('/visualization/word-cloud/<topic>')
 def word_cloud(topic):
     return render_template("visualization/word-cloud.html", topic=topic)
-
-
-# all data collection send data through twitter topic
-@app.route('/_twitter_query')
-def twitter_query():
-    kafka = KafkaClient("localhost:9092")
-    kafka_producer = SimpleProducer(kafka)
-    query_text = request.args.get('query', "", type=str)
-    # Pass the query to the web crawler or API
-    
-    if twitter_query != "":
-        # twitter_api.search(twitter_query)
-        basic_info = twitter_api.screen_name_search(query_text)
-        if basic_info == {}:
-            return jsonify(message = "There is no twitter account available!")
-        text_list = twitter_api.user_timeline(basic_info["screen_name"])
-        for text in text_list:
-            #print text
-            kafka_producer.send_messages("twitter",text)
-    # if api reach its rate limits, move to web crawler
-    return jsonify(message = "")
 
 @app.route('/_twitter_area_query')
 def twitter_area_query():
