@@ -20,15 +20,8 @@ api = tweepy.API(auth)
 # Query by location: area_search
 # Favorite list
 
-def search(query, count=20, content_list=['text'], geocode=None):
-	# use precise search
-	#results = api.search(q='"' + query + '"', lang="en", count=count)
-	if geocode != None:
-		results = tweepy.Cursor(api.search, q = str(query), lang="en", geocode=geocode).items(count)
-	else:
-		results = tweepy.Cursor(api.search, q = str(query), lang="en").items(count)
-
-	for status in results:
+def process_status(status_list,content_list):
+	for status in status_list:
 		temp = {}
 		temp['text'] = status.text.encode('utf-8')
 		temp['retweet_count'] = status.retweet_count
@@ -42,16 +35,66 @@ def search(query, count=20, content_list=['text'], geocode=None):
 		#location = status.location
 		yield 'DELIMITER'.join(map(str, result))
 
-	# for result in results:
-	# 	print result.name
-	# generate word cloud with word count
-	# generate URL spout
+def search(query, count=20, content_list=['text'], geocode=None):
+	# use precise search
+	#results = api.search(q='"' + query + '"', lang="en", count=count)
+	if geocode != None:
+		results = tweepy.Cursor(api.search, q = str(query), lang="en", geocode=geocode).items(count)
+	else:
+		results = tweepy.Cursor(api.search, q = str(query), lang="en").items(count)
+
+	return process_status(results, content_list)
 
 
 def area_search(lat=37.781157, lng=-122.398720, radius=15, count=20, content_list=['text']):
 	geocode = ','.join([str(lat), str(lng), str(radius)+'mi'])
 	return search("", count=count, content_list=content_list, geocode=geocode)
 
+
+
+def favorite_list(id,count=20, content_list=['text']):
+	return process_status(tweepy.Cursor(api.favorites, id=id).items(count), content_list)
+
+
+def user_timeline(screen_name, count=1000, content_list=['text']):
+	# page = 5	# exclude_replies = True
+	#api.user_timeline(screen_name = screen_name, count = count, page = page)
+	# text_list = []
+	# def process_status(status):
+	# 	text = status.text.encode('utf-8')
+	# 	retweet_count = status.retweet_count
+	# 	created_at = status.created_at
+	# 	entities = status.entities
+	# 	urls = entities["urls"]
+	# 	hashtags = entities["hashtags"]
+	# 	location = status.location
+
+	# 	text_list.append(text)
+	return process_status(tweepy.Cursor(api.user_timeline, screen_name=screen_name).items(count), content_list)
+	# for status in :
+	# 	# process_status(status)
+	# 	#location = status.location
+	# 	#
+	# 	# text_list.append(text)
+	# 	# if urls != []:
+	# 	# 	yield text
+
+	# 	temp = {}
+	# 	temp['text'] = status.text.encode('utf-8')
+	# 	temp['retweet_count'] = status.retweet_count
+	# 	temp['created_at'] = status.created_at
+	# 	entities = status.entities
+	# 	temp['urls'] = entities["urls"]
+	# 	temp['hashtags'] = entities["hashtags"]
+	# 	result = []
+	# 	for content in content_list:
+	# 		result.append(temp[content])
+	# 	#location = status.location
+	# 	yield 'DELIMITER'.join(map(str, result))
+
+		
+
+	#return text_list
 
 def user_search(query):
 	results = api.search_users(query, 6);
@@ -89,49 +132,12 @@ def screen_name_search(query):
 def similarity(str1, str2):
 	return difflib.SequenceMatcher(a=str1.lower(), b=str2.lower()).ratio() > 0.9
 
-def user_timeline(screen_name, count=1000, content_list=['text']):
-	page = 5	# exclude_replies = True
-	#api.user_timeline(screen_name = screen_name, count = count, page = page)
-	text_list = []
-	def process_status(status):
-		text = status.text.encode('utf-8')
-		retweet_count = status.retweet_count
-		created_at = status.created_at
-		entities = status.entities
-		urls = entities["urls"]
-		hashtags = entities["hashtags"]
-		location = status.location
 
-		text_list.append(text)
-
-	for status in tweepy.Cursor(api.user_timeline, screen_name=screen_name).items(count):
-		# process_status(status)
-		#location = status.location
-		#
-		# text_list.append(text)
-		# if urls != []:
-		# 	yield text
-
-		temp = {}
-		temp['text'] = status.text.encode('utf-8')
-		temp['retweet_count'] = status.retweet_count
-		temp['created_at'] = status.created_at
-		entities = status.entities
-		temp['urls'] = entities["urls"]
-		temp['hashtags'] = entities["hashtags"]
-		result = []
-		for content in content_list:
-			result.append(temp[content])
-		#location = status.location
-		yield 'DELIMITER'.join(map(str, result))
-
-		
-
-	#return text_list
 	
 
 def url_generator(screen_name):
 	return "https://twitter.com/" + screen_name
+
 
 
 
