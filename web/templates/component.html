@@ -30,9 +30,9 @@
                   <option value="query-by-location">Query by Location</option>
                   <option value="favorite-list">Favorite List</option>
                 </select>
-                <input class="hide" type="text" name="twitter-account" placeholder="Twitter Account">
-                <input class="hide" type="text" name="query-text" placeholder="Query by Text">
-                <input class="hide" type="text" name="query-location" placeholder="Query by Location">
+                <input class="hide" type="text" name="twitter-account" placeholder="Twitter Account" required>
+                <input class="hide" type="text" name="query-text" placeholder="Query by Text" required>
+                <input class="hide" type="text" name="query-location" placeholder="Query by Location" required>
                 <br/>
             </div>
             
@@ -98,14 +98,19 @@
         $('.data-collection').change(function() {
             // console.log($('.data-collection option:selected').text())
             $('input.hide').hide();
+            $('input.hide').prop('disabled', true);
             var selected_input_value = $('.data-collection option:selected').attr('value');
             if (selected_input_value == "user-timeline"  || selected_input_value == "favorite-list") {
                 $('input[name="twitter-account"]').show();
-            } else if (selected_input_value == "query-by-text") {
+                $('input[name="twitter-account"]').prop('disabled', false);
+            } 
+            else if (selected_input_value == "query-by-text") {
                 $('input[name="query-text"]').show();
-
-            } else if (selected_input_value == "query-by-location") {
+                $('input[name="query-text"]').prop('disabled', false);
+            } 
+            else if (selected_input_value == "query-by-location") {
                 $('input[name="query-location"]').show();
+                $('input[name="query-location"]').prop('disabled', false);
             }
         }).change();
 
