@@ -50,23 +50,27 @@ public class TwitterProducer {
         public void onStatus(Status status)
         {
           // add the tweet into the queue buffer
-          String geoInfo = "37.7833,122.4167";
-          String urlInfo = "n/a";
-          String countryName = "";
+          // "37.7833,122.4167"
+          String geoInfo = "n/a";
+/*          String urlInfo = "n/a";*/
+          String countryName = "n/a";
+          String create_at = "realtime";
+          // create_at = String.valueOf(status.getCreatedAt());
           if(status.getGeoLocation() != null)
           {
             geoInfo = String.valueOf(status.getGeoLocation().getLatitude()) + "," + String.valueOf(status.getGeoLocation().getLongitude());
             countryName = String.valueOf(status.getPlace().getCountryCode());
-              if(status.getURLEntities().length > 0)
+              /*if(status.getURLEntities().length > 0)
               {
                 for(URLEntity urlE: status.getURLEntities())
                 {
                   urlInfo = urlE.getURL();
                 }         
-              }
-              System.out.println(status.getText() + "DELIMITER" + geoInfo + "DELIMITER" + urlInfo + "DELIMITER" + countryName);
-              producer.produce(status.getText() + "DELIMITER" + geoInfo + "DELIMITER" + urlInfo + "DELIMITER" + countryName);
+              }*/
+            // System.out.println(status.getText() + "DELIMITER" + create_at + "DELIMITER" + geoInfo + "DELIMITER" + countryName);
+            
           }
+          producer.produce(status.getText() + "DELIMITER" + create_at + "DELIMITER" + geoInfo + "DELIMITER" + countryName);
         }
 
         @Override
@@ -142,8 +146,7 @@ public class TwitterProducer {
 
         // create the twitter stream factory with the config
         TwitterStream twitterStream;
-        TwitterStreamFactory fact =
-        new TwitterStreamFactory(config.build());
+        TwitterStreamFactory fact = new TwitterStreamFactory(config.build());
 
         // get an instance of twitter stream
         twitterStream = fact.getInstance();
@@ -157,9 +160,7 @@ public class TwitterProducer {
         tweetFilterQuery.language(new String[]{"en"});
         
         // provide the handler for twitter stream
-        StatusListener tweetListener = new TweetListener();
-
-        twitterStream.addListener(tweetListener);
+        twitterStream.addListener(new TweetListener());
 
         twitterStream.filter(tweetFilterQuery);
 

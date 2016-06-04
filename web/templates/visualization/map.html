@@ -48,19 +48,24 @@ html {
       var sentimentWords = ["unhappy", "medium unhappy", "neutral", "medium happy", "happy"];
 
       source.onmessage = function (event) {
-        var geoinfo = event.data.split("DELIMITER")[0];
-        var sentence = event.data.split("DELIMITER")[1];
-        var personalSentiment = event.data.split("DELIMITER")[2];
-        var countryName = event.data.split("DELIMITER")[3];
-        var countrySentiment = event.data.split("DELIMITER")[4];
+        var sentence = event.data.split("DELIMITER")[0];
+        var screen_name = event.data.split("DELIMITER")[1];
+        var create_at = event.data.split("DELIMITER")[2];
+        var geoinfo = event.data.split("DELIMITER")[3];
+        var countryName = event.data.split("DELIMITER")[4];
+        var personalSentiment = event.data.split("DELIMITER")[5];
+        var countrySentiment = event.data.split("DELIMITER")[6];
         
         //var point = [latitude, longitude];
         //console.log("NEW DATA IS HERE " + event.data);
+        if (geoinfo != "n/a") {
+          hashSentence[geoinfo]=sentence;
+          hashPersonalSentiment[geoinfo]=personalSentiment;
+          hashCountry[geoinfo] = countryName;
+          hashCountrySentiment[countryName] = countrySentiment; 
+        }
 
-        hashSentence[geoinfo]=sentence;
-        hashPersonalSentiment[geoinfo]=personalSentiment;
-        hashCountry[geoinfo] = countryName;
-        hashCountrySentiment[countryName] = countrySentiment; 
+        
         //hashURLInfo[county_id]=URLInfo;
 
       };

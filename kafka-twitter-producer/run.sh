@@ -1,1 +1,1 @@
-java -cp target/uber-TwitterProducer-1.0-SNAPSHOT.jar com.producer.TwitterProducer localhost:9092 mytopic old async
+java -cp target/uber-TwitterProducer-1.0-SNAPSHOT.jar com.producer.TwitterProducer localhost:9092 twitter old async

@@ -4,6 +4,7 @@
 import tweepy
 import urllib2
 import difflib
+import pycountry
 
 consumer_key = 'WXDgVgeJMwHEn0Z9VHDx5j93h'
 consumer_secret = 'DgP9CsaPtG87urpNU14fZySXOjNX4j4v2PqmeTndcjjYBgLldy'
@@ -20,44 +21,80 @@ api = tweepy.API(auth)
 # Query by location: area_search
 # Favorite list: favorite_list
 
-def process_status(status_list,content_list):
-	for status in status_list:
-		temp = {}
-		temp['text'] = status.text.encode('utf-8')
-		temp['retweet_count'] = status.retweet_count
-		temp['created_at'] = status.created_at
-		entities = status.entities
-		temp['urls'] = entities["urls"]
-		temp['hashtags'] = entities["hashtags"]
-		result = []
-		for content in content_list:
-			result.append(temp[content])
-		#location = status.location
-		yield 'DELIMITER'.join(map(str, result))
+def process_status(status, content_list, filter=None):
+	temp = {}
+	temp['text'] = status.text.encode('utf-8')
+	temp['retweet_count'] = status.retweet_count
+	temp['created_at'] = status.created_at
+	entities = status.entities
+	temp['urls'] = entities["urls"]
+	temp['hashtags'] = entities["hashtags"]
+	user = status.user
+	temp['screen_name'] = user.screen_name
+	if status.place:
+		country_code2 = status.place.country_code
+		country_code3 = pycountry.countries.get(alpha2=country_code2).alpha3
+		temp['country_code'] = country_code3
+	else:
+		temp['country_code'] = 'n/a'
 
-def search(query, count=20, content_list=['text'], geocode=None):
+	# notice here the lat and lng sequence is wrong in tweepy's coordinates field
+	if status.coordinates:
+		lat = status.coordinates['coordinates'][1]
+		lng = status.coordinates['coordinates'][0]
+		temp['coordinates'] = ','.join(map(str, [lat, lng]))
+	else:
+		temp['coordinates'] = 'n/a'
+
+	result = []
+	for content in content_list:
+		result.append(temp[content])
+	return 'DELIMITER'.join(map(str, result)).strip()
+
+def process_status_list(status_list,content_list, filter=None):
+	for status in status_list:
+		result = process_status(status, content_list)
+		#location = status.location
+		yield result
+
+def search(query, count=20, content_list=['text', 'screen_name','created_at', 'coordinates', 'country_code'], geocode=None):
 	if geocode != None:
 		results = tweepy.Cursor(api.search, q = str(query), lang="en", geocode=geocode).items(count)
 	else:
 		results = tweepy.Cursor(api.search, q = str(query), lang="en").items(count)
 
-	return process_status(results, content_list)
+	return process_status_list(results, content_list)
 
 
-def area_search(lat, lng, radius, count=20, content_list=['text']):
+def area_search(lat, lng, radius, count=20, content_list=['text', 'screen_name', 'created_at', 'coordinates', 'country_code']):
 	geocode = ','.join([str(lat), str(lng), str(radius)+'mi'])
 	return search("", count=count, content_list=content_list, geocode=geocode)
 
 
 
-def favorite_list(id,count=20, content_list=['text']):
-	return process_status(tweepy.Cursor(api.favorites, id=id).items(count), content_list)
+def favorite_list(id,count=20, content_list=['text', 'screen_name', 'created_at', 'coordinates', 'country_code']):
+	return process_status_list(tweepy.Cursor(api.favorites, id=id).items(count), content_list)
 
 
-def user_timeline(screen_name, count=1000, content_list=['text']):
-	return process_status(tweepy.Cursor(api.user_timeline, screen_name=screen_name).items(count), content_list)
+def user_timeline(screen_name, count=1000, content_list=['text', 'screen_name', 'created_at', 'coordinates', 'country_code']):
+	return process_status_list(tweepy.Cursor(api.user_timeline, screen_name=screen_name).items(count), content_list)
 
 
+class MyStreamListener(tweepy.StreamListener):
+	from kafka import KafkaClient, SimpleProducer
+	kafka = KafkaClient("localhost:9092")
+	kafka_producer = SimpleProducer(kafka)
+
+	def on_status(self, status):
+		result = process_status(status, content_list=['text', 'screen_name','created_at', 'coordinates', 'country_code'])
+		self.kafka_producer.send_messages("twitter",result)
+
+
+def stream():
+	myStreamListener = MyStreamListener()
+	myStream = tweepy.Stream(auth = auth, listener=myStreamListener)
+	myStream.filter(languages=["en"])
+	return myStream.sample()
 
 
 
@@ -114,6 +151,7 @@ if __name__ == '__main__':
 
 	cnt = 0
 	for i in a:
+		print i
 		cnt += 1
 	print cnt == 10
 
@@ -131,3 +169,5 @@ if __name__ == '__main__':
 	for i in d:
 		cnt += 1
 	print cnt == 10
+
+	# stream()

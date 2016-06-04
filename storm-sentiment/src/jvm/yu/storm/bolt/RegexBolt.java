@@ -60,37 +60,32 @@ public class RegexBolt extends BaseRichBolt
       TopologyContext         topologyContext,
       OutputCollector         outputCollector)
   {
-
-    // save the collector for emitting tuples
     collector = outputCollector;
-
   }
 
   @Override
   public void execute(Tuple tuple)
   {
 	  try {
-    // get the word from the 1st column of incoming tuple
-    Map<String, String> emoticonAndScore;
+      // get the word from the 1st column of incoming tuple
+      Map<String, String> emoticonAndScore;
 
-    String originalTweet = tuple.getStringByField("tweet").split("DELIMITER")[0];
-    String geoinfo = tuple.getStringByField("tweet").split("DELIMITER")[1];
-    int sentiment = tuple.getIntegerByField("sentiment");
-    String countryName = tuple.getStringByField("tweet").split("DELIMITER")[3];
-    
+      String tweet = tuple.getStringByField("tweet");
+      String originalTweet = tweet.split("DELIMITER")[0];
+      int sentiment = tuple.getIntegerByField("sentiment");
+      String countryName = tweet.split("DELIMITER")[4];
       
-    emoticonAndScore = getScoreIfEmoticonPresent(originalTweet);
-    int matchedEmoticonScore = Integer.parseInt(emoticonAndScore.get("score"));
-    String matchedEmoticon = emoticonAndScore.get("emoticon");
-    
-    System.out.println("Emotion: " + matchedEmoticon + " Score: " + emoticonAndScore.get("score"));
+        
+      emoticonAndScore = getScoreIfEmoticonPresent(originalTweet);
+      int matchedEmoticonScore = Integer.parseInt(emoticonAndScore.get("score"));
+      String matchedEmoticon = emoticonAndScore.get("emoticon");
+      
+      // System.out.println("Emotion: " + matchedEmoticon + " Score: " + emoticonAndScore.get("score"));
+      collector.emit(new Values(tweet,matchedEmoticonScore, matchedEmoticon, sentiment, countryName));
+      //collector.ack(tuple);
 
-
-	collector.emit(new Values(originalTweet,geoinfo,matchedEmoticonScore, matchedEmoticon, sentiment, countryName));
-  //collector.ack(tuple);
-
-	/*collector.emit(new Values(originalTweet,word,noun,verb,object, geoinfo,url,0, "", sentiment, countryName));*/
-	
+    	/*collector.emit(new Values(originalTweet,word,noun,verb,object, geoinfo,url,0, "", sentiment, countryName));*/
+  	
 	  } catch(Exception e) {
 		  e.printStackTrace();
 	  }
@@ -150,6 +145,6 @@ public class RegexBolt extends BaseRichBolt
   @Override
   public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer)
   {
-	  outputFieldsDeclarer.declare(new Fields("original-tweet", "geoinfo", "matchedEmoticonScore", "matchedEmoticon", "sentiment", "countryName"));
+	  outputFieldsDeclarer.declare(new Fields("tweet", "matchedEmoticonScore", "matchedEmoticon", "sentiment", "countryName"));
   }
 }

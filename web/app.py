@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*- 
 
 from flask import Flask, render_template, Response, request, jsonify, flash, session, redirect, url_for
-import redis
 import csv
 import os, sys
 import subprocess
@@ -22,7 +21,6 @@ from kafka import KafkaClient, SimpleProducer, SimpleConsumer
 
 
 app = Flask(__name__)
-r = redis.StrictRedis(host='127.0.0.1', port=6379, db=0)
 
 # indicate the output topic of data processing
 # is the input topic of data visualization
@@ -41,6 +39,13 @@ def component():
         visualization = request.form.get('data-visualization')
         persistence = request.form.get('data-persistence')
         
+        def realtime_producer():
+            kafka = KafkaClient("localhost:9092")
+            kafka_producer = SimpleProducer(kafka)
+            for text in twitter_api.stream():
+                kafka_producer.send_messages("twitter",text)
+            return
+
         def timeline_producer(twitter_account, count):
             kafka = KafkaClient("localhost:9092")
             kafka_producer = SimpleProducer(kafka)
@@ -80,7 +85,10 @@ def component():
             # producer_proc = subprocess.Popen(kafka_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             # time.sleep(20)
             # producer_proc.kill() 
-            pass
+            t = FuncThread(target=realtime_producer, args=())
+            t.start() 
+            # pass
+            t.stop()
 
         elif collection == "user-timeline":
             twitter_account = request.form.get('twitter-account')
@@ -204,21 +212,22 @@ def twitter_area_query():
     return jsonify()
 
 # stream function should be called by visualization function
-# @app.route('/stream', methods = ['GET'])
-# def kafka_stream():
-#     global visualization_topic 
-#     topic = visualization_topic 
-#     print "DEBUG stream topic: " + topic
-#     kafka = KafkaClient("localhost:9092")
-#     consumer = SimpleConsumer(kafka, "python", topic)
-#     topic = None
+@app.route('/stream', methods = ['GET'])
+def kafka_stream():
+    # global visualization_topic 
+    # topic = visualization_topic 
+    # print "DEBUG stream topic: " + topic
+    topic = "sentiment"
+    kafka = KafkaClient("localhost:9092")
+    consumer = SimpleConsumer(kafka, "python", topic)
+    topic = None
 
-#     def gen():
-#         for message in consumer:
-#             yield 'data: %s\n\n' %str(message.message.value)
+    def gen():
+        for message in consumer:
+            yield 'data: %s\n\n' %str(message.message.value)
 
-#     print "DEBUG: Kafka Stream Connected"
-#     return Response(gen(), mimetype="text/event-stream")
+    print "DEBUG: Kafka Stream Connected"
+    return Response(gen(), mimetype="text/event-stream")
 
 if __name__ == '__main__':
     app.run(threaded=True, host='0.0.0.0', debug=True)

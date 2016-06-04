@@ -17,7 +17,6 @@ import kafka.producer.KeyedMessage;
 import kafka.producer.ProducerConfig;
 
 import yu.storm.tools.KafkaProducer;
-import yu.storm.tools.CountryCodeConvert;
 
 public class KafkaProducerBolt extends BaseRichBolt{
 	public static KafkaProducer producer;
@@ -34,8 +33,6 @@ public class KafkaProducerBolt extends BaseRichBolt{
 		producer = new KafkaProducer(topic);
 		producer.configure(brokerList, sync);
 		producer.start();
-
-		CountryCodeConvert.initCountryCodeMapping();
 	}
 
 
@@ -43,15 +40,14 @@ public class KafkaProducerBolt extends BaseRichBolt{
 	public void execute(Tuple tuple)
 	{
 		String tweet = tuple.getStringByField("tweet");
-    	String geoinfo = tuple.getStringByField("geoinfo");
     	int personalSentiment = tuple.getIntegerByField("personalSentiment");
-    	double countrySentiment = tuple.getDoubleByField("countrySentiment");
-    	String countryName = tuple.getStringByField("countryName");
+    	String countrySentiment = tuple.getStringByField("countrySentiment");
     	System.out.println("\t\t\tDEBUG ReportBolt: " + "Tweet countrySentiment:" + String.valueOf(countrySentiment));
 
-    	countryName = CountryCodeConvert.iso2CountryCodeToIso3CountryCode(countryName);
+    	producer.produce(tweet + "DELIMITER" + String.valueOf(personalSentiment) + "DELIMITER" + String.valueOf(countrySentiment));
 
-    	producer.produce( geoinfo + "DELIMITER" + tweet + "DELIMITER" + String.valueOf(personalSentiment) + "DELIMITER" + countryName + "DELIMITER" + String.valueOf(countrySentiment));
+    	// output formats
+    	// tweet + screen_name + create_at + geo + countryName = personalSentiment + countrySentiment (n/a)
 	}
 
 	public void declareOutputFields(OutputFieldsDeclarer declarer)

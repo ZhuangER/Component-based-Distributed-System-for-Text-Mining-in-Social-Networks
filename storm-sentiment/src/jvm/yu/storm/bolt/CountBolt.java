@@ -3,17 +3,12 @@ package yu.storm.bolt;
 import backtype.storm.Config;
 import backtype.storm.LocalCluster;
 import backtype.storm.StormSubmitter;
-import backtype.storm.task.ShellBolt;
-import backtype.storm.topology.IRichBolt;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.TopologyBuilder;
-import backtype.storm.topology.base.BaseBasicBolt;
 import backtype.storm.topology.base.BaseRichBolt;
-import backtype.storm.topology.base.BaseRichSpout;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
-//import udacity.storm.spout.RandomSentenceSpout;
 import backtype.storm.utils.Utils;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.BasicOutputCollector;
@@ -24,9 +19,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.Locale;
-
-import com.lambdaworks.redis.RedisClient;
-import com.lambdaworks.redis.RedisConnection;
 
 import yu.storm.tools.SentimentAnalyzer;
 
@@ -56,8 +48,7 @@ public class CountBolt extends BaseRichBolt
 	public void execute(Tuple tuple)
 	{
 		
-		String tweet = tuple.getStringByField("original-tweet");
-		String geoinfo = tuple.getStringByField("geoinfo");
+		String tweet = tuple.getStringByField("tweet");
 		String matchedEmoticon = tuple.getStringByField("matchedEmoticon");
 		int matchedEmoticonScore = tuple.getIntegerByField("matchedEmoticonScore");
 		int personalSentiment = tuple.getIntegerByField("sentiment");
@@ -70,42 +61,46 @@ public class CountBolt extends BaseRichBolt
 			personalSentiment = matchedEmoticonScore;
 		}
 
-		// count number of sentiment of countries
-		if (CountMap.get(countryName) == null) {
-			CountMap.put(countryName, 1);
+		if (!countryName.equals("n/a")) {
+			// count number of sentiment of countries
+			if (CountMap.get(countryName) == null) {
+				CountMap.put(countryName, 1);
+			}
+			else {
+				Integer val = CountMap.get(countryName);
+				CountMap.put(countryName, ++val);
+			}
+
+			// count sentiment of country
+			if (SentimentDistribution.get(countryName) == null){
+				SentimentDistribution.put(countryName, personalSentiment);
+			}
+			else {
+				Integer tmp = SentimentDistribution.get(countryName);
+				SentimentDistribution.put(countryName, tmp + personalSentiment);
+			}
+			
+			// because sentiment range is between 0 to 4, to match 5 value to [0, 1]
+			countrySentiment = (SentimentDistribution.get(countryName)*1.0) / (CountMap.get(countryName)*1.0) / 4.0;
+			
+
+
+			//System.out.println("\t\tTopWords\tDEBUG EMIT Tweet " + tweet + ", geoinfo" + geoinfo + ", matcedEmoticon: " + matchedEmoticon + ", sentimentKey: " + sentimentKey + ", countrySentiment: " + countrySentiment + ", personalSentiment: " + personalSentiment + ", countryName: " + countryName);
+			collector.emit(new Values(tweet, String.valueOf(countrySentiment), personalSentiment));
+			//collector.ack(tuple);
 		}
 		else {
-			Integer val = CountMap.get(countryName);
-			CountMap.put(countryName, ++val);
+			collector.emit(new Values(tweet, "n/a", personalSentiment));
 		}
 
-		// count sentiment of country
-		if (SentimentDistribution.get(countryName) == null){
-			SentimentDistribution.put(countryName, personalSentiment);
-		}
-		else {
-			Integer tmp = SentimentDistribution.get(countryName);
-			SentimentDistribution.put(countryName, tmp + personalSentiment);
-		}
-		
-		// because sentiment range is between 0 to 4, to match 5 value to [0, 1]
-		countrySentiment = (SentimentDistribution.get(countryName)*1.0) / (CountMap.get(countryName)*1.0) / 4.0;
-		
-
-
-		System.out.println("\t\tTopWords\tDEBUG EMIT Tweet " + tweet + ", geoinfo" + geoinfo + ", matcedEmoticon: " + matchedEmoticon + ", sentimentKey: " + sentimentKey + ", countrySentiment: " + countrySentiment + ", personalSentiment: " + personalSentiment + ", countryName: " + countryName);
-		collector.emit(new Values(tweet, geoinfo, countrySentiment, personalSentiment, countryName));
-		//collector.ack(tuple);
 
 	}
 
 	@Override
 	public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer)
 	{
-		
-		
 		outputFieldsDeclarer.declare(
-				new Fields("tweet", "geoinfo", "countrySentiment", "personalSentiment", "countryName"));
+				new Fields("tweet", "countrySentiment", "personalSentiment"));
 	}
 
 }
