@@ -18,7 +18,7 @@ api = tweepy.API(auth)
 # Timeline of User: user_timeline
 # Query by text: search
 # Query by location: area_search
-# Favorite list
+# Favorite list: favorite_list
 
 def process_status(status_list,content_list):
 	for status in status_list:
@@ -36,8 +36,6 @@ def process_status(status_list,content_list):
 		yield 'DELIMITER'.join(map(str, result))
 
 def search(query, count=20, content_list=['text'], geocode=None):
-	# use precise search
-	#results = api.search(q='"' + query + '"', lang="en", count=count)
 	if geocode != None:
 		results = tweepy.Cursor(api.search, q = str(query), lang="en", geocode=geocode).items(count)
 	else:
@@ -46,7 +44,7 @@ def search(query, count=20, content_list=['text'], geocode=None):
 	return process_status(results, content_list)
 
 
-def area_search(lat=37.781157, lng=-122.398720, radius=15, count=20, content_list=['text']):
+def area_search(lat, lng, radius, count=20, content_list=['text']):
 	geocode = ','.join([str(lat), str(lng), str(radius)+'mi'])
 	return search("", count=count, content_list=content_list, geocode=geocode)
 
@@ -57,44 +55,11 @@ def favorite_list(id,count=20, content_list=['text']):
 
 
 def user_timeline(screen_name, count=1000, content_list=['text']):
-	# page = 5	# exclude_replies = True
-	#api.user_timeline(screen_name = screen_name, count = count, page = page)
-	# text_list = []
-	# def process_status(status):
-	# 	text = status.text.encode('utf-8')
-	# 	retweet_count = status.retweet_count
-	# 	created_at = status.created_at
-	# 	entities = status.entities
-	# 	urls = entities["urls"]
-	# 	hashtags = entities["hashtags"]
-	# 	location = status.location
-
-	# 	text_list.append(text)
 	return process_status(tweepy.Cursor(api.user_timeline, screen_name=screen_name).items(count), content_list)
-	# for status in :
-	# 	# process_status(status)
-	# 	#location = status.location
-	# 	#
-	# 	# text_list.append(text)
-	# 	# if urls != []:
-	# 	# 	yield text
 
-	# 	temp = {}
-	# 	temp['text'] = status.text.encode('utf-8')
-	# 	temp['retweet_count'] = status.retweet_count
-	# 	temp['created_at'] = status.created_at
-	# 	entities = status.entities
-	# 	temp['urls'] = entities["urls"]
-	# 	temp['hashtags'] = entities["hashtags"]
-	# 	result = []
-	# 	for content in content_list:
-	# 		result.append(temp[content])
-	# 	#location = status.location
-	# 	yield 'DELIMITER'.join(map(str, result))
 
-		
 
-	#return text_list
+
 
 def user_search(query):
 	results = api.search_users(query, 6);
@@ -133,8 +98,6 @@ def similarity(str1, str2):
 	return difflib.SequenceMatcher(a=str1.lower(), b=str2.lower()).ratio() > 0.9
 
 
-	
-
 def url_generator(screen_name):
 	return "https://twitter.com/" + screen_name
 
@@ -144,8 +107,27 @@ def url_generator(screen_name):
 
 # Test case
 if __name__ == '__main__':
-	# print "Test Search Function"
-	# search("uoit")
-	a = user_timeline("UOIT")
-	
-	#screen_name_search("UOIT")
+	a = search("uoit", count=10)
+	b = area_search(37.781157,-122.398720,15,count=10)
+	c = user_timeline("UOIT",count=10)
+	d = favorite_list('uoit',count=10)
+
+	cnt = 0
+	for i in a:
+		cnt += 1
+	print cnt == 10
+
+	cnt = 0
+	for i in b:
+		cnt += 1
+	print cnt == 10
+
+	cnt = 0
+	for i in c:
+		cnt += 1
+	print cnt == 10
+
+	cnt = 0
+	for i in d:
+		cnt += 1
+	print cnt == 10

@@ -56,7 +56,6 @@ def component():
             for text in text_list:
                 kafka_producer.send_messages("twitter",text)
             return
-            pass
 
         def query_location_producer(lat, lng, radius, count):
             kafka = KafkaClient("localhost:9092")
@@ -65,10 +64,14 @@ def component():
             for text in text_list:
                 kafka_producer.send_messages("twitter",text)
             return
-            pass
 
-        def favorite_list_producer():
-            pass
+        def favorite_list_producer(id, count):
+            kafka = KafkaClient("localhost:9092")
+            kafka_producer = SimpleProducer(kafka)
+            text_list = twitter_api.favorite_list(id, count)
+            for text in text_list:
+                kafka_producer.send_messages("twitter",text)
+            return
 
         # data collection
         if collection == "realtime":
@@ -94,7 +97,7 @@ def component():
             query_text = request.form.get('query-text')
             t = FuncThread(target=query_text_producer, args=(query_text, 10))
             t.start()
-            # t.stop()
+            t.stop()
             # print query_text
         elif collection == "query-by-location":
             # query_location = request.form.get('query-location')
@@ -104,8 +107,8 @@ def component():
             # print query_location
             pass
         elif collection == "favorite-list":
-            favorite_list = request.form.get('favorite-list')
-            t = FuncThread(target=favorite_list_producer, args=())
+            twitter_account = request.form.get('twitter-account')
+            t = FuncThread(target=favorite_list_producer, args=(twitter_account, 10))
             t.start()
             t.stop()
             # print favorite_list

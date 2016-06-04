@@ -12,6 +12,11 @@
         <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
         <![endif]-->
+        <style type="text/css">
+            input.hide {
+                display: none;
+            }
+        </style>
     </head>
     <body>
         <h1>Components</h1>
@@ -25,16 +30,15 @@
                   <option value="query-by-location">Query by Location</option>
                   <option value="favorite-list">Favorite List</option>
                 </select>
-                <input type="text" name="twitter-account" placeholder="Twitter Account">
-                <input type="text" name="query-text" placeholder="Query by Text">
-                <input type="text" name="query-location" placeholder="Query by Location">
-                <input type="text" name="favorite-list" placeholder="Favorite List">
+                <input class="hide" type="text" name="twitter-account" placeholder="Twitter Account">
+                <input class="hide" type="text" name="query-text" placeholder="Query by Text">
+                <input class="hide" type="text" name="query-location" placeholder="Query by Location">
                 <br/>
             </div>
             
             Data Processing <br/>
             <select class="data-processing" name="data-processing">
-              <option value="sentiment">Sentiment Analyze</option>
+              <option selected="selected" value="sentiment">Sentiment Analyze</option>
               <option value="trends">Trends</option>
               <option value="word-count">Word Count</option>
               <option value="top-n">Top N</option>
@@ -91,49 +95,65 @@
         <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script> 
 
         <script type="text/javascript">
+        $('.data-collection').change(function() {
+            // console.log($('.data-collection option:selected').text())
+            $('input.hide').hide();
+            var selected_input_value = $('.data-collection option:selected').attr('value');
+            if (selected_input_value == "user-timeline"  || selected_input_value == "favorite-list") {
+                $('input[name="twitter-account"]').show();
+            } else if (selected_input_value == "query-by-text") {
+                $('input[name="query-text"]').show();
+
+            } else if (selected_input_value == "query-by-location") {
+                $('input[name="query-location"]').show();
+            }
+        }).change();
+
+
+
         /*var source = new EventSource('/stream?topic=' + topic);*/
         /*var source = new EventSource('/stream');*/
         /*source.onmessage = function (event) {
             console.log(event.data);
         }
 */
-        var collection;
-        var processing;
-        var visualization;
-        var persistence;
-        $('button').click(function(e) {
-            var className = $(this).attr('class');
-            var text = $('select.'+className+' option:selected').text()
-            var value = $('select.'+className+' option:selected').attr('value')
-            if (className == 'data-collection') {
-                collection = value;
-            } else if (className == 'data-processing') {
-                processing = value;
-            } else if (className == 'data-visualization') {
-                visualization = value;
-            } else if (className == 'data-persistence') {
-                persistence = value;
-            }
-            $('#selected-item').append(text+'<br/>');
-        })
+        // var collection;
+        // var processing;
+        // var visualization;
+        // var persistence;
+        // $('button').click(function(e) {
+        //     var className = $(this).attr('class');
+        //     var text = $('select.'+className+' option:selected').text()
+        //     var value = $('select.'+className+' option:selected').attr('value')
+        //     if (className == 'data-collection') {
+        //         collection = value;
+        //     } else if (className == 'data-processing') {
+        //         processing = value;
+        //     } else if (className == 'data-visualization') {
+        //         visualization = value;
+        //     } else if (className == 'data-persistence') {
+        //         persistence = value;
+        //     }
+        //     $('#selected-item').append(text+'<br/>');
+        // })
 
-        $('button.submit').click(function(e) {
-            if (collection && processing && visualization && persistence) {
+        // $('button.submit').click(function(e) {
+        //     if (collection && processing && visualization && persistence) {
 
-            }
-        });
+        //     }
+        // });
 
-        $('button.topic').click(function(e){
-            /*var topic = $('input').val();*/
-            var topic = $('.kafka-topic option:selected').text();
-            console.log(topic);
-            var source = null;
-            source = new EventSource('/stream?topic=' + topic);
+        // $('button.topic').click(function(e){
+        //     /*var topic = $('input').val();*/
+        //     var topic = $('.kafka-topic option:selected').text();
+        //     console.log(topic);
+        //     var source = null;
+        //     source = new EventSource('/stream?topic=' + topic);
 
-            source.onmessage = function (event) {
-                console.log(event);
-            }
-        });
+        //     source.onmessage = function (event) {
+        //         console.log(event);
+        //     }
+        // });
         </script>
     </body>
 
