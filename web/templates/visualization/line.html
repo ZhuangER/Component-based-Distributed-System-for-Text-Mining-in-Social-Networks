@@ -26,72 +26,136 @@ body {
 
 </style>
 <body>
-<h1 style="color:#55ACEE">Line Graph</h1>
+  <h1 style="color:#55ACEE">Line Graph</h1>
 
-<script src="//d3js.org/d3.v3.min.js"></script>
-<script>
+  <script src="//d3js.org/d3.v3.min.js"></script>
+  <script src="/static/js/stream_process.js"></script>
+  <script src="/static/js/echarts.min.js"></script>
 
-var margin = {top: 20, right: 20, bottom: 30, left: 50},
-    width = 960 - margin.left - margin.right,
-    height = 500 - margin.top - margin.bottom;
+  <!-- 为 ECharts 准备一个具备大小（宽高）的Dom -->
+  <div id="main" style="width: 600px;height:400px;"></div>
 
-var formatDate = d3.time.format("%d-%b-%y");
+  <script type="text/javascript">
+      // 基于准备好的dom，初始化echarts实例
+      // 
+      var dataset = [];
+      var dateList = [];
+      // var parseDate = d3.time.format("%Y-%m-%d %H:%M:%S").parse;
+      // var base = +new Date(2016, 6, 4);
 
-var x = d3.time.scale()
-    .range([0, width]);
 
-var y = d3.scale.linear()
-    .range([height, 0]);
+      var source = new EventSource('/stream');
+      source.onmessage = function (event) {
+        var sentence = event.data.split("DELIMITER")[0];
+        var screen_name = event.data.split("DELIMITER")[1];
+        var create_at = event.data.split("DELIMITER")[2];
+        var geoinfo = event.data.split("DELIMITER")[3];
+        var countryName = event.data.split("DELIMITER")[4];
+        var personalSentiment = event.data.split("DELIMITER")[5];
+        var countrySentiment = event.data.split("DELIMITER")[6];
+        // var data = stream_process(event.data, "sentiment");
+        // data.date = parseDate(data.date);
+        // dataset.push(data.date);
+        //
+        if (create_at && personalSentiment) {
+          day = create_at.split(' ')[0];
+          second = create_at.split(' ')[1];
 
-var xAxis = d3.svg.axis()
-    .scale(x)
-    .orient("bottom");
+          var now = +new Date(day.split('-')[0], day.split('-')[1],day.split('-')[2], second.split(':')[0], second.split(':')[1], second.split(':')[2]);
 
-var yAxis = d3.svg.axis()
-    .scale(y)
-    .orient("left");
 
-var line = d3.svg.line()
-    .x(function(d) { return x(d.date); })
-    .y(function(d) { return y(d.close); });
 
-var svg = d3.select("body").append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
-  .append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-d3.tsv("/static/data/line_test.tsv", type, function(error, data) {
-  if (error) throw error;
+          /*now = [now.getFullYear(), now.getMonth() + 1, now.getDate()].join('-');*/
+          var data = {};
+          data.name = now;
+          data.value = [now, personalSentiment];
+          dataset.push(data);
+          dateList.push(now);
 
-  x.domain(d3.extent(data, function(d) { return d.date; }));
-  y.domain(d3.extent(data, function(d) { return d.close; }));
 
-  svg.append("g")
-      .attr("class", "x axis")
-      .attr("transform", "translate(0," + height + ")")
-      .call(xAxis);
+          // if (dataset.length > 10) {
+          //   dataset.shift();
+          //   dateList.shift();
+          // }
 
-  svg.append("g")
-      .attr("class", "y axis")
-      .call(yAxis)
-    .append("text")
-      .attr("transform", "rotate(-90)")
-      .attr("y", 6)
-      .attr("dy", ".71em")
-      .style("text-anchor", "end")
-      .text("Price ($)");
+          dataset.sort();
+          dateList.sort();
+          // now = new Date(Date.parse(now) + 3600 * 1000);
 
-  svg.append("path")
-      .datum(data)
-      .attr("class", "line")
-      .attr("d", line);
-});
+          
+        }
+        
+      };
 
-function type(d) {
-  d.date = formatDate.parse(d.date);
-  d.close = +d.close;
-  return d;
-}
+      function generateData() {
+          if (create_at && personalSentiment) {
+            return {
+              name: create_at.split(' ')[0],
+              value: [
+                create_at.split(' ')[0],
+                personalSentiment
+              ]
+            }
+          }
+      }
 
-</script>
+
+      
+
+/*      function addData(shift) {
+          now = [now.getFullYear(), now.getMonth() + 1, now.getDate()].join('-');
+          date.push(now);
+          data.push((Math.random() - 0.4) * 10 + data[data.length - 1]);
+          if (shift) {
+              date.shift();
+              data.shift();
+          }
+          now = new Date(Date.parse(now) + 24 * 3600 * 1000);
+      }*/
+
+      var myChart = echarts.init(document.getElementById('main'));
+      var app = {};
+      // 指定图表的配置项和数据
+      var option = {
+          title: {
+              text: 'ECharts 入门示例'
+          },
+          tooltip: {},
+          legend: {
+              data:['twitter']
+          },
+          xAxis: {
+            type: 'time',
+            boundaryGap: false,
+          },
+          yAxis: {
+            type: 'value',
+          },
+          series: [{
+              name: 'twitter',
+              type: 'line',
+              data: dataset
+          }]
+      };
+
+      // 使用刚指定的配置项和数据显示图表。
+      myChart.setOption(option);
+
+      app.timeTicket = setInterval(function () {
+        /*for (var i = 0; i < 5; i++) {
+        
+          dataset.push(generateData());
+        }*/
+        // addData(true);
+        myChart.setOption({
+            xAxis: {
+                data: dateList
+            },
+            series: [{
+                name:'twitter',
+                data: dataset
+            }]
+        });
+      }, 1000);
+  </script>
