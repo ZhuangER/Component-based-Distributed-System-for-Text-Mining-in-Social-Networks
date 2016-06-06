@@ -10,16 +10,10 @@ import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import backtype.storm.utils.Utils;
 
-import com.lambdaworks.redis.RedisClient;
-import com.lambdaworks.redis.RedisConnection;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.Locale;
-
-import yu.storm.tools.Rankings;
-import yu.storm.tools.Rankable;
 
 import kafka.javaapi.producer.Producer;
 import kafka.producer.KeyedMessage;
@@ -52,14 +46,11 @@ public class KafkaProducerBolt extends BaseRichBolt{
 	@Override
 	public void execute(Tuple tuple)
 	{
-		Rankings rankableList = (Rankings) tuple.getValue(0);
+		String word = tuple.getStringByField("word");
 
-	    for (Rankable r: rankableList.getRankings()){
-	      	String word = r.getObject().toString();
-	      	Long count = r.getCount();
-			producer.produce(word + "|" + Long.toString(count));
-	    }
-
+      	// access the second column 'count'
+      	Integer count = tuple.getIntegerByField("count");
+		producer.produce(word + "|" + Long.toString(count));
 	}
 
 	public void declareOutputFields(OutputFieldsDeclarer declarer)

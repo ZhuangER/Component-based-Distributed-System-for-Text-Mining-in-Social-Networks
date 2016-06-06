@@ -21,8 +21,12 @@ import yu.storm.tools.KafkaProducer;
 public class KafkaProducerBolt extends BaseRichBolt{
 	public static KafkaProducer producer;
 	String brokerList = "localhost:9092";
-    String topic = "sentiment";
+    String topic = "web";
     String sync = "sync";
+
+    public KafkaProducerBolt(String kafkaTopic) {
+    	topic = kafkaTopic;
+    }
 
 	@Override
 	public void prepare(

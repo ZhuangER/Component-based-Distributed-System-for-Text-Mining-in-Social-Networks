@@ -24,7 +24,7 @@ var updateViz =  function(){
 
   d3.layout.cloud().size([800, 300])
   .words(frequency_list)
-  .fontSize(function(d) { return d.value; })
+  .fontSize(function(d) { return 5;/*d.value%10;*/ })
   .on("end", draw)
   .start();
 };

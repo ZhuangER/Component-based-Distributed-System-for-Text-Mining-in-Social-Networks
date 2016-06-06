@@ -58,6 +58,7 @@ public class DocumentFetchBolt extends BaseRichBolt {
 	public void execute(Tuple tuple) {
 		List<String> urls;
 		String line = tuple.getString(0);
+		String tweet = line.split("DELIMITER")[0];
 		urls = TweetExtractor.urlExtractor(line);
 		if (urls != null) {
 

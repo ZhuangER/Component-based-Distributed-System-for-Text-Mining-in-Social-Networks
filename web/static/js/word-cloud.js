@@ -31,7 +31,7 @@ function draw(words) {
 
   textContainer.enter().append("text");
 
-  textContainer.style("font-size", function(d) { return d.value + "px"; })
+  textContainer.style("font-size", function(d) { return d.value/100 + "px"; })
                 .style("fill", function(d, i) { return colors(i); })
                 .attr("transform", function(d) {
                   return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";

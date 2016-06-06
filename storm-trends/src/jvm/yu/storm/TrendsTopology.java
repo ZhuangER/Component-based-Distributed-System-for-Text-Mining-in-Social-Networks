@@ -34,13 +34,13 @@ class TrendsTopology
   private static Config topologyConfig;
   private final int runtimeInSeconds;
 
-  public TfidfTopology(String topologyName) {
+  public TrendsTopology(String topologyName,String spoutTopic, String reportTopic) {
     builder = new TopologyBuilder();
     this.topologyName = topologyName;
     topologyConfig = createTopologyConfiguration();
     runtimeInSeconds = DEFAULT_RUNTIME_IN_SECONDS;
 
-    wireTopology();
+    wireTopology(spoutTopic, reportTopic);
   }
 
   public static Config createTopologyConfiguration() {
@@ -49,7 +49,7 @@ class TrendsTopology
     return conf;
   }
 
-  private void wireTopology() {
+  private void wireTopology(String spoutTopic, String reportTopic) {
     String spoutId = "kafka-spout";
     String tfidfId = "tfidf-bolt";
     String intermediateRankerId = "intermediateRanker";
@@ -59,7 +59,7 @@ class TrendsTopology
     Properties configs = new Properties();
 
     KafkaSpoutBuilder kafkaSpoutBuilder = new KafkaSpoutBuilder(configs);
-    KafkaSpout kafkaSpout =  kafkaSpoutBuilder.buildKafkaSpout();
+    KafkaSpout kafkaSpout =  kafkaSpoutBuilder.buildKafkaSpout(spoutTopic);
     
     // set topology
     builder.setSpout(spoutId, kafkaSpout, 1);
@@ -75,7 +75,7 @@ class TrendsTopology
     //builder.setBolt("topn-bolt", new TopNBolt(), 1).globalGrouping("tfidf-bolt");
     builder.setBolt(intermediateRankerId, new IntermediateRankingsBolt(TOP_N), 4).fieldsGrouping(tfidfId, new Fields("term"));
     builder.setBolt(totalRankerId, new TotalRankingsBolt(TOP_N)).globalGrouping(intermediateRankerId);
-    builder.setBolt(reporterId, new KafkaProducerBolt(), 1).globalGrouping(totalRankerId);
+    builder.setBolt(reporterId, new KafkaProducerBolt(reportTopic), 1).globalGrouping(totalRankerId);
 
 
   }
@@ -84,10 +84,10 @@ class TrendsTopology
   public static void main(String[] args) throws Exception
   {
     String topologyName = "tfidf-topology";
-    TfidfTopology tfidf = new TfidfTopology(topologyName);
+    TrendsTopology tfidf = new TrendsTopology(topologyName, args[0], args[1]);
 
 
-    if (args != null && args.length > 0) {
+    if (args != null && args.length > 2) {
 
       // run it in a live cluster
 
@@ -95,9 +95,9 @@ class TrendsTopology
       topologyConfig.setNumWorkers(3);
 
       // create the topology and submit with config
-      StormSubmitter.submitTopology(args[0], topologyConfig, builder.createTopology());
+      StormSubmitter.submitTopology(args[2], topologyConfig, builder.createTopology());
 
-    } else {
+    } else if (args != null && args.length == 2) {
 
       // run it in a simulated local cluster
 

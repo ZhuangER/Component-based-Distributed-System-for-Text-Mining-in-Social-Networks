@@ -25,7 +25,7 @@ app = Flask(__name__)
 # indicate the output topic of data processing
 # is the input topic of data visualization
 visualization_topic = None
-
+thread_list = []
 
 
 
@@ -44,6 +44,7 @@ def component():
             kafka_producer = SimpleProducer(kafka)
             for text in twitter_api.stream():
                 kafka_producer.send_messages("twitter",text)
+            kafka.close()
             return
 
         def timeline_producer(twitter_account, count):
@@ -52,6 +53,7 @@ def component():
             text_list = twitter_api.user_timeline(twitter_account, count)
             for text in text_list:
                 kafka_producer.send_messages("twitter",text)
+            kafka.close()
             return
 
         def query_text_producer(text, count):
@@ -60,6 +62,7 @@ def component():
             text_list = twitter_api.search(text, count)
             for text in text_list:
                 kafka_producer.send_messages("twitter",text)
+            kafka.close()
             return
 
         def query_location_producer(lat, lng, radius, count):
@@ -68,6 +71,7 @@ def component():
             text_list = twitter_api.area_search(lat, lng, radius, count)
             for text in text_list:
                 kafka_producer.send_messages("twitter",text)
+            kafka.close()
             return
 
         def favorite_list_producer(id, count):
@@ -76,6 +80,7 @@ def component():
             text_list = twitter_api.favorite_list(id, count)
             for text in text_list:
                 kafka_producer.send_messages("twitter",text)
+            kafka.close()
             return
 
         # data collection
@@ -161,7 +166,7 @@ def component():
         elif visualization == "pie-chart":
             return redirect(url_for('pie', topic = visualization_topic))
         elif visualization == "word-cloud":
-            return redirect(url_for('word_cloud', topic = visualization_topic))
+            return redirect(url_for('word_cloud'))
 
         if persistence == "user-timeline":
             pass
@@ -199,9 +204,9 @@ def radar(topic):
 def pie(topic):
     return render_template("visualization/pie.html", topic=topic)
 
-@app.route('/visualization/word-cloud/<topic>')
-def word_cloud(topic):
-    return render_template("visualization/word-cloud.html", topic=topic)
+@app.route('/visualization/word-cloud/')
+def word_cloud():
+    return render_template("visualization/word-cloud.html")
 
 @app.route('/_twitter_area_query')
 def twitter_area_query():
@@ -217,10 +222,10 @@ def kafka_stream():
     # global visualization_topic 
     # topic = visualization_topic 
     # print "DEBUG stream topic: " + topic
-    topic = "sentiment"
+    topic = "web"
     kafka = KafkaClient("localhost:9092")
     consumer = SimpleConsumer(kafka, "python", topic)
-    topic = None
+    # topic = None
 
     def gen():
         for message in consumer:

@@ -36,83 +36,6 @@ body {
   <div id="main" style="width: 600px;height:400px;"></div>
 
   <script type="text/javascript">
-      // 基于准备好的dom，初始化echarts实例
-      // 
-      var dataset = [];
-      var dateList = [];
-      // var parseDate = d3.time.format("%Y-%m-%d %H:%M:%S").parse;
-      // var base = +new Date(2016, 6, 4);
-
-
-      var source = new EventSource('/stream');
-      source.onmessage = function (event) {
-        var sentence = event.data.split("DELIMITER")[0];
-        var screen_name = event.data.split("DELIMITER")[1];
-        var create_at = event.data.split("DELIMITER")[2];
-        var geoinfo = event.data.split("DELIMITER")[3];
-        var countryName = event.data.split("DELIMITER")[4];
-        var personalSentiment = event.data.split("DELIMITER")[5];
-        var countrySentiment = event.data.split("DELIMITER")[6];
-        // var data = stream_process(event.data, "sentiment");
-        // data.date = parseDate(data.date);
-        // dataset.push(data.date);
-        //
-        if (create_at && personalSentiment) {
-          day = create_at.split(' ')[0];
-          second = create_at.split(' ')[1];
-
-          var now = +new Date(day.split('-')[0], day.split('-')[1],day.split('-')[2], second.split(':')[0], second.split(':')[1], second.split(':')[2]);
-
-
-
-
-          /*now = [now.getFullYear(), now.getMonth() + 1, now.getDate()].join('-');*/
-          var data = {};
-          data.name = now;
-          data.value = [now, personalSentiment];
-          dataset.push(data);
-          dateList.push(now);
-
-
-          // if (dataset.length > 10) {
-          //   dataset.shift();
-          //   dateList.shift();
-          // }
-
-          dataset.sort();
-          dateList.sort();
-          // now = new Date(Date.parse(now) + 3600 * 1000);
-
-          
-        }
-        
-      };
-
-      function generateData() {
-          if (create_at && personalSentiment) {
-            return {
-              name: create_at.split(' ')[0],
-              value: [
-                create_at.split(' ')[0],
-                personalSentiment
-              ]
-            }
-          }
-      }
-
-
-      
-
-/*      function addData(shift) {
-          now = [now.getFullYear(), now.getMonth() + 1, now.getDate()].join('-');
-          date.push(now);
-          data.push((Math.random() - 0.4) * 10 + data[data.length - 1]);
-          if (shift) {
-              date.shift();
-              data.shift();
-          }
-          now = new Date(Date.parse(now) + 24 * 3600 * 1000);
-      }*/
 
       var myChart = echarts.init(document.getElementById('main'));
       var app = {};
@@ -122,6 +45,12 @@ body {
               text: 'ECharts 入门示例'
           },
           tooltip: {},
+          grid: {
+              left: '3%',
+              right: '4%',
+              bottom: '3%',
+              containLabel: true
+          },
           legend: {
               data:['twitter']
           },
@@ -134,7 +63,8 @@ body {
           },
           series: [{
               name: 'twitter',
-              type: 'line',
+              type: 'bar',
+              barWidth: 15,
               data: dataset
           }]
       };
@@ -143,11 +73,6 @@ body {
       myChart.setOption(option);
 
       app.timeTicket = setInterval(function () {
-        /*for (var i = 0; i < 5; i++) {
-        
-          dataset.push(generateData());
-        }*/
-        // addData(true);
         myChart.setOption({
             xAxis: {
                 data: dateList

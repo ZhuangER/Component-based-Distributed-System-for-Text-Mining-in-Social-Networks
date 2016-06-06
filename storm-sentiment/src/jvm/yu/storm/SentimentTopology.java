@@ -32,14 +32,15 @@ class SentimentTopology
 
     // create kafka spout
     String zks = "localhost:2181";
-    String topic = "twitter";
+    // String topic = "twitter";
+    String topic = args[0];
     String zkRoot = "/storm"; // default zookeeper root configuration for storm
     String id = "word";
          
     BrokerHosts brokerHosts = new ZkHosts(zks);
     SpoutConfig spoutConf = new SpoutConfig(brokerHosts, topic, zkRoot, id);
     spoutConf.scheme = new SchemeAsMultiScheme(new StringScheme());
-    spoutConf.forceFromStart = true;
+    spoutConf.forceFromStart = false;
     spoutConf.zkServers = Arrays.asList(new String[] {"localhost"});
     spoutConf.zkPort = 2181;
     //spoutConf.bufferSizeBytes = 1024;
@@ -50,7 +51,7 @@ class SentimentTopology
     builder.setBolt("sentiment-bolt", new SentimentBolt(), 10).shuffleGrouping("kafka-spout");
     builder.setBolt("regex-bolt", new RegexBolt(), 10).shuffleGrouping("sentiment-bolt");
     builder.setBolt("count-bolt", new CountBolt(), 10).fieldsGrouping("regex-bolt", new Fields("countryName"));
-    builder.setBolt("report-bolt", new KafkaProducerBolt(), 1).globalGrouping("count-bolt");
+    builder.setBolt("report-bolt", new KafkaProducerBolt(args[1]), 1).globalGrouping("count-bolt");
 
     // create the default config object
     Config conf = new Config();
@@ -58,7 +59,7 @@ class SentimentTopology
     // set the config in debugging mode
     conf.setDebug(true);
 
-    if (args != null && args.length > 0) {
+    if (args != null && args.length > 2) {
 
       // run it in a live cluster
 
@@ -66,9 +67,9 @@ class SentimentTopology
       conf.setNumWorkers(3);
 
       // create the topology and submit with config
-      StormSubmitter.submitTopology(args[0], conf, builder.createTopology());
+      StormSubmitter.submitTopology(args[2], conf, builder.createTopology());
 
-    } else {
+    } else if (args != null && args.length == 2) {
 
       // run it in a simulated local cluster
 
