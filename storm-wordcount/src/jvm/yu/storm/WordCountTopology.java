@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.UUID;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -108,8 +109,8 @@ public class WordCountTopology {
      public static void main(String[] args) throws AlreadyAliveException, InvalidTopologyException, InterruptedException {
           String zks = "localhost:2181";
           String topic = args[0];
-          String zkRoot = "/storm"; // default zookeeper root configuration for storm
-          String id = "word";
+          String zkRoot = "/" + topic; // default zookeeper root configuration for storm
+          String id = UUID.randomUUID().toString();
          
           BrokerHosts brokerHosts = new ZkHosts(zks);
           SpoutConfig spoutConf = new SpoutConfig(brokerHosts, topic, zkRoot, id);

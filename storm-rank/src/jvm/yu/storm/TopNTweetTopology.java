@@ -1,6 +1,7 @@
 package yu.storm;
 
 import java.util.Arrays;
+import java.util.UUID;
 
 import storm.kafka.BrokerHosts;
 import storm.kafka.KafkaSpout;
@@ -36,8 +37,8 @@ class TopNTweetTopology
     String zks = "localhost:2181";
     // String topic = "twitter";
     String topic = args[0];
-    String zkRoot = "/storm"; // default zookeeper root configuration for storm
-    String id = "word";
+    String zkRoot = "/" + topic; // default zookeeper root configuration for storm
+    String id = UUID.randomUUID().toString();
          
     BrokerHosts brokerHosts = new ZkHosts(zks);
     SpoutConfig spoutConf = new SpoutConfig(brokerHosts, topic, zkRoot, id);
@@ -45,13 +46,14 @@ class TopNTweetTopology
     spoutConf.forceFromStart = false;
     spoutConf.zkServers = Arrays.asList(new String[] {"localhost"});
     spoutConf.zkPort = 2181;
+    // spoutConf.forceStartOffsetTime(-1);
     //spoutConf.bufferSizeBytes = 1024;
     //
 
     // attach the tweet spout to the topology - parallelism of 1
     builder.setSpout("kafka-spout", new KafkaSpout(spoutConf), 1);
     builder.setBolt("parse-bolt", new ParseTweetBolt(),10).shuffleGrouping("kafka-spout");
-    builder.setBolt("intermediate-ranker", new IntermediateRankingsBolt(TOP_N), 4).fieldsGrouping("kafka", new Fields("word"));
+    builder.setBolt("intermediate-ranker", new IntermediateRankingsBolt(TOP_N), 4).fieldsGrouping("parse-bolt", new Fields("word"));
     builder.setBolt("total-ranker", new TotalRankingsBolt(TOP_N), 1).globalGrouping("intermediate-ranker");
     // attach the report bolt using global grouping - parallelism of 1
     builder.setBolt("report-bolt", new KafkaProducerBolt(args[1]), 1).globalGrouping("total-ranker");

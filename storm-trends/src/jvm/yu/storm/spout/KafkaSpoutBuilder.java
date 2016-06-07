@@ -10,6 +10,7 @@ import storm.kafka.ZkHosts;
 
 import java.util.Arrays;
 import java.util.Properties;
+import java.util.UUID;
 
 import yu.storm.common.KafkaSpoutConfig;
 
@@ -38,7 +39,7 @@ public class KafkaSpoutBuilder{
     public KafkaSpout buildKafkaSpout(String topic, String zkRoot, String id) {
         BrokerHosts brokerHosts = new ZkHosts(KafkaSpoutConfig.ZKS);
         String groupId = KafkaSpoutConfig.CONSUMERGROUP;
-        SpoutConfig spoutConf = new SpoutConfig(brokerHosts, topic, zkRoot, id);
+        SpoutConfig spoutConf = new SpoutConfig(brokerHosts, topic, "/" + topic, UUID.randomUUID().toString());
         spoutConf.scheme = new SchemeAsMultiScheme(new StringScheme());
         spoutConf.forceFromStart = false;
         spoutConf.zkServers = Arrays.asList(new String[] {"localhost"});

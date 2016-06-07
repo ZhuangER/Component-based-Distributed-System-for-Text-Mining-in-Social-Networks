@@ -1,6 +1,7 @@
 package yu.storm;
 
 import java.util.Arrays;
+import java.util.UUID;
 
 import backtype.storm.Config;
 import backtype.storm.LocalCluster;
@@ -34,8 +35,8 @@ class SentimentTopology
     String zks = "localhost:2181";
     // String topic = "twitter";
     String topic = args[0];
-    String zkRoot = "/storm"; // default zookeeper root configuration for storm
-    String id = "word";
+    String zkRoot = "/" + topic; // default zookeeper root configuration for storm
+    String id = UUID.randomUUID().toString();
          
     BrokerHosts brokerHosts = new ZkHosts(zks);
     SpoutConfig spoutConf = new SpoutConfig(brokerHosts, topic, zkRoot, id);

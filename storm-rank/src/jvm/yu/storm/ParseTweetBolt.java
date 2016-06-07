@@ -45,16 +45,16 @@ public class ParseTweetBolt extends BaseRichBolt
     if (line.contains("DELIMITER")) {
       String wordCount = line.split("DELIMITER")[5];
       if (wordCount.contains("|")) {
-        String word = wordCount.split("|")[0];
-        int count = Integer.parseInt(line.split("|")[1]); 
+        String word = wordCount.split("\\|")[0];
+        int count = Integer.parseInt(line.split("\\|")[1]); 
         Long longCount = (long) count;
 
         collector.emit(new Values(word, (Long)longCount));
       }
     }
     else {
-      String word = line.split("|")[0];
-      int count = Integer.parseInt(line.split("|")[1]);
+      String word = line.split("\\|")[0];
+      int count = Integer.parseInt(line.split("\\|")[1]);
       Long longCount = (long) count;
 
       collector.emit(new Values(word, (Long)longCount));
