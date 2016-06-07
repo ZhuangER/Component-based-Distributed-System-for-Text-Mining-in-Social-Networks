@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package udacity.storm.tools;
+package yu.storm.tools;
 
 import backtype.storm.tuple.Tuple;
 import com.google.common.collect.ImmutableList;

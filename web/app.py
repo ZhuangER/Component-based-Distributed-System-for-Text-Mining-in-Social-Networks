@@ -28,6 +28,19 @@ visualization_topic = None
 thread_list = []
 
 
+# @app.after_request
+# def aftr_request(response):
+#     print 'after request'
+#     print request.url
+#     return response
+
+# @app.teardown_request
+# def teardown_request(exception):
+#     print 'teardown request'
+#     print request.url
+#     for pid in thread_list:
+#         subprocess.call(['kill', str(pid)])
+
 
 @app.route('/')
 @app.route('/component', methods=['GET', 'POST'])
@@ -39,50 +52,6 @@ def component():
         visualization = request.form.get('data-visualization')
         persistence = request.form.get('data-persistence')
         
-        def realtime_producer():
-            kafka = KafkaClient("localhost:9092")
-            kafka_producer = SimpleProducer(kafka)
-            for text in twitter_api.stream():
-                kafka_producer.send_messages("twitter",text)
-            kafka.close()
-            return
-
-        def timeline_producer(twitter_account, count):
-            kafka = KafkaClient("localhost:9092")
-            kafka_producer = SimpleProducer(kafka)
-            text_list = twitter_api.user_timeline(twitter_account, count)
-            for text in text_list:
-                kafka_producer.send_messages("twitter",text)
-            kafka.close()
-            return
-
-        def query_text_producer(text, count):
-            kafka = KafkaClient("localhost:9092")
-            kafka_producer = SimpleProducer(kafka)
-            text_list = twitter_api.search(text, count)
-            for text in text_list:
-                kafka_producer.send_messages("twitter",text)
-            kafka.close()
-            return
-
-        def query_location_producer(lat, lng, radius, count):
-            kafka = KafkaClient("localhost:9092")
-            kafka_producer = SimpleProducer(kafka)
-            text_list = twitter_api.area_search(lat, lng, radius, count)
-            for text in text_list:
-                kafka_producer.send_messages("twitter",text)
-            kafka.close()
-            return
-
-        def favorite_list_producer(id, count):
-            kafka = KafkaClient("localhost:9092")
-            kafka_producer = SimpleProducer(kafka)
-            text_list = twitter_api.favorite_list(id, count)
-            for text in text_list:
-                kafka_producer.send_messages("twitter",text)
-            kafka.close()
-            return
-
         # data collection
         if collection == "realtime":
             # run real-time stream collection
@@ -90,40 +59,36 @@ def component():
             # producer_proc = subprocess.Popen(kafka_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             # time.sleep(20)
             # producer_proc.kill() 
-            t = FuncThread(target=realtime_producer, args=())
-            t.start() 
-            # pass
-            t.stop()
+            producer_thread = subprocess.Popen(["python","tools/producer.py", collection], stdout=subprocess.PIPE)
+            # producer_thread.kill()
+            thread_list.append(producer_thread.pid)
+            print thread_list
+
 
         elif collection == "user-timeline":
             twitter_account = request.form.get('twitter-account')
             print twitter_account
-            t = FuncThread(target=timeline_producer, args=(twitter_account, 10))
-            t.start()
-            # join() will lead thread block
-            # t.join()
-            t.stop()
+            producer_thread = subprocess.Popen(["python","tools/producer.py", collection, twitter_account, "100"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            # producer_thread.kill()
+            thread_list.append(producer_thread.pid) 
 
 
             # print twitter_account
         elif collection == "query-by-text":
             query_text = request.form.get('query-text')
-            t = FuncThread(target=query_text_producer, args=(query_text, 10))
-            t.start()
-            t.stop()
+            producer_thread = subprocess.Popen(["python","tools/producer.py", collection, query_text, "100"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            thread_list.append(producer_thread.pid) 
             # print query_text
         elif collection == "query-by-location":
             # query_location = request.form.get('query-location')
-            # t = FuncThread(target=query_location_producer, args=())
-            # t.start()
-            # t.stop()
-            # print query_location
+            # producer_thread = subprocess.Popen(["python","tools/producer.py", collection, twitter_account, "100"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            # producer_thread.kill()
+            # thread_list.append(producer_thread.pid) 
             pass
         elif collection == "favorite-list":
             twitter_account = request.form.get('twitter-account')
-            t = FuncThread(target=favorite_list_producer, args=(twitter_account, 10))
-            t.start()
-            t.stop()
+            producer_thread = subprocess.Popen(["python","tools/producer.py", collection, twitter_account, "100"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            thread_list.append(producer_thread.pid) 
             # print favorite_list
         # run kafka producer thread
         
@@ -131,20 +96,22 @@ def component():
 
 
         if processing == "sentiment":
-            # storm_args = ['storm', 'jar', 'jar/sentiment.jar', 'yu.storm.SentimentTopology']
+            # storm_args = ['storm', 'jar', 'jar/sentiment.jar', 'yu.storm.SentimentTopology', 'twitter', 'web']
             # storm_proc = subprocess.Popen(storm_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            # storm_proc.kill()
+            # thread_list.append(storm_proc.pid)
             
             visualization_topic  = "sentiment"
             pass
         elif processing == "trends":
-            # storm_args = ['storm', 'jar', 'jar/trends.jar', 'yu.storm.TrendsTopology']
+            # storm_args = ['storm', 'jar', 'jar/trends.jar', 'yu.storm.TrendsTopology', 'twitter', 'web']
             # storm_proc = subprocess.Popen(storm_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            # storm_proc.kill()
+            # thread_list.append(storm_proc.pid)
             visualization_topic  = "trends"
             pass
         elif processing == "word-count":
-
+            # storm_args = ['storm', 'jar', 'jar/wordCount.jar', 'yu.storm.WordCountTopology', 'twitter', 'web']
+            # storm_proc = subprocess.Popen(storm_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            # thread_list.append(storm_proc.pid)
             visualization_topic  = "word-count"
             pass
         elif processing == "top-n":
@@ -175,6 +142,20 @@ def component():
 
     return render_template("component.html")
 
+# @app.teardown_request
+# def teardown_request(exception):
+#     print "tear down"
+#     for pid in thread_list:
+#         subprocess.call(['kill', pid])
+
+@app.route('/clear_threads')
+def clear_threads():
+    while thread_list:
+        pid = thread_list.pop()
+        # print pid
+        subprocess.call(['kill', str(pid)])
+    return "success clear all threads"
+
 @app.route('/topology', methods=['GET'])
 def topology():
     collection = request.form.get('data-collection')
@@ -186,6 +167,7 @@ def topology():
 
 @app.route('/visualization/map/<topic>')
 def map(topic):
+
     return render_template("visualization/map.html", topic=topic)
 
 @app.route('/visualization/line/<topic>')
@@ -225,6 +207,7 @@ def kafka_stream():
     topic = "web"
     kafka = KafkaClient("localhost:9092")
     consumer = SimpleConsumer(kafka, "python", topic)
+    consumer.seek(offset=0, whence=2)
     # topic = None
 
     def gen():

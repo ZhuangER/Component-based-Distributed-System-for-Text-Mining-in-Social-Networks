@@ -15,13 +15,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package udacity.storm;
+package yu.storm;
 
 import backtype.storm.tuple.Tuple;
 import org.apache.log4j.Logger;
 //import storm.starter.tools.Rankings;
 
-import udacity.storm.tools.Rankings;
+import yu.storm.tools.Rankings;
 
 /**
  * This bolt merges incoming {@link Rankings}.

@@ -1,4 +1,4 @@
-package yu.storm.bolt;
+package yu.storm;
 
 import backtype.storm.Config;
 import backtype.storm.task.OutputCollector;
@@ -32,6 +32,10 @@ public class KafkaProducerBolt extends BaseRichBolt{
 	String brokerList = "localhost:9092";
     String topic = "web";
     String sync = "sync";
+
+    public KafkaProducerBolt(String kafkaTopic) {
+    	topic = kafkaTopic;
+    }
 
 	@Override
 	public void prepare(

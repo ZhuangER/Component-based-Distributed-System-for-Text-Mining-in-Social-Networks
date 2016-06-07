@@ -1,5 +1,5 @@
 //package storm.starter.util;
-package udacity.storm.tools;
+package yu.storm.tools;
 
 import backtype.storm.Constants;
 import backtype.storm.tuple.Tuple;

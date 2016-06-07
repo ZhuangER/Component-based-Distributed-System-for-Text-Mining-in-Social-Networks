@@ -27,16 +27,6 @@ public class ParseTweetBolt extends BaseRichBolt
   // To output tuples from this bolt to the count bolt
   OutputCollector collector;
 
-  private String[] skipWords = {"rt", "to", "me","la","on","that","que",
-    "followers","watch","know","not","have","like","I'm","new","good","do",
-    "more","es","te","followers","Followers","las","you","and","de","my","is",
-    "en","una","in","for","this","go","en","all","no","don't","up","are",
-    "http","http:","https","https:","http://","https://","with","just","your",
-    "para","want","your","you're","really","video","it's","when","they","their","much",
-    "would","what","them","todo","FOLLOW","retweet","RETWEET","even","right","like",
-    "bien","Like","will","Will","pero","Pero","can't","were","Can't","Were","TWITTER",
-    "make","take","This","from","about","como","esta","follows","followed"};
-
   @Override
   public void prepare(
       Map                     map,
@@ -51,21 +41,23 @@ public class ParseTweetBolt extends BaseRichBolt
   public void execute(Tuple tuple) 
   {
     // get the 1st column 'tweet' from tuple
-    String tweet = tuple.getString(0);
+    String line = tuple.getString(0);
+    if (line.contains("DELIMITER")) {
+      String wordCount = line.split("DELIMITER")[5];
+      if (wordCount.contains("|")) {
+        String word = wordCount.split("|")[0];
+        int count = Integer.parseInt(line.split("|")[1]); 
+        Long longCount = (long) count;
 
-    // provide the delimiters for splitting the tweet
-    String delims = "[ .,?!]+";
-
-    // now split the tweet into tokens
-    String[] tokens = tweet.split(delims);
-
-    // for each token/word, emit it
-    for (String token: tokens) {
-      if (token.length() > 3 && !Arrays.asList(skipWords).contains(token)) {
-        if (token.startsWith("#")) {
-          collector.emit(new Values(token));
-        }
+        collector.emit(new Values(word, (Long)longCount));
       }
+    }
+    else {
+      String word = line.split("|")[0];
+      int count = Integer.parseInt(line.split("|")[1]);
+      Long longCount = (long) count;
+
+      collector.emit(new Values(word, (Long)longCount));
     }
   }
 
@@ -74,6 +66,6 @@ public class ParseTweetBolt extends BaseRichBolt
   {
     // tell storm the schema of the output tuple for this spout
     // tuple consists of a single column called 'tweet-word'
-    declarer.declare(new Fields("tweet-word"));
+    declarer.declare(new Fields("word", "count"));
   }
 }

@@ -1,4 +1,12 @@
-package udacity.storm;
+package yu.storm;
+
+import java.util.Arrays;
+
+import storm.kafka.BrokerHosts;
+import storm.kafka.KafkaSpout;
+import storm.kafka.SpoutConfig;
+import storm.kafka.StringScheme;
+import storm.kafka.ZkHosts;
 
 import backtype.storm.Config;
 import backtype.storm.LocalCluster;
@@ -15,6 +23,7 @@ import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import backtype.storm.utils.Utils;
+import backtype.storm.spout.SchemeAsMultiScheme;
 
 class TopNTweetTopology
 {
@@ -24,38 +33,28 @@ class TopNTweetTopology
     TopologyBuilder builder = new TopologyBuilder();
     
     int TOP_N = 10;
-    /*
-     * In order to create the spout, you need to get twitter credentials
-     * If you need to use Twitter firehose/Tweet stream for your idea,
-     * create a set of credentials by following the instructions at
-     *
-     * https://dev.twitter.com/discussions/631
-     *
-     */
-
-    // now create the tweet spout with the credentials
-    TweetSpout tweetSpout = new TweetSpout(
-        "00IZd1ulCcCb6s6C4EoyQ9sut",
-        "DSh8hdMM9myHgzvNtJIX7XZ0m7aYcN947cs3Evm9bLKqf4fR8q",
-        "3243813491-LVq779ydb4ysSaA7YBuM3IDtHtV02X6ur99uCeg",
-        "jTw62K4q5mkKv0BBDl0tT2BUdk9UVTR3TCDD0wDOYH1IJ"
-    );
+    String zks = "localhost:2181";
+    // String topic = "twitter";
+    String topic = args[0];
+    String zkRoot = "/storm"; // default zookeeper root configuration for storm
+    String id = "word";
+         
+    BrokerHosts brokerHosts = new ZkHosts(zks);
+    SpoutConfig spoutConf = new SpoutConfig(brokerHosts, topic, zkRoot, id);
+    spoutConf.scheme = new SchemeAsMultiScheme(new StringScheme());
+    spoutConf.forceFromStart = false;
+    spoutConf.zkServers = Arrays.asList(new String[] {"localhost"});
+    spoutConf.zkPort = 2181;
+    //spoutConf.bufferSizeBytes = 1024;
+    //
 
     // attach the tweet spout to the topology - parallelism of 1
-    builder.setSpout("tweet-spout", tweetSpout, 1);
-
-    // attach the parse tweet bolt using shuffle grouping
-    builder.setBolt("parse-tweet-bolt", new ParseTweetBolt(), 10).shuffleGrouping("tweet-spout");
-
-    // attach the count bolt using fields grouping - parallelism of 15
-    builder.setBolt("count-bolt", new CountBolt(), 15).fieldsGrouping("parse-tweet-bolt", new Fields("tweet-word"));
-    //builder.setBolt("total-rankings-bolt", new Total)
-    // attach rolling count bolt using fields grouping - parallelism of 5
-    //builder.setBolt("rolling-count-bolt", new RollingCountBolt(30, 10), 1).fieldsGrouping("parse-tweet-bolt", new Fields("tweet-word"));
-    builder.setBolt("intermediate-ranker", new IntermediateRankingsBolt(TOP_N), 4).fieldsGrouping("count-bolt", new Fields("word"));
-    builder.setBolt("total-ranker", new TotalRankingsBolt(TOP_N)).globalGrouping("intermediate-ranker");
+    builder.setSpout("kafka-spout", new KafkaSpout(spoutConf), 1);
+    builder.setBolt("parse-bolt", new ParseTweetBolt(),10).shuffleGrouping("kafka-spout");
+    builder.setBolt("intermediate-ranker", new IntermediateRankingsBolt(TOP_N), 4).fieldsGrouping("kafka", new Fields("word"));
+    builder.setBolt("total-ranker", new TotalRankingsBolt(TOP_N), 1).globalGrouping("intermediate-ranker");
     // attach the report bolt using global grouping - parallelism of 1
-    builder.setBolt("report-bolt", new ReportBolt(), 1).globalGrouping("total-ranker");
+    builder.setBolt("report-bolt", new KafkaProducerBolt(args[1]), 1).globalGrouping("total-ranker");
 
     // create the default config object
     Config conf = new Config();
@@ -63,7 +62,7 @@ class TopNTweetTopology
     // set the config in debugging mode
     conf.setDebug(true);
 
-    if (args != null && args.length > 0) {
+    if (args != null && args.length > 2) {
 
       // run it in a live cluster
 
@@ -71,14 +70,14 @@ class TopNTweetTopology
       conf.setNumWorkers(3);
 
       // create the topology and submit with config
-      StormSubmitter.submitTopology(args[0], conf, builder.createTopology());
+      StormSubmitter.submitTopology(args[2], conf, builder.createTopology());
 
-    } else {
+    } else if (args != null && args.length == 2) {
 
       // run it in a simulated local cluster
 
       // set the number of threads to run - similar to setting number of workers in live cluster
-      conf.setMaxTaskParallelism(3);
+      conf.setMaxTaskParallelism(4);
 
       // create the local cluster instance
       LocalCluster cluster = new LocalCluster();
@@ -87,7 +86,7 @@ class TopNTweetTopology
       cluster.submitTopology("tweet-word-count", conf, builder.createTopology());
 
       // let the topology run for 300 seconds. note topologies never terminate!
-      Utils.sleep(300000);
+      Utils.sleep(300000000);
 
       // now kill the topology
       cluster.killTopology("tweet-word-count");

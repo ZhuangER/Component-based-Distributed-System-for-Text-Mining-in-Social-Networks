@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package udacity.storm.tools;
+package yu.storm.tools;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
