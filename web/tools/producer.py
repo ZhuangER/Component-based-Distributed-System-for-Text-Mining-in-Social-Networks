@@ -2,12 +2,8 @@ from kafka import KafkaClient, SimpleProducer, SimpleConsumer
 import twitter_api
 import sys
 
-def realtime_producer():
-    kafka = KafkaClient("localhost:9092")
-    kafka_producer = SimpleProducer(kafka)
-    for text in twitter_api.stream():
-        kafka_producer.send_messages("twitter",text)
-    kafka.close()
+def realtime_producer(restrict=None):
+    twitter_api.stream(restrict)
     return
 
 def timeline_producer(twitter_account, count):
@@ -56,7 +52,10 @@ if __name__ == '__main__':
 
     # if set count as 0, the twitter will fetch all results
     if sys.argv[1] == "realtime":
-        realtime_producer()
+        if sys.argv[2]:
+            realtime_producer(restrict=sys.argv[2])
+        else:
+            realtime_producer()
     elif sys.argv[1] == "user-timeline":
         timeline_producer(sys.argv[2], sys.argv[3])
     elif sys.argv[1] == "query-by-text":

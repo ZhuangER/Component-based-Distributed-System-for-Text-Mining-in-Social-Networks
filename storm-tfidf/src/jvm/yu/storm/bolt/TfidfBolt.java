@@ -61,7 +61,7 @@ public class TfidfBolt extends BaseRichBolt {
 				if (long_tfidf <= 0) {
 					long_tfidf = 0;
 				}
-				collector.emit(new Values(term, (Long)long_tfidf/*, documentId*/));
+				collector.emit(new Values(term, String.valueOf(long_tfidf)/*, documentId*/));
 			}
 
 		}

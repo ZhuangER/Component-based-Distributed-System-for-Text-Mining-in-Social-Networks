@@ -59,7 +59,10 @@ def component():
             # producer_proc = subprocess.Popen(kafka_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             # time.sleep(20)
             # producer_proc.kill() 
-            producer_thread = subprocess.Popen(["python","tools/producer.py", collection], stdout=subprocess.PIPE)
+            if visualization == "map":
+                producer_thread = subprocess.Popen(["python","tools/producer.py", collection, "geo"], stdout=subprocess.PIPE)
+            else:
+                producer_thread = subprocess.Popen(["python","tools/producer.py", collection], stdout=subprocess.PIPE)
             # producer_thread.kill()
             thread_list.append(producer_thread.pid)
             print thread_list
@@ -99,7 +102,6 @@ def component():
             # storm_args = ['storm', 'jar', 'jar/sentiment.jar', 'yu.storm.SentimentTopology', 'twitter', 'web']
             # storm_proc = subprocess.Popen(storm_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             # thread_list.append(storm_proc.pid)
-            
             visualization_topic  = "sentiment"
             pass
         elif processing == "trends":
@@ -123,15 +125,15 @@ def component():
         # according to storm topology
         # choose kafka topic
         if visualization == "map":
-            return redirect(url_for('map', topic = visualization_topic))
+            return redirect(url_for('map'))
         elif visualization == "line-graph":
-            return redirect(url_for('line', topic = visualization_topic))
+            return redirect(url_for('line'))
         elif visualization == "bar-chart":
-            return redirect(url_for('bar', topic = visualization_topic))
+            return redirect(url_for('bar'))
         elif visualization == "radar-chart":
-            return redirect(url_for('radar', topic = visualization_topic))
+            return redirect(url_for('radar'))
         elif visualization == "pie-chart":
-            return redirect(url_for('pie', topic = visualization_topic))
+            return redirect(url_for('pie'))
         elif visualization == "word-cloud":
             return redirect(url_for('word_cloud'))
 
@@ -165,26 +167,26 @@ def topology():
     print collection, processing, visualization, persistence
     return str(collection)
 
-@app.route('/visualization/map/<topic>')
-def map(topic):
+@app.route('/visualization/map')
+def map():
 
-    return render_template("visualization/map.html", topic=topic)
+    return render_template("visualization/map.html")
 
 @app.route('/visualization/line/<topic>')
 def line(topic):
-    return render_template("visualization/line.html", topic=topic)
+    return render_template("visualization/line.html")
 
 @app.route('/visualization/bar/<topic>')
 def bar(topic):
-    return render_template("visualization/bar.html", topic=topic)
+    return render_template("visualization/bar.html")
 
 @app.route('/visualization/radar/<topic>')
 def radar(topic):
-    return render_template("visualization/radar.html", topic=topic)
+    return render_template("visualization/radar.html")
 
 @app.route('/visualization/pie/<topic>')
 def pie(topic):
-    return render_template("visualization/pie.html", topic=topic)
+    return render_template("visualization/pie.html")
 
 @app.route('/visualization/word-cloud/')
 def word_cloud():

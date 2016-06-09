@@ -89,12 +89,28 @@ class MyStreamListener(tweepy.StreamListener):
 		result = process_status(status, content_list=['text', 'screen_name','created_at', 'coordinates', 'country_code'])
 		self.kafka_producer.send_messages("twitter",result)
 
+class GeoStreamListener(tweepy.StreamListener):
+	from kafka import KafkaClient, SimpleProducer
+	kafka = KafkaClient("localhost:9092")
+	kafka_producer = SimpleProducer(kafka)
 
-def stream():
-	myStreamListener = MyStreamListener()
+	def on_status(self, status):
+		if status.coordinates:
+			result = process_status(status, content_list=['text', 'screen_name','created_at', 'coordinates', 'country_code'])
+			self.kafka_producer.send_messages("twitter",result)
+
+
+def stream(restrict=None):
+	if restrict != None:
+		if restrict == "geo":
+			myStreamListener = GeoStreamListener()
+	else:
+		myStreamListener = MyStreamListener()
+
 	myStream = tweepy.Stream(auth = auth, listener=myStreamListener)
 	myStream.filter(languages=["en"])
-	return myStream.sample()
+
+	myStream.sample()
 
 
 
