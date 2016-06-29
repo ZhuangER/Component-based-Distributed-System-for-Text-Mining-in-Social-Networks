@@ -101,16 +101,21 @@ class GeoStreamListener(tweepy.StreamListener):
 
 
 def stream(restrict=None):
+	GEOBOX_WORLD = [-180,-90,180,90]
 	if restrict != None:
 		if restrict == "geo":
 			myStreamListener = GeoStreamListener()
+			myStream = tweepy.Stream(auth = auth, listener=myStreamListener)
+			myStream.filter(languages=["en"])
+			myStream.filter(locations=GEOBOX_WORLD)
 	else:
 		myStreamListener = MyStreamListener()
-
-	myStream = tweepy.Stream(auth = auth, listener=myStreamListener)
-	myStream.filter(languages=["en"])
+		myStream = tweepy.Stream(auth = auth, listener=myStreamListener)
+		myStream.filter(languages=["en"])
 
 	myStream.sample()
+
+	
 
 
 

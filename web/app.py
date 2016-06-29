@@ -99,31 +99,32 @@ def component():
 
 
         if processing == "sentiment":
-            # storm_args = ['storm', 'jar', 'jar/sentiment.jar', 'yu.storm.SentimentTopology', 'twitter', 'web']
-            # storm_proc = subprocess.Popen(storm_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            # thread_list.append(storm_proc.pid)
-            visualization_topic  = "sentiment"
-            pass
+            storm_args = ['storm', 'jar', 'jar/sentiment.jar', 'yu.storm.SentimentTopology', 'twitter', 'web']
+            storm_proc = subprocess.Popen(storm_args) #, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+            thread_list.append(storm_proc.pid)
+            # pass
         elif processing == "trends":
-            # storm_args = ['storm', 'jar', 'jar/trends.jar', 'yu.storm.TrendsTopology', 'twitter', 'web']
-            # storm_proc = subprocess.Popen(storm_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            # thread_list.append(storm_proc.pid)
-            visualization_topic  = "trends"
-            pass
+            storm_args = ['storm', 'jar', 'jar/trends.jar', 'yu.storm.TrendsTopology', 'twitter', 'web']
+            storm_proc = subprocess.Popen(storm_args) #, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+            thread_list.append(storm_proc.pid)
+
+            # pass
         elif processing == "word-count":
-            # storm_args = ['storm', 'jar', 'jar/wordCount.jar', 'yu.storm.WordCountTopology', 'twitter', 'web']
-            # storm_proc = subprocess.Popen(storm_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            # thread_list.append(storm_proc.pid)
-            visualization_topic  = "word-count"
-            pass
+            storm_args = ['storm', 'jar', 'jar/wordCount.jar', 'yu.storm.WordCountTopology', 'twitter', 'web']
+            storm_proc = subprocess.Popen(storm_args) #, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+            thread_list.append(storm_proc.pid)
+
+        elif processing == "tfidf":
+            storm_args = ['storm', 'jar', 'jar/tfidf.jar', 'yu.storm.TfidfTopology', 'twitter', 'web']
+            storm_proc = subprocess.Popen(storm_args) #, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+            thread_list.append(storm_proc.pid)
+            # pass
         elif processing == "top-n":
+            storm_args = ['storm', 'jar', 'jar/topN.jar', 'yu.storm.TopNTweetTopology', 'twitter', 'web']
+            storm_proc = subprocess.Popen(storm_args) #, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+            thread_list.append(storm_proc.pid)
 
-            visualization_topic  = "top-n"
-            pass
-        #print visualization_topic 
 
-        # according to storm topology
-        # choose kafka topic
         if visualization == "map":
             return redirect(url_for('map'))
         elif visualization == "line-graph":
@@ -152,9 +153,10 @@ def component():
 
 @app.route('/clear_threads')
 def clear_threads():
+    print "DEBUG:"
     while thread_list:
         pid = thread_list.pop()
-        # print pid
+        print pid
         subprocess.call(['kill', str(pid)])
     return "success clear all threads"
 
@@ -172,20 +174,20 @@ def map():
 
     return render_template("visualization/map.html")
 
-@app.route('/visualization/line/<topic>')
-def line(topic):
+@app.route('/visualization/line')
+def line():
     return render_template("visualization/line.html")
 
-@app.route('/visualization/bar/<topic>')
-def bar(topic):
+@app.route('/visualization/bar')
+def bar():
     return render_template("visualization/bar.html")
 
-@app.route('/visualization/radar/<topic>')
-def radar(topic):
+@app.route('/visualization/radar')
+def radar():
     return render_template("visualization/radar.html")
 
-@app.route('/visualization/pie/<topic>')
-def pie(topic):
+@app.route('/visualization/pie')
+def pie():
     return render_template("visualization/pie.html")
 
 @app.route('/visualization/word-cloud/')

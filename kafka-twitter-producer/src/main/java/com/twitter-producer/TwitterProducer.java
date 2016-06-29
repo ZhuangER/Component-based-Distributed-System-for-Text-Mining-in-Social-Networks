@@ -68,6 +68,7 @@ public class TwitterProducer {
                 }         
               }*/
             // System.out.println(status.getText() + "DELIMITER" + create_at + "DELIMITER" + geoInfo + "DELIMITER" + countryName);
+            // producer.produce(status.getText() + "DELIMITER" + create_at + "DELIMITER" + geoInfo + "DELIMITER" + countryName);
             
           }
           producer.produce(status.getText() + "DELIMITER" + create_at + "DELIMITER" + geoInfo + "DELIMITER" + countryName);
@@ -158,12 +159,13 @@ public class TwitterProducer {
         //filter non-english tweets
         FilterQuery tweetFilterQuery = new FilterQuery(); 
         tweetFilterQuery.language(new String[]{"en"});
-        
+        // tweetFilterQuery.locations(new double[][] { { -180, -90 }, { 180, 90 } });
+
         // provide the handler for twitter stream
         twitterStream.addListener(new TweetListener());
 
         twitterStream.filter(tweetFilterQuery);
-
+        
         // start the sampling of tweets
         twitterStream.sample();
 

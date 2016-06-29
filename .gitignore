@@ -66,3 +66,4 @@ packer_virtualbox-ovf_virtualbox.box
 .credentials
 
 *.jar
+**/jar/

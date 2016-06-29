@@ -1,3 +1,4 @@
 flask
-redis
 wikipedia
+tweepy
+pycountry

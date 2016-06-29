@@ -12,41 +12,68 @@
         <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
         <![endif]-->
+        <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+        <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+ 
         <style type="text/css">
             input.hide {
                 display: none;
             }
+            button.hide {
+                display: none;
+            }
+            form {
+                width: 400px;
+                margin-right: auto;
+                margin-left: auto;
+            }
+            label {
+                display: block;
+            }
+/*            input {
+                width: 200px;
+            }
+*/
         </style>
     </head>
     <body>
-        <h1>Components</h1>
-        <form method="POST" action="{{ url_for('component') }}">
+        <div class="container text-center">
+            <h1 class="display-1">Components Selection</h1>
+            <p>Graduate Project of Component-based Distributed Social Network Text Mining System</p>
+            <br/>
+        </div>
+        
+        <form  class="form-group text-center" method="POST" action="{{ url_for('component') }}">
             <div class="data-collection">
-                Data Collection <br/>
-                <select class="data-collection" name="data-collection">
+                <label for="data-collection">Data Collection</label>
+                <select class="data-collection form-control" name="data-collection">
                   <option value="realtime">Real-time Tweets</option>
                   <option value="user-timeline">Timeline of User</option>
                   <option value="query-by-text">Query by Text</option>
-                  <option value="query-by-location">Query by Location</option>
+                  <!-- <option value="query-by-location">Query by Location</option> -->
                   <option value="favorite-list">Favorite List</option>
                 </select>
-                <input class="hide" type="text" name="twitter-account" placeholder="Twitter Account" required>
-                <input class="hide" type="text" name="query-text" placeholder="Query by Text" required>
-                <input class="hide" type="text" name="query-location" placeholder="Query by Location" required>
-                <br/>
+                <input class="hide form-control" type="text" name="twitter-account" placeholder="Twitter Account" required>
+                <input class="hide form-control" type="text" name="query-text" placeholder="Query by Text" required>
+                <input class="hide form-control" type="text" name="query-location" placeholder="Query by Location" required>
             </div>
+            <br/>
             
-            Data Processing <br/>
-            <select class="data-processing" name="data-processing">
+            <label for="data-processing">Data Processing</label>
+            <select class="data-processing form-control" name="data-processing">
               <option selected="selected" value="sentiment">Sentiment Analyze</option>
               <option value="trends">Trends</option>
               <option value="word-count">Word Count</option>
               <option value="top-n">Top N</option>
+              <option value="tfidf">TFIDF</option>
+              <!-- <option value="customize">Customize Topology</option> -->
             </select>
+            <button type="button" id="add" class="hide">Add Component</button>
             <br/>
 
-            Data Visualization <br/>
-            <select class="data-visualization" name="data-visualization">
+            <label for="data-visualization">Data Visualization</label> 
+            <select class="data-visualization  form-control" name="data-visualization">
               <option value="map">Map</option>
               <option value="line-graph">Line Graph</option>
               <option value="bar-chart">Bar Chart</option>
@@ -56,14 +83,14 @@
             </select>
             <br/>
 
-            Data Persistence <br/>
-            <select class="data-persistence" name="data-persistence">
+            <!-- <label for="data-persistence">Data Persistence</label>
+            <select class="data-persistence  form-control" name="data-persistence">
               <option value="cassandra">Apache Cassandra</option>
               <option value="neo4j">Neo4j</option>
             </select>
-            <br/>
+            <br/> -->
 
-            <button type="submit" class="submit">Submit Topology</button><br/>
+            <button type="submit" value="submit" class="submit btn btn-primary btn-large">Submit Topology</button><br/>
         </form>
 
         <!-- <div id="selected-item">
@@ -86,26 +113,67 @@
         <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script> 
 
         <script type="text/javascript">
+
+        // $('select.data-collection').css({'width': 200});
+
         $('.data-collection').change(function() {
             // console.log($('.data-collection option:selected').text())
-            $('input.hide').hide();
+            
+            $('input').addClass('hide');
             $('input.hide').prop('disabled', true);
+            $('select.data-collection').css({'width': 400});
+            $('select.data-collection').css({'float': 'none'});
             var selected_input_value = $('.data-collection option:selected').attr('value');
             if (selected_input_value == "user-timeline"  || selected_input_value == "favorite-list") {
-                $('input[name="twitter-account"]').show();
+                // $('input[name="twitter-account"]').show();
+                $('input[name="twitter-account"]').removeClass('hide');
                 $('input[name="twitter-account"]').prop('disabled', false);
+                $('select.data-collection').css({'width': 200});
+                $('select.data-collection').css({'display': 'inline'});
+                $('select.data-collection').css({'float': 'left'});
+                $('input[name="twitter-account"]').css({'width':200});
+
             } 
             else if (selected_input_value == "query-by-text") {
-                $('input[name="query-text"]').show();
+                $('input[name="query-text"]').removeClass('hide');
                 $('input[name="query-text"]').prop('disabled', false);
+                $('select.data-collection').css({'width': 200});
+                $('select.data-collection').css({'display': 'inline'});
+                $('select.data-collection').css({'float': 'left'});
+                $('input[name="query-text"]').css({'width':200});
+                // $('select.data-collection').css({'width': 50%});
             } 
-            else if (selected_input_value == "query-by-location") {
-                $('input[name="query-location"]').show();
-                $('input[name="query-location"]').prop('disabled', false);
-            }
+            // else if (selected_input_value == "query-by-location") {
+            //     $('input[name="query-location"]').show();
+            //     $('input[name="query-location"]').prop('disabled', false);
+            // }
         }).change();
 
+        var dataProcessingOption = '<select class="add"><option selected="selected" value="sentiment">Sentiment Analyze</option><option value="trends">Trends</option> <option value="word-count">Word Count</option> <option value="top-n">Top N</option> <option value="tfidf">TFIDF</option></select>';
 
+        $('.data-processing').change(function() {
+            // console.log($('.data-collection option:selected').text())
+            // 
+            
+            var button = '<button id="add">Add Component</button>'
+            $('button.hide').hide();
+            var selected_input_value = $('.data-processing option:selected').attr('value');
+            if (selected_input_value == "customize") {
+                // $('input[name="twitter-account"]').show();
+                // $('input[name="twitter-account"]').prop('disabled', false);
+                $('#add').show();
+                // $('.data-processing').after(button);
+                console.log("hello")
+
+            } 
+        }).change();
+
+        function addSelect() {
+            $('#add').after(dataProcessingOption);
+        }
+        $('#add').click(function() {
+            addSelect();
+        })
 
         /*var source = new EventSource('/stream?topic=' + topic);*/
         /*var source = new EventSource('/stream');*/

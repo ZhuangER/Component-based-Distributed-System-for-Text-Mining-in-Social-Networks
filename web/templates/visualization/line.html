@@ -52,17 +52,17 @@ body {
               containLabel: true
           },
           legend: {
-              data:['twitter']
+              data:['sentiment-time']
           },
           xAxis: {
             type: 'time',
-            boundaryGap: false,
+            // boundaryGap: false,
           },
           yAxis: {
             type: 'value',
           },
           series: [{
-              name: 'twitter',
+              name: 'sentiment-time',
               type: 'bar',
               barWidth: 15,
               data: dataset
@@ -75,11 +75,11 @@ body {
       app.timeTicket = setInterval(function () {
         myChart.setOption({
             xAxis: {
-                data: dateList
+                data: timeList
             },
             series: [{
-                name:'twitter',
-                data: dataset
+                name:'sentiment-time',
+                data: sentimentList
             }]
         });
       }, 1000);
