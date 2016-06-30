@@ -1,97 +1,95 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
 <title>Bar Chart</title>
-<style>
+<head>
+     <!--Load the AJAX API-->
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+      google.charts.load('current', {packages: ['corechart', 'bar']})
+      google.charts.setOnLoadCallback(drawChart);
 
-.bar {
-  fill: steelblue;
-}
+      var source = new EventSource('/stream');
+      var hashSentence = {};
+      var hashPersonalSentiment = {};
+      var hashCountry = {};
+      var hashCountrySentiment = {};
+      var sentimentWords = ["unhappy", "medium unhappy", "neutral", "medium happy", "happy"];
+      var titles = ['Country','Country Sentiment'];
+      var data_array = [];
+      // data_array.push(titles);
+      source.onmessage = function (event) {
+        var sentence = event.data.split("DELIMITER")[0];
+        var screen_name = event.data.split("DELIMITER")[1];
+        var create_at = event.data.split("DELIMITER")[2];
+        var geoinfo = event.data.split("DELIMITER")[3];
+        var countryName = event.data.split("DELIMITER")[4];
+        var personalSentiment = event.data.split("DELIMITER")[5];
+        var countrySentiment = event.data.split("DELIMITER")[6];
+        
+        data_array = [];
+        data_array.push(titles);
+        //var point = [latitude, longitude];
+        //console.log("NEW DATA IS HERE " + event.data);
+        if (geoinfo != "n/a" && countryName != "n/a" && countryName != undefined) {
+          hashCountrySentiment[countryName] = parseFloat(countrySentiment);
+          for (var key in hashCountrySentiment) {
+            var temp_array = [key, hashCountrySentiment[key]];
+            data_array.push(temp_array);
+          }
+        }
+      }
 
-.bar:hover {
-  fill: brown;
-}
+      function drawChart() {
+        var data = google.visualization.arrayToDataTable(data_array);
 
-.axis {
-  font: 10px sans-serif;
-}
+        var options = {
+          title: "test",
+          chartArea: {width: '50%'},
+          hAxis: {
+            title: 'Country Name'
+          },
+          vAxis: {
+            title: 'Sentiment Value',
+            minValue: 0
+          }
+        };
 
-.axis path,
-.axis line {
-  fill: none;
-  stroke: #000;
-  shape-rendering: crispEdges;
-}
+        var chart = new google.visualization.BarChart(document.getElementById('barchart_material'));
 
-.x.axis path {
-  display: none;
-}
+        chart.draw(data, options);
+      }
+    
 
-</style>
+
+      var updateViz = function() {
+        var data = google.visualization.arrayToDataTable(data_array);
+
+        var options = {
+          title: "test",
+          chartArea: {width: '50%'},
+          hAxis: {
+            title: 'Country Name',
+            minValue: 0
+          },
+          vAxis: {
+            title: 'Sentiment Value',
+            
+          }
+        };
+
+        var chart = new google.visualization.BarChart(document.getElementById('barchart_material'));
+
+        chart.draw(data, options);
+      }
+
+      window.setInterval(updateViz, 1000);
+
+    </script>
+</head>
+
 <body>
 <h1 style="color:#55ACEE">Bar Chart</h1>
 
-<script src="//d3js.org/d3.v3.min.js"></script>
-<script>
-
-var margin = {top: 20, right: 20, bottom: 30, left: 40},
-    width = 960 - margin.left - margin.right,
-    height = 500 - margin.top - margin.bottom;
-
-var x = d3.scale.ordinal()
-    .rangeRoundBands([0, width], .1);
-
-var y = d3.scale.linear()
-    .range([height, 0]);
-
-var xAxis = d3.svg.axis()
-    .scale(x)
-    .orient("bottom");
-
-var yAxis = d3.svg.axis()
-    .scale(y)
-    .orient("left")
-    .ticks(10, "%");
-
-var svg = d3.select("body").append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
-  .append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-d3.tsv("/static/data/bar_test.tsv", type, function(error, data) {
-  if (error) throw error;
-
-  x.domain(data.map(function(d) { return d.letter; }));
-  y.domain([0, d3.max(data, function(d) { return d.frequency; })]);
-
-  svg.append("g")
-      .attr("class", "x axis")
-      .attr("transform", "translate(0," + height + ")")
-      .call(xAxis);
-
-  svg.append("g")
-      .attr("class", "y axis")
-      .call(yAxis)
-    .append("text")
-      .attr("transform", "rotate(-90)")
-      .attr("y", 6)
-      .attr("dy", ".71em")
-      .style("text-anchor", "end")
-      .text("Frequency");
-
-  svg.selectAll(".bar")
-      .data(data)
-    .enter().append("rect")
-      .attr("class", "bar")
-      .attr("x", function(d) { return x(d.letter); })
-      .attr("width", x.rangeBand())
-      .attr("y", function(d) { return y(d.frequency); })
-      .attr("height", function(d) { return height - y(d.frequency); });
-});
-
-function type(d) {
-  d.frequency = +d.frequency;
-  return d;
-}
-
-</script>
+<div id="barchart_material" style="height:400px"></div>
+</body>
+  

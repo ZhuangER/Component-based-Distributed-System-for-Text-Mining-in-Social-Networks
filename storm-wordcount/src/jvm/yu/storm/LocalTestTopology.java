@@ -115,15 +115,15 @@ public class LocalTestTopology {
           BrokerHosts brokerHosts = new ZkHosts(zks);
           SpoutConfig spoutConf = new SpoutConfig(brokerHosts, topic, zkRoot, id);
           spoutConf.scheme = new SchemeAsMultiScheme(new StringScheme());
-          spoutConf.forceFromStart = false;
+          spoutConf.forceFromStart = true;
           spoutConf.zkServers = Arrays.asList(new String[] {"localhost"});
           spoutConf.zkPort = 2181;
          
           TopologyBuilder builder = new TopologyBuilder();
-          builder.setSpout("kafka-reader", new KafkaSpout(spoutConf), 1); // Kafka我们创建了一个5分区的Topic，这里并行度设置为5
-          builder.setBolt("word-splitter", new KafkaWordSplitter(), 10).shuffleGrouping("kafka-reader");
-          builder.setBolt("word-counter", new WordCounter(), 10).fieldsGrouping("word-splitter", new Fields("word"));
-          builder.setBolt("report-bolt", new KafkaProducerBolt(args[1])).globalGrouping("word-counter");
+          builder.setSpout("kafka-reader", new KafkaSpout(spoutConf), Integer.parseInt(args[3])); // Kafka我们创建了一个5分区的Topic，这里并行度设置为5
+          builder.setBolt("word-splitter", new KafkaWordSplitter(), Integer.parseInt(args[4])).shuffleGrouping("kafka-reader");
+          builder.setBolt("word-counter", new WordCounter(), Integer.parseInt(args[5])).fieldsGrouping("word-splitter", new Fields("word"));
+          builder.setBolt("report-bolt", new KafkaProducerBolt(args[1]), Integer.parseInt(args[6])).globalGrouping("word-counter");
 
           // create the default config object
           Config conf = new Config();
@@ -146,7 +146,7 @@ public class LocalTestTopology {
            // run it in a simulated local cluster
 
          // set the number of threads to run - similar to setting number of workers in live cluster
-         conf.setMaxTaskParallelism(args[2]);
+         conf.setMaxTaskParallelism(Integer.parseInt(args[2]));
 
          // create the local cluster instance
          LocalCluster cluster = new LocalCluster();

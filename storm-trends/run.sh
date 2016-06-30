@@ -1,0 +1,1 @@
+storm jar target/yu-storm-hack-0.0.1-SNAPSHOT-jar-with-dependencies.jar yu.storm.LocalTestTopology twitter web 3
