@@ -1,5 +1,7 @@
-# social-network-analysi-with-lambda-architecture
-Social network analysis with Lambda Architecture
+# Component-based-Distributed-System-for-Text-Mining-in-Social-Networks
+Component-based-Distributed-System-for-Text-Mining-in-Social-Networks
+
+# Abstract
 
 
 # Components
