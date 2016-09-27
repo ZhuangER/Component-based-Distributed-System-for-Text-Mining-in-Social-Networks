@@ -1,4 +1,4 @@
-package yu.storm.tools;
+package storm.tools;
 
 import java.util.List;
 import com.twitter.Extractor;

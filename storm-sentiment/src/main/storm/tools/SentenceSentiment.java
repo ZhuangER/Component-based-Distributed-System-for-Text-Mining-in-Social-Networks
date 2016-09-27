@@ -1,4 +1,4 @@
-package yu.storm.tools;
+package storm.tools;
 
 import java.util.Properties;
 
@@ -10,18 +10,29 @@ import edu.stanford.nlp.sentiment.SentimentCoreAnnotations;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.util.CoreMap;
 
-public class SentimentAnalyzer {
+/**　Sentiment Analyzer
+ * 　analyze the sentiment of sentence
+ *  
+ */
+public class SentenceSentiment {
     static StanfordCoreNLP pipeline;
 
 
     public static void init() {
+        final String key = "annotators";
+
+
     	Properties props = new Properties();
         props.put("annotators", "tokenize, ssplit, parse, sentiment");
         //props.setProperty("annotators", "tokenize,ner,ssplit,parse,sentiment");
         pipeline = new StanfordCoreNLP(props);
     }
-    // the higher mark means happier
-    // the range of sentiment between [0, 4]
+
+    /**
+     * the higher mark means happier
+     * @param  tweet [the sentence of tweet]
+     * @return       [the range of sentiment value between 0 and 4]
+     */
     public static int findSentiment(String tweet) {
  
         int mainSentiment = 0;
@@ -46,6 +57,7 @@ public class SentimentAnalyzer {
                 }
             }
 
+            // ! is treated as the enhancement of the sentiment
             if (tweet.indexOf('!') != -1) {
                 if (mainSentiment > 2) {
                     mainSentiment += 1;

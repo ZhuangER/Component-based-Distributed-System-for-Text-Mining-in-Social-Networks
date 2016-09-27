@@ -1,4 +1,4 @@
-package yu.storm;
+package storm;
 
 import java.util.Arrays;
 import java.util.UUID;
@@ -26,16 +26,26 @@ import backtype.storm.tuple.Values;
 import backtype.storm.utils.Utils;
 import backtype.storm.spout.SchemeAsMultiScheme;
 
-class TopNTweetTopology
-{
-  public static void main(String[] args) throws Exception
-  {
+import org.apache.log4j.Logger;
+
+import storm.bolt.*;
+
+class TopNTweetTopology {
+  private static final Logger LOG = Logger.getLogger(TopNTweetTopology.class);
+  private static final String spoutId = "kafka-spout";
+  private static final String parseId = "parse-bolt";
+  private static final String interRankerId = "intermediate-ranker";
+  private static final String totalRankerId = "total-ranker";
+  private static final String reportId = "kafka-producer";
+  private static final String topologyName = "topN-topology";
+  
+
+  public static void main(String[] args) throws Exception {
     // create the topology
     TopologyBuilder builder = new TopologyBuilder();
     
     int TOP_N = 10;
     String zks = "localhost:2181";
-    // String topic = "twitter";
     String topic = args[0];
     String zkRoot = "/" + topic; // default zookeeper root configuration for storm
     String id = UUID.randomUUID().toString();
@@ -48,52 +58,38 @@ class TopNTweetTopology
     spoutConf.zkPort = 2181;
     // spoutConf.forceStartOffsetTime(-1);
     //spoutConf.bufferSizeBytes = 1024;
-    //
 
     // attach the tweet spout to the topology - parallelism of 1
-    builder.setSpout("kafka-spout", new KafkaSpout(spoutConf), 1);
-    builder.setBolt("parse-bolt", new ParseTweetBolt(),10).shuffleGrouping("kafka-spout");
-    builder.setBolt("intermediate-ranker", new IntermediateRankingsBolt(TOP_N), 4).fieldsGrouping("parse-bolt", new Fields("word"));
-    builder.setBolt("total-ranker", new TotalRankingsBolt(TOP_N), 1).globalGrouping("intermediate-ranker");
+    builder.setSpout(spoutId, new KafkaSpout(spoutConf), 1);
+    builder.setBolt(parseId, new ParseTweetBolt(),10).shuffleGrouping(spoutId);
+    builder.setBolt(interRankerId, new IntermediateRankingsBolt(TOP_N), 4).fieldsGrouping(parseId, new Fields("word"));
+    builder.setBolt(totalRankerId, new TotalRankingsBolt(TOP_N), 1).globalGrouping(interRankerId);
     // attach the report bolt using global grouping - parallelism of 1
-    builder.setBolt("report-bolt", new KafkaProducerBolt(args[1]), 1).globalGrouping("total-ranker");
+    builder.setBolt(reportId, new KafkaProducerBolt(args[1]), 1).globalGrouping(totalRankerId);
 
-    // create the default config object
     Config conf = new Config();
-
-    // set the config in debugging mode
     conf.setDebug(true);
 
     if (args != null && args.length > 2) {
+      LOG.info("Running in cluster mode");
 
-      // run it in a live cluster
-
-      // set the number of workers for running all spout and bolt tasks
       conf.setNumWorkers(3);
 
-      // create the topology and submit with config
       StormSubmitter.submitTopology(args[2], conf, builder.createTopology());
 
-    } else if (args != null && args.length == 2) {
+    } 
+    else if (args != null && args.length == 2) {
+      LOG.info("Running in local mode");
 
-      // run it in a simulated local cluster
-
-      // set the number of threads to run - similar to setting number of workers in live cluster
       conf.setMaxTaskParallelism(4);
 
-      // create the local cluster instance
       LocalCluster cluster = new LocalCluster();
 
-      // submit the topology to the local cluster
-      cluster.submitTopology("tweet-word-count", conf, builder.createTopology());
+      cluster.submitTopology(topologyName, conf, builder.createTopology());
 
-      // let the topology run for 300 seconds. note topologies never terminate!
       Utils.sleep(300000000);
 
-      // now kill the topology
-      cluster.killTopology("tweet-word-count");
-
-      // we are done, so shutdown the local cluster
+      cluster.killTopology(topologyName);
       cluster.shutdown();
     }
   }

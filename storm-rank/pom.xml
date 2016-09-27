@@ -3,12 +3,12 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>storm.starter</groupId>
-  <artifactId>yu-storm-hack</artifactId>
+  <artifactId>yu-storm-rank</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>jar</packaging>
 
-  <name>yu-storm-hack</name>
-  <url>https://github.com/udacity/ud381</url>
+  <name>yu-storm-rank</name>
+  <url>https://github.com/ZhuangER/Component-based-Distributed-System-for-Text-Mining-in-Social-Networks</url>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -160,7 +160,8 @@
   </dependencies>
 
   <build>
-    <sourceDirectory>src/jvm</sourceDirectory>
+    <sourceDirectory>src/main</sourceDirectory>
+    <testSourceDirectory>src/test</testSourceDirectory>
     <plugins>
       <!--
         Bind the maven-assembly-plugin to the package phase

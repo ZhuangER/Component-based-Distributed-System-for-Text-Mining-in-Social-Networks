@@ -1,4 +1,4 @@
-package yu.storm;
+package storm.bolt;
 
 import backtype.storm.Config;
 import backtype.storm.task.OutputCollector;
@@ -10,25 +10,25 @@ import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import backtype.storm.utils.Utils;
 
-import com.lambdaworks.redis.RedisClient;
-import com.lambdaworks.redis.RedisConnection;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.Locale;
 
-import yu.storm.tools.Rankings;
-import yu.storm.tools.Rankable;
-
 import kafka.javaapi.producer.Producer;
 import kafka.producer.KeyedMessage;
 import kafka.producer.ProducerConfig;
 
-import yu.storm.tools.KafkaProducer;
+import storm.tools.Rankings;
+import storm.tools.Rankable;
+import storm.tools.KafkaProducer;
+
+import org.apache.log4j.Logger;
+
 
 public class KafkaProducerBolt extends BaseRichBolt{
-	public static KafkaProducer producer;
+	private static KafkaProducer producer;
+	private static final Logger LOG = Logger.getLogger(KafkaProducerBolt.class);
 	String brokerList = "localhost:9092";
     String topic = "web";
     String sync = "sync";
@@ -38,11 +38,7 @@ public class KafkaProducerBolt extends BaseRichBolt{
     }
 
 	@Override
-	public void prepare(
-		Map                     map,
-		TopologyContext         topologyContext,
-		OutputCollector         outputCollector) {
-
+	public void prepare( Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
 		producer = new KafkaProducer(topic);
 		producer.configure(brokerList, sync);
 		producer.start();
@@ -50,20 +46,22 @@ public class KafkaProducerBolt extends BaseRichBolt{
 
 
 	@Override
-	public void execute(Tuple tuple)
-	{
-		Rankings rankableList = (Rankings) tuple.getValue(0);
-
-	    for (Rankable r: rankableList.getRankings()){
-	      	String word = r.getObject().toString();
-	      	Long count = r.getCount();
-			producer.produce(word + "|" + Long.toString(count));
-	    }
-
+	public void execute(Tuple tuple) {
+		try {
+			Rankings rankableList = (Rankings) tuple.getValue(0);
+			for (Rankable r: rankableList.getRankings()){
+				String word = r.getObject().toString();
+				Long count = r.getCount();
+				producer.produce(word + "|" + Long.toString(count));
+			}
+		}
+		catch (Exception e) {
+			LOG.debug("CountBolt Exception in Execute function\n");
+			LOG.debug(e);
+		}
 	}
 
-	public void declareOutputFields(OutputFieldsDeclarer declarer)
-	{
+	public void declareOutputFields(OutputFieldsDeclarer declarer) {
 		// nothing to add - since it is the final bolt
 	}
 }

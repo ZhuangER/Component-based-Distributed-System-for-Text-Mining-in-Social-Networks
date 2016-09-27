@@ -1,4 +1,4 @@
-package yu.storm.tools;
+package storm.tools;
 
 import kafka.javaapi.producer.Producer;
 import kafka.producer.KeyedMessage;
