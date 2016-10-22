@@ -4,7 +4,6 @@ import sys
 
 def realtime_producer(restrict=None):
     twitter_api.stream(restrict)
-    
 
 def timeline_producer(twitter_account, count):
     count = int(count)
@@ -52,7 +51,7 @@ if __name__ == '__main__':
 
     # if set count as 0, the twitter will fetch all results
     import time
-    # time.sleep(60)
+    time.sleep(60)
     if sys.argv[1] == "realtime":
         if len(sys.argv) > 2:
             realtime_producer(restrict=sys.argv[2])

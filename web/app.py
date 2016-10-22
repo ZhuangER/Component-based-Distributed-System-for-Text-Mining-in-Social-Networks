@@ -47,10 +47,19 @@ thread_list = []
 def component():
     global visualization_topic 
     if request.method == 'POST':
+
+        # clear background threads
+        print "DEBUG:"
+        while thread_list:
+            pid = thread_list.pop()
+            print pid
+            subprocess.call(['kill', str(pid)])
+        print "success clear all threads"
+
         collection = request.form.get('data-collection')
         processing = request.form.get('data-processing')
         visualization = request.form.get('data-visualization')
-        persistence = request.form.get('data-persistence')
+        # persistence = request.form.get('data-persistence')
         
         # data collection
         if collection == "realtime":
@@ -59,10 +68,10 @@ def component():
             # producer_proc = subprocess.Popen(kafka_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             # time.sleep(20)
             # producer_proc.kill() 
-            if visualization == "map" or visualization == "bar-chart" or visualization == "pie-chart":
-                producer_thread = subprocess.Popen(["python","tools/producer.py", collection, "geo"], stdout=subprocess.PIPE)
-            else:
-                producer_thread = subprocess.Popen(["python","tools/producer.py", collection], stdout=subprocess.PIPE)
+            # if visualization == "map" or visualization == "bar-chart" or visualization == "pie-chart":
+            producer_thread = subprocess.Popen(["python","tools/producer.py", collection, "geo"], stdout=subprocess.PIPE)
+            # else:
+            #     producer_thread = subprocess.Popen(["python","tools/producer.py", collection], stdout=subprocess.PIPE)
             # producer_thread.kill()
             thread_list.append(producer_thread.pid)
             print thread_list
@@ -82,12 +91,6 @@ def component():
             producer_thread = subprocess.Popen(["python","tools/producer.py", collection, query_text, "100"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             thread_list.append(producer_thread.pid) 
             # print query_text
-        elif collection == "query-by-location":
-            # query_location = request.form.get('query-location')
-            # producer_thread = subprocess.Popen(["python","tools/producer.py", collection, twitter_account, "100"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            # producer_thread.kill()
-            # thread_list.append(producer_thread.pid) 
-            pass
         elif collection == "favorite-list":
             twitter_account = request.form.get('twitter-account')
             producer_thread = subprocess.Popen(["python","tools/producer.py", collection, twitter_account, "100"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -138,10 +141,10 @@ def component():
         elif visualization == "word-cloud":
             return redirect(url_for('word_cloud'))
 
-        if persistence == "user-timeline":
-            pass
-        elif persistence == "query-by-text":
-            pass
+        # if persistence == "user-timeline":
+        #     pass
+        # elif persistence == "query-by-text":
+        #     pass
 
     return render_template("component.html")
 
@@ -165,7 +168,7 @@ def topology():
     collection = request.form.get('data-collection')
     processing = request.form.get('data-processing')
     visualization = request.form.get('data-visualization')
-    persistence = request.form.get('data-persistence')
+    # persistence = request.form.get('data-persistence')
     print collection, processing, visualization, persistence
     return str(collection)
 

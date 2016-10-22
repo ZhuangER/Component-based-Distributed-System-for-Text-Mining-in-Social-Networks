@@ -1,0 +1,109 @@
+{
+	"realtime" : {
+		"data-processing": {
+			"value" : [
+				"sentiment",
+				"trends",
+				"word-count",
+				"tfidf"
+			],
+			"text" : [
+				"Sentiment Analysis",
+				"Trends Analysis",
+				"Word Count",
+				"TF-IDF Value"
+			]	
+		}
+	},
+	"user-timeline" : {
+		"data-processing": {
+			"value" : [
+				"trends",
+				"word-count",
+				"tfidf"
+			],
+			"text" : [
+				"Trends Analysis",
+				"Word Count",
+				"TF-IDF Value"
+			]	
+		}
+	},
+	"query-by-text" : {
+		"data-processing": {
+			"value" : [
+				"trends",
+				"word-count",
+				"tfidf"
+			],
+			"text" : [
+				"Trends Analysis",
+				"Word Count",
+				"TF-IDF Value"
+			]	
+		}
+	},
+
+	"favorite-list" : {
+		"data-processing": {
+			"value" : [
+				"trends",
+				"word-count",
+				"tfidf"
+			],
+			"text" : [
+				"Trends Analysis",
+				"Word Count",
+				"TF-IDF Value"
+			]	
+		}
+	}, 
+
+	"sentiment" : {
+		"data-visualization" : {
+			"value" : [
+					"map",
+					"bar-chart",
+					"pie-chart"
+				],
+			"text" : [
+					"Map",
+					"Bar Chart",
+					"Pie Chart"
+				]
+		}
+	},
+
+	"trends" : {
+		"data-visualization" : {
+			"value" : [
+					"word-cloud"
+				],
+			"text" : [
+					"Word Cloud"
+				]
+		}
+	},
+
+	"word-count" : {
+		"data-visualization" : {
+			"value" : [
+					"word-cloud"
+				],
+			"text" : [
+					"Word Cloud"
+				]
+		}
+	},
+
+	"tfidf" : {
+		"data-visualization" : {
+			"value" : [
+					"word-cloud"
+				],
+			"text" : [
+					"Word Cloud"
+				]
+		}
+	}
+}

@@ -1,4 +1,4 @@
-package yu.storm;
+package storm;
 
 import java.util.Arrays;
 import java.util.UUID;
@@ -17,10 +17,8 @@ import storm.kafka.SpoutConfig;
 import storm.kafka.StringScheme;
 import storm.kafka.ZkHosts;
 
-import yu.storm.bolt.CountBolt;
-import yu.storm.bolt.RegexBolt;
-import yu.storm.bolt.SentimentBolt;
-import yu.storm.bolt.KafkaProducerBolt;
+import storm.bolt.*;
+
 
 
 class LocalTestTopology

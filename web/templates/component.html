@@ -62,24 +62,24 @@
             
             <label for="data-processing">Data Processing</label>
             <select class="data-processing form-control" name="data-processing">
-              <option selected="selected" value="sentiment">Sentiment Analyze</option>
+              <!-- <option value="sentiment">Sentiment Analyze</option>
               <option value="trends">Trends</option>
               <option value="word-count">Word Count</option>
-<!--               <option value="top-n">Top N</option> -->
+              <option value="top-n">Top N</option>
               <option value="tfidf">TFIDF</option>
-              <!-- <option value="customize">Customize Topology</option> -->
+              <option value="customize">Customize Topology</option> -->
             </select>
             <button type="button" id="add" class="hide">Add Component</button>
             <br/>
 
             <label for="data-visualization">Data Visualization</label> 
             <select class="data-visualization  form-control" name="data-visualization">
-              <option value="map">Map</option>
-<!--               <option value="line-graph">Line Graph</option> -->
+              <!-- <option value="map">Map</option>
+              <option value="line-graph">Line Graph</option>
               <option value="bar-chart">Bar Chart</option>
-<!--               <option value="radar-chart">Radar Chart</option> -->
+              <option value="radar-chart">Radar Chart</option>
               <option value="pie-chart">Pie Chart</option>
-              <option value="word-cloud">Word Cloud</option>
+              <option value="word-cloud">Word Cloud</option> -->
             </select>
             <br/>
 
@@ -107,16 +107,14 @@
 
 
         
-        <!-- 如果要使用Bootstrap的js插件，必须先调入jQuery -->
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-        <!-- 包括所有bootstrap的js插件或者可以根据需要使用的js插件调用　-->
         <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script> 
 
         <script type="text/javascript">
 
         // $('select.data-collection').css({'width': 200});
 
-        $('.data-collection').change(function() {
+        $('.data-collection').on("change", function() {
             // console.log($('.data-collection option:selected').text())
             
             $('input').addClass('hide');
@@ -142,38 +140,121 @@
                 $('select.data-collection').css({'float': 'left'});
                 $('input[name="query-text"]').css({'width':200});
                 // $('select.data-collection').css({'width': 50%});
-            } 
+            }
             // else if (selected_input_value == "query-by-location") {
             //     $('input[name="query-location"]').show();
             //     $('input[name="query-location"]').prop('disabled', false);
             // }
-        }).change();
-
-        var dataProcessingOption = '<select class="add"><option selected="selected" value="sentiment">Sentiment Analyze</option><option value="trends">Trends</option> <option value="word-count">Word Count</option> <option value="top-n">Top N</option> <option value="tfidf">TFIDF</option></select>';
-
-        $('.data-processing').change(function() {
-            // console.log($('.data-collection option:selected').text())
-            // 
             
-            var button = '<button id="add">Add Component</button>'
-            $('button.hide').hide();
-            var selected_input_value = $('.data-processing option:selected').attr('value');
-            if (selected_input_value == "customize") {
-                // $('input[name="twitter-account"]').show();
-                // $('input[name="twitter-account"]').prop('disabled', false);
-                $('#add').show();
-                // $('.data-processing').after(button);
-                console.log("hello")
+            // if (selected_input_value == "query-by-text" || selected_input_value == "user-timeline" || selected_input_value == "favorite-list") {
+            //     $('.data-visualization option[value=map]').addClass('hide');
+            //     $('.data-visualization option[value=bar-chart]').addClass('hide');
+            //     $('.data-visualization option[value=pie-chart]').addClass('hide');
+            //     // $('.data-visualization option[value=word-cloud]').addClass('selected');
+            //     $('.data-visualization option[value=word-cloud]').attr('selected','selected');
 
-            } 
-        }).change();
+            //     $('.data-processing option[value=sentiment]').addClass('hide');
+            //     $('.data-processing option[value=trends]').attr('selected', 'selected');
 
-        function addSelect() {
-            $('#add').after(dataProcessingOption);
-        }
-        $('#add').click(function() {
-            addSelect();
-        })
+            // }
+            // else {
+            //     $('.data-visualization').children().removeClass('hide');
+            //     $('.data-processing').children().removeClass('hide');
+            //     $('.data-visualization option[value=word-cloud]').removeAttr('selected');
+            //     $('.data-visualization option[value=trends]').removeAttr('selected');
+            //     $('.data-visualization option[value=map]').attr('selected','selected');
+            // }
+        });
+
+        // $('.data-processing').change(function() {
+        //     var selected_input_value = $('.data-processing option:selected').attr('value');
+        //     if (selected_input_value == "sentiment") {
+        //         $('.data-visualization option[value=word-cloud]').hide();
+        //         $('.data-visualization option[value=map]').show();
+        //         $('.data-visualization option[value=bar-chart]').show();
+        //         $('.data-visualization option[value=pie-chart]').show();
+        //     }
+        //     else {
+        //         $('.data-visualization option[value=word-cloud]').show();
+        //         $('.data-visualization option[value=map]').hide();
+        //         $('.data-visualization option[value=bar-chart]').hide();
+        //         $('.data-visualization option[value=pie-chart]').hide();
+
+        //     }
+        // }).change();
+
+
+        // var dataProcessingOption = '<select class="add"><option selected="selected" value="sentiment">Sentiment Analyze</option><option value="trends">Trends</option> <option value="word-count">Word Count</option> <option value="top-n">Top N</option> <option value="tfidf">TFIDF</option></select>';
+
+        // $('.data-processing').change(function() {
+        //     // console.log($('.data-collection option:selected').text())
+        //     // 
+            
+        //     var button = '<button id="add">Add Component</button>'
+        //     $('button.hide').hide();
+        //     var selected_input_value = $('.data-processing option:selected').attr('value');
+        //     if (selected_input_value == "customize") {
+        //         // $('input[name="twitter-account"]').show();
+        //         // $('input[name="twitter-account"]').prop('disabled', false);
+        //         $('#add').show();
+        //         // $('.data-processing').after(button);
+        //         console.log("hello")
+
+        //     } 
+        // });
+
+        $(document).ready(function () {
+            // "use strict";
+
+            var selectCollection;
+
+            function updateProcessing() {
+                var temp = $(".data-collection option:selected").val();
+                console.log(temp);
+                console.log(selectCollection[temp]["data-processing"]["value"]);
+
+                var processing_items = $.map( selectCollection[temp]["data-processing"]["value"], function(processing_item) {
+                        return $("<option />").val(processing_item);
+                });
+
+                for (i in processing_items) {
+                    processing_items[i].text(selectCollection[temp]["data-processing"]["text"][i]);
+                }
+                $(".data-processing").empty().append(processing_items);
+                
+            }
+
+            function updateVisualization() {
+                var temp = $(".data-processing option:selected").val();
+                console.log(selectCollection[temp]["data-visualization"]["text"]);
+                var visualization_items = $.map( selectCollection[temp]["data-visualization"]["value"], function(visualization_item) {
+                        return $("<option />").val(visualization_item);
+                });
+                for (i in visualization_items) {
+                    visualization_items[i].text(selectCollection[temp]["data-visualization"]["text"][i]);
+                }
+
+                console.log(visualization_items)
+                $(".data-visualization").empty().append(visualization_items);
+            }
+
+            $.getJSON("../static/data/components.json", function (data) {
+                    selectCollection = data;
+
+                    $data_processing = $(".data-collection").on("change", updateProcessing);
+                    $data_visualization = $(".data-processing").on("change", updateVisualization);
+                    
+                    $(".data-collection").change();
+                    $(".data-processing").change();
+            });
+        });
+
+        // function addSelect() {
+        //     $('#add').after(dataProcessingOption);
+        // }
+        // $('#add').click(function() {
+        //     addSelect();
+        // })
 
         /*var source = new EventSource('/stream?topic=' + topic);*/
         /*var source = new EventSource('/stream');*/

@@ -6,10 +6,10 @@ import urllib2
 import difflib
 import pycountry
 
-consumer_key = 'WXDgVgeJMwHEn0Z9VHDx5j93h'
-consumer_secret = 'DgP9CsaPtG87urpNU14fZySXOjNX4j4v2PqmeTndcjjYBgLldy'
-access_token = '3243813491-ixCQ3HWWeMsthKQvj5MiBvNw3dSNAuAd3IfoDUw'
-access_token_secret = 'aHOXUB4nbhZv2vbAeV15ZyTAD0lPPCptCr32N0PX7OaMe'
+consumer_key = 'KaV0zO7BpEKYmqfYEHgZwNqeo'
+consumer_secret = 'IMV3TfcaUvE2An9VPUcaUpgqhLmHr60I0Wwh9Tkg6Dx3tp7AaB'
+access_token = '3243813491-RECR2cA49DHmZw3yrgvE8Ab4sFei62cgmz3Pfa7'
+access_token_secret = 'aeUFMsv8efCvl9eyuJaTUZDE3HYhjeLYYyMZBagaWTb0F'
 
 auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_token_secret)
@@ -98,6 +98,10 @@ class GeoStreamListener(tweepy.StreamListener):
 		if status.coordinates:
 			result = process_status(status, content_list=['text', 'screen_name','created_at', 'coordinates', 'country_code'])
 			self.kafka_producer.send_messages("twitter",result)
+		# return False
+	def on_disconnect(self, notice):
+		return False
+
 
 
 def stream(restrict=None):
@@ -106,14 +110,24 @@ def stream(restrict=None):
 		if restrict == "geo":
 			myStreamListener = GeoStreamListener()
 			myStream = tweepy.Stream(auth = auth, listener=myStreamListener)
-			myStream.filter(languages=["en"])
-			myStream.filter(locations=GEOBOX_WORLD)
+			# myStream.filter(languages=["en"])
+			try:
+				myStream.filter(languages=["en"], locations=GEOBOX_WORLD)
+			# myStream.sample()
+			except:
+				myStream.disconnect()
 	else:
 		myStreamListener = MyStreamListener()
 		myStream = tweepy.Stream(auth = auth, listener=myStreamListener)
-		myStream.filter(languages=["en"])
+		# myStream.filter(languages=["en"])
+		try:
+			myStream.sample(languages=["en"])
+		except:
+			myStream.disconnect()
 
-	myStream.sample()
+	print "disconnect"
+	myStream.disconnect()
+	# myStream.sample()
 
 	
 

@@ -121,7 +121,7 @@
 
   <build>
     <sourceDirectory>src/main</sourceDirectory>
-    <sourceDirectory>src/test</sourceDirectory>
+    <testSourceDirectory>src/test</testSourceDirectory>
     <plugins>
       <!--
         Bind the maven-assembly-plugin to the package phase

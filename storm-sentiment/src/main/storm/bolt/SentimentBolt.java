@@ -1,4 +1,4 @@
-package yu.storm.bolt;
+package storm.bolt;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -16,8 +16,10 @@ import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import backtype.storm.utils.Utils;
 
-import yu.storm.tools.SentimentAnalyzer;
-import yu.storm.tools.TweetExtractor;
+import storm.tools.SentenceSentiment;
+import storm.tools.TweetExtractor;
+
+import org.apache.log4j.Logger;
 
 
 
@@ -51,7 +53,7 @@ public class SentimentBolt extends BaseRichBolt {
         LOG.debug("\t DEBUG SPOUT: BEFORE SENTIMENT \n");
         int sentiment = SentenceSentiment.findSentiment(extractedTweet);
         LOG.debug("\t DEBUG SPOUT: AFTER SENTIMENT " +  Integer.toString(sentiment) + " for \t" + originalTweet + "\n" );
-        collector.emit(new Values(ret, sentiment));
+        collector.emit(new Values(line, sentiment));
       }
     }
     catch (Exception e) {
