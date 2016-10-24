@@ -51,7 +51,7 @@ if __name__ == '__main__':
 
     # if set count as 0, the twitter will fetch all results
     import time
-    time.sleep(30)
+    time.sleep(60)
     if sys.argv[1] == "realtime":
         if len(sys.argv) > 2:
             realtime_producer(restrict=sys.argv[2])

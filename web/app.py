@@ -68,10 +68,10 @@ def component():
             # producer_proc = subprocess.Popen(kafka_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             # time.sleep(20)
             # producer_proc.kill() 
-            if visualization == "map" or visualization == "bar-chart" or visualization == "pie-chart":
-                producer_thread = subprocess.Popen(["python","tools/producer.py", collection, "geo"], stdout=subprocess.PIPE)
-            else:
-                producer_thread = subprocess.Popen(["python","tools/producer.py", collection], stdout=subprocess.PIPE)
+            # if visualization == "map" or visualization == "bar-chart" or visualization == "pie-chart":
+            producer_thread = subprocess.Popen(["python","tools/producer.py", collection, "geo"], stdout=subprocess.PIPE)
+            # else:
+            #     producer_thread = subprocess.Popen(["python","tools/producer.py", collection], stdout=subprocess.PIPE)
             # producer_thread.kill()
             thread_list.append(producer_thread.pid)
             print thread_list
