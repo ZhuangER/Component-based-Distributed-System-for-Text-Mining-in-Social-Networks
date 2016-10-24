@@ -122,10 +122,10 @@ public class TwitterProducer {
          * https://dev.twitter.com/discussions/631
          *
          */
-        String custkey = "KaV0zO7BpEKYmqfYEHgZwNqeo";
-        String custsecret = "IMV3TfcaUvE2An9VPUcaUpgqhLmHr60I0Wwh9Tkg6Dx3tp7AaB";
-        String accesstoken = "3243813491-RECR2cA49DHmZw3yrgvE8Ab4sFei62cgmz3Pfa7";
-        String accesssecret = "aeUFMsv8efCvl9eyuJaTUZDE3HYhjeLYYyMZBagaWTb0F";
+        String custkey = "Y2JXPqtRU0CUqox0QoXrXCtJl";
+        String custsecret = "5cWnQajS2XpWdoWmEqJDtsgXbAE1CrTld3CkA3cn7Jcgg2PrAM";
+        String accesstoken = "3243813491-ixCQ3HWWeMsthKQvj5MiBvNw3dSNAuAd3IfoDUw";
+        String accesssecret = "aHOXUB4nbhZv2vbAeV15ZyTAD0lPPCptCr32N0PX7OaMe";
 
 
         producer =  new DemoProducerOld(topic);

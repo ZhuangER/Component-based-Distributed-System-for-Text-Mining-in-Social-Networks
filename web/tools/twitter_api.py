@@ -6,10 +6,10 @@ import urllib2
 import difflib
 import pycountry
 
-consumer_key = 'KaV0zO7BpEKYmqfYEHgZwNqeo'
-consumer_secret = 'IMV3TfcaUvE2An9VPUcaUpgqhLmHr60I0Wwh9Tkg6Dx3tp7AaB'
-access_token = '3243813491-RECR2cA49DHmZw3yrgvE8Ab4sFei62cgmz3Pfa7'
-access_token_secret = 'aeUFMsv8efCvl9eyuJaTUZDE3HYhjeLYYyMZBagaWTb0F'
+consumer_key = 'Y2JXPqtRU0CUqox0QoXrXCtJl'
+consumer_secret = '5cWnQajS2XpWdoWmEqJDtsgXbAE1CrTld3CkA3cn7Jcgg2PrAM'
+access_token = '3243813491-ixCQ3HWWeMsthKQvj5MiBvNw3dSNAuAd3IfoDUw'
+access_token_secret = 'aHOXUB4nbhZv2vbAeV15ZyTAD0lPPCptCr32N0PX7OaMe'
 
 auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_token_secret)

@@ -79,12 +79,12 @@ public class TermFilterBolt extends BaseRichBolt {
 			Double.parseDouble(stem);
 			return false;
 		}catch(Exception e){}
-/*		try {
+		try {
 			return spellchecker.exist(stem);
 		} catch (Exception e) {
 			return false;
-		}*/
-		return true;
+		}
+		// return true;
 	}
 	
 	@Override

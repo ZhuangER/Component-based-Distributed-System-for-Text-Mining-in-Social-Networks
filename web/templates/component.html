@@ -62,57 +62,23 @@
             
             <label for="data-processing">Data Processing</label>
             <select class="data-processing form-control" name="data-processing">
-              <!-- <option value="sentiment">Sentiment Analyze</option>
-              <option value="trends">Trends</option>
-              <option value="word-count">Word Count</option>
-              <option value="top-n">Top N</option>
-              <option value="tfidf">TFIDF</option>
-              <option value="customize">Customize Topology</option> -->
             </select>
             <button type="button" id="add" class="hide">Add Component</button>
             <br/>
 
             <label for="data-visualization">Data Visualization</label> 
             <select class="data-visualization  form-control" name="data-visualization">
-              <!-- <option value="map">Map</option>
-              <option value="line-graph">Line Graph</option>
-              <option value="bar-chart">Bar Chart</option>
-              <option value="radar-chart">Radar Chart</option>
-              <option value="pie-chart">Pie Chart</option>
-              <option value="word-cloud">Word Cloud</option> -->
             </select>
             <br/>
 
-            <!-- <label for="data-persistence">Data Persistence</label>
-            <select class="data-persistence  form-control" name="data-persistence">
-              <option value="cassandra">Apache Cassandra</option>
-              <option value="neo4j">Neo4j</option>
-            </select>
-            <br/> -->
-
             <button type="submit" value="submit" class="submit btn btn-primary btn-large">Submit Topology</button><br/>
         </form>
-
-        <!-- <div id="selected-item">
-            <form action="{{url_for('topology')}}">
-                <input type="text" name="collection" value=""><br>
-                <input type="text" name="processing" value=""><br>
-                <input type="text" name="visualization" value=""><br>
-                <input type="text" name="persistence" value=""><br>
-                <button type="submit" class="submit">Submit Topology</button><br/>
-            </form>
-        </div> -->
-        
-    
-
-
-        
+              
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
         <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script> 
-
+        <script src="/static/js/updateSelect.js"></script>
         <script type="text/javascript">
 
-        // $('select.data-collection').css({'width': 200});
 
         $('.data-collection').on("change", function() {
             // console.log($('.data-collection option:selected').text())
@@ -141,164 +107,7 @@
                 $('input[name="query-text"]').css({'width':200});
                 // $('select.data-collection').css({'width': 50%});
             }
-            // else if (selected_input_value == "query-by-location") {
-            //     $('input[name="query-location"]').show();
-            //     $('input[name="query-location"]').prop('disabled', false);
-            // }
-            
-            // if (selected_input_value == "query-by-text" || selected_input_value == "user-timeline" || selected_input_value == "favorite-list") {
-            //     $('.data-visualization option[value=map]').addClass('hide');
-            //     $('.data-visualization option[value=bar-chart]').addClass('hide');
-            //     $('.data-visualization option[value=pie-chart]').addClass('hide');
-            //     // $('.data-visualization option[value=word-cloud]').addClass('selected');
-            //     $('.data-visualization option[value=word-cloud]').attr('selected','selected');
-
-            //     $('.data-processing option[value=sentiment]').addClass('hide');
-            //     $('.data-processing option[value=trends]').attr('selected', 'selected');
-
-            // }
-            // else {
-            //     $('.data-visualization').children().removeClass('hide');
-            //     $('.data-processing').children().removeClass('hide');
-            //     $('.data-visualization option[value=word-cloud]').removeAttr('selected');
-            //     $('.data-visualization option[value=trends]').removeAttr('selected');
-            //     $('.data-visualization option[value=map]').attr('selected','selected');
-            // }
         });
-
-        // $('.data-processing').change(function() {
-        //     var selected_input_value = $('.data-processing option:selected').attr('value');
-        //     if (selected_input_value == "sentiment") {
-        //         $('.data-visualization option[value=word-cloud]').hide();
-        //         $('.data-visualization option[value=map]').show();
-        //         $('.data-visualization option[value=bar-chart]').show();
-        //         $('.data-visualization option[value=pie-chart]').show();
-        //     }
-        //     else {
-        //         $('.data-visualization option[value=word-cloud]').show();
-        //         $('.data-visualization option[value=map]').hide();
-        //         $('.data-visualization option[value=bar-chart]').hide();
-        //         $('.data-visualization option[value=pie-chart]').hide();
-
-        //     }
-        // }).change();
-
-
-        // var dataProcessingOption = '<select class="add"><option selected="selected" value="sentiment">Sentiment Analyze</option><option value="trends">Trends</option> <option value="word-count">Word Count</option> <option value="top-n">Top N</option> <option value="tfidf">TFIDF</option></select>';
-
-        // $('.data-processing').change(function() {
-        //     // console.log($('.data-collection option:selected').text())
-        //     // 
-            
-        //     var button = '<button id="add">Add Component</button>'
-        //     $('button.hide').hide();
-        //     var selected_input_value = $('.data-processing option:selected').attr('value');
-        //     if (selected_input_value == "customize") {
-        //         // $('input[name="twitter-account"]').show();
-        //         // $('input[name="twitter-account"]').prop('disabled', false);
-        //         $('#add').show();
-        //         // $('.data-processing').after(button);
-        //         console.log("hello")
-
-        //     } 
-        // });
-
-        $(document).ready(function () {
-            // "use strict";
-
-            var selectCollection;
-
-            function updateProcessing() {
-                var temp = $(".data-collection option:selected").val();
-                console.log(temp);
-                console.log(selectCollection[temp]["data-processing"]["value"]);
-
-                var processing_items = $.map( selectCollection[temp]["data-processing"]["value"], function(processing_item) {
-                        return $("<option />").val(processing_item);
-                });
-
-                for (i in processing_items) {
-                    processing_items[i].text(selectCollection[temp]["data-processing"]["text"][i]);
-                }
-                $(".data-processing").empty().append(processing_items);
-                
-            }
-
-            function updateVisualization() {
-                var temp = $(".data-processing option:selected").val();
-                console.log(selectCollection[temp]["data-visualization"]["text"]);
-                var visualization_items = $.map( selectCollection[temp]["data-visualization"]["value"], function(visualization_item) {
-                        return $("<option />").val(visualization_item);
-                });
-                for (i in visualization_items) {
-                    visualization_items[i].text(selectCollection[temp]["data-visualization"]["text"][i]);
-                }
-
-                console.log(visualization_items)
-                $(".data-visualization").empty().append(visualization_items);
-            }
-
-            $.getJSON("../static/data/components.json", function (data) {
-                    selectCollection = data;
-
-                    $data_processing = $(".data-collection").on("change", updateProcessing);
-                    $data_visualization = $(".data-processing").on("change", updateVisualization);
-                    
-                    $(".data-collection").change();
-                    $(".data-processing").change();
-            });
-        });
-
-        // function addSelect() {
-        //     $('#add').after(dataProcessingOption);
-        // }
-        // $('#add').click(function() {
-        //     addSelect();
-        // })
-
-        /*var source = new EventSource('/stream?topic=' + topic);*/
-        /*var source = new EventSource('/stream');*/
-        /*source.onmessage = function (event) {
-            console.log(event.data);
-        }
-*/
-        // var collection;
-        // var processing;
-        // var visualization;
-        // var persistence;
-        // $('button').click(function(e) {
-        //     var className = $(this).attr('class');
-        //     var text = $('select.'+className+' option:selected').text()
-        //     var value = $('select.'+className+' option:selected').attr('value')
-        //     if (className == 'data-collection') {
-        //         collection = value;
-        //     } else if (className == 'data-processing') {
-        //         processing = value;
-        //     } else if (className == 'data-visualization') {
-        //         visualization = value;
-        //     } else if (className == 'data-persistence') {
-        //         persistence = value;
-        //     }
-        //     $('#selected-item').append(text+'<br/>');
-        // })
-
-        // $('button.submit').click(function(e) {
-        //     if (collection && processing && visualization && persistence) {
-
-        //     }
-        // });
-
-        // $('button.topic').click(function(e){
-        //     /*var topic = $('input').val();*/
-        //     var topic = $('.kafka-topic option:selected').text();
-        //     console.log(topic);
-        //     var source = null;
-        //     source = new EventSource('/stream?topic=' + topic);
-
-        //     source.onmessage = function (event) {
-        //         console.log(event);
-        //     }
-        // });
         </script>
     </body>
 
